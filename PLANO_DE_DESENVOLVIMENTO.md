@@ -21,9 +21,14 @@ Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisõ
 | Fase 2 | [`docs/02-fase2-modelos.md`](docs/02-fase2-modelos.md) | Modelos individuais (vídeo, áudio, sinais vitais) |
 | Fase 3 | [`docs/03-fase3-fusao-e-nuvem.md`](docs/03-fase3-fusao-e-nuvem.md) | Fusão multimodal + deploy na nuvem |
 | Fase 4 | [`docs/04-fase4-entregaveis.md`](docs/04-fase4-entregaveis.md) | Repositório, relatório técnico e vídeo |
+| Componente | [`docs/06-relatorios-automaticos.md`](docs/06-relatorios-automaticos.md) | Relatórios clínicos automáticos (requisito do PDF) |
+| Componente | [`docs/07-privacidade-e-seguranca.md`](docs/07-privacidade-e-seguranca.md) | Privacidade, segurança e LGPD |
 | Apoio | [`docs/arquitetura.md`](docs/arquitetura.md) | Arquitetura de software (Node + Python + Azure) |
 | Apoio | [`docs/contrato-api.md`](docs/contrato-api.md) | Contrato de API entre serviços |
 | Apoio | [`docs/datasets.md`](docs/datasets.md) | Datasets recomendados e como obtê-los |
+| Apoio | [`docs/qualidade-testes-ci.md`](docs/qualidade-testes-ci.md) | Docker, testes automatizados e CI |
+| Apoio | [`docs/cronograma-dependencias.md`](docs/cronograma-dependencias.md) | Caminho crítico e o que paralelizar |
+| Apoio | [`docs/glossario.md`](docs/glossario.md) | Glossário clínico e técnico |
 | Apoio | [`docs/05-checklist-entrega.md`](docs/05-checklist-entrega.md) | Checklist final de avaliação |
 
 ---
@@ -49,12 +54,13 @@ Para manter o projeto realista e com forte "fusão multimodal" (que é o diferen
 
 **Cenário clínico central:** *Hemorragia / complicação em cirurgia ginecológica-obstétrica, com paciente sob vigilância de sinais vitais e histórico de consulta.*
 
-**3 modalidades implementadas:**
+**4 modalidades implementadas (áudio, vídeo, sinais vitais e texto):**
 1. **Vídeo** — YOLOv8 detecta sangramento/anatomia/instrumentos em vídeo cirúrgico.
 2. **Sinais vitais** — modelo clássico (Random Forest / Isolation Forest) detecta anomalia (queda de PA, FHR fora da faixa).
-3. **Áudio** — transcrição + classificação de sinais de risco psicológico/violência em áudio de consulta (módulo menor, atende a obrigatoriedade).
+3. **Áudio** — transcrição + classificação de sinais de risco psicológico/violência em áudio de consulta.
+4. **Texto/NLP** — análise de laudos, prescrições hormonais e evolução clínica (fecha a tríade "áudio, vídeo e texto" do enunciado).
 
-**Fusão multimodal (o "pulo do gato"):** um motor de regras combina os sinais e classifica o risco em `BAIXO / MÉDIO / ALTO`, disparando alerta para a equipe.
+**Fusão multimodal (o "pulo do gato"):** um motor de regras combina os sinais e classifica o risco em `BAIXO / MÉDIO / ALTO`, disparando **alerta em tempo real** (WebSocket/SSE) para a equipe e gerando um **relatório automático**.
 
 **Mapeamento de requisitos:** ver tabela completa em [`docs/00-visao-geral-e-escopo.md`](docs/00-visao-geral-e-escopo.md).
 
@@ -67,9 +73,9 @@ Para manter o projeto realista e com forte "fusão multimodal" (que é o diferen
 ```
 Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (FastAPI)
                                                       ↓
-                              YOLO + Sinais Vitais + Áudio → Fusão → JSON de risco
+                    YOLO + Sinais Vitais + Áudio + Texto → Fusão → JSON + Relatório
                                                       ↓
-                          Node grava no banco → Dashboard exibe alerta
+              Node grava no banco → Dashboard (alerta em tempo real via WebSocket)
 ```
 
 ---
@@ -93,16 +99,22 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 .
 ├── README.md                  # Como rodar a solução
 ├── PLANO_DE_DESENVOLVIMENTO.md
+├── docker-compose.yml         # Sobe Node + Python com um comando
+├── .github/workflows/ci.yml   # Lint + testes a cada push
 ├── docs/                      # Este plano (por partes) + relatório técnico
-├── ai-service/                # Python / FastAPI (YOLO, sinais vitais, áudio, fusão)
+├── ai-service/                # Python / FastAPI (YOLO, vitais, áudio, texto, fusão)
 │   ├── app/
 │   ├── models/                # Pesos treinados (.pt / .onnx) — usar Git LFS
 │   ├── notebooks/             # Treino e EDA
+│   ├── tests/                 # pytest (foco no motor de fusão)
+│   ├── Dockerfile
 │   └── requirements.txt
 ├── backend/                   # Node.js / Express (orquestrador + Azure)
 │   ├── src/
+│   ├── tests/                 # jest
+│   ├── Dockerfile
 │   └── package.json
-├── frontend/ (opcional)       # Dashboard de alertas
+├── frontend/ (opcional)       # Dashboard de alertas (tempo real)
 ├── data/                      # Mini-dataset (NÃO versionar dados grandes/sensíveis)
 └── scripts/                   # Geração de dados sintéticos, conversões
 ```

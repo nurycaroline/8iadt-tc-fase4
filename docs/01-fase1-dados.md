@@ -6,6 +6,7 @@
 - [ ] 5 clipes curtos de vídeo cirúrgico selecionados e anotados.
 - [ ] 5 séries de sinais vitais (CTG/VitalDB) limpas e rotuladas.
 - [ ] 5 áudios de consulta (ou sintéticos/abertos) transcritos.
+- [ ] 5 documentos de **texto clínico** (laudos/prescrições/evolução) rotulados.
 - [ ] Script de geração de **PA sintética sincronizada** com o evento de sangramento.
 - [ ] Estrutura de pastas `data/` criada (e no `.gitignore`).
 
@@ -35,7 +36,14 @@
   2. Transcrever com **Azure Speech-to-Text** ou **Whisper**.
   3. Rotular cada áudio com a categoria de risco psicológico.
 
-## Tarefa 1.4 — Mock de integração (sincronização)
+## Tarefa 1.4 — Texto clínico (NLP)
+- **Fontes:** laudos/exames sintéticos, prescrições hormonais e notas de evolução clínica (gerados ou anonimizados de bases públicas).
+- **Passos:**
+  1. Reunir ~5 documentos de texto representando achados normais e de risco.
+  2. Rotular trechos de interesse (ex.: termos de complicação, prescrição inadequada, menção a sintomas de risco).
+  3. Padronizar em texto simples para o módulo de NLP da Fase 2.
+
+## Tarefa 1.5 — Mock de integração (sincronização)
 > O segredo da fusão: os datasets reais **não** são sincronizados entre si.
 - **Script Python** que gera uma série de **PA materna** ao longo do tempo do vídeo, com uma **queda brusca de PA exatamente no segundo** em que o vídeo mostra sangramento.
 - Saída: CSV `tempo, PA_sistolica, PA_diastolica, FC` alinhado ao timestamp do vídeo.

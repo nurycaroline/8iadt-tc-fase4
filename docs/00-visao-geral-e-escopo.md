@@ -20,7 +20,10 @@ Esse recorte foi escolhido porque:
 | **Vídeo** | Frames de vídeo cirúrgico | YOLOv8 (detecção/segmentação) | `sangramento`, anatomia, instrumentos + confiança |
 | **Sinais vitais** | Série temporal (PA, FHR, UC) | Random Forest / Isolation Forest | normal / suspeito / anômalo |
 | **Áudio** | Áudio de consulta | ASR (transcrição) + classificador | indicadores de ansiedade/depressão/violência |
-| **Fusão** | Saídas das 3 acima | Motor de regras | risco `BAIXO/MÉDIO/ALTO` + mensagem de alerta |
+| **Texto/NLP** | Laudos, prescrições hormonais, evolução clínica | NLP (palavras-chave / sentimento / regras) | achados de risco no texto clínico |
+| **Fusão** | Saídas das 4 acima | Motor de regras | risco `BAIXO/MÉDIO/ALTO` + alerta + relatório |
+
+> A inclusão do **texto** fecha a tríade "áudio, vídeo e texto" citada no enunciado e reforça a multimodalidade. Pode ser um módulo enxuto (regras + análise de sentimento), mas precisa existir.
 
 ## 4. Mapeamento dos requisitos do PDF
 
@@ -30,16 +33,18 @@ Esse recorte foi escolhido porque:
 - [x] Detectar **anomalias em sinais vitais** (PA em gestantes, batimentos fetais).
 - [x] Integrar com **nuvem (Azure)**.
 
-### Objetivos (mín. 3 — atendemos 4)
+### Objetivos (mín. 3 — atendemos 5)
 - [x] Detectar precocemente riscos em saúde materna e ginecológica.
+- [x] Identificar sinais de violência doméstica/abuso (via áudio + texto).
 - [x] Monitorar bem-estar psicológico feminino (via áudio).
 - [x] Usar serviços em nuvem para ampliar capacidade de processamento.
 - [x] Aplicar detecção de anomalias em tempo real.
-- [ ] (Opcional) Identificar sinais de violência doméstica — coberto parcialmente pelo módulo de áudio.
 
 ### Entregas técnicas obrigatórias
-- [x] **Análise de Vídeo** com YOLOv8 customizado + relatórios automáticos → Fase 2 e 3.
+- [x] **Análise de Vídeo** com YOLOv8 customizado → Fase 2 e 3.
 - [x] **Análise de Áudio** especializada → Fase 2 (módulo de áudio).
+- [x] **Relatórios automáticos especializados** → [doc dedicado](06-relatorios-automaticos.md).
+- [x] **Privacidade e segurança (LGPD)** → [doc dedicado](07-privacidade-e-seguranca.md).
 
 ## 5. Decisões de projeto
 
@@ -51,6 +56,9 @@ Esse recorte foi escolhido porque:
 | D4 | **Mock de sincronização** vídeo↔sinais vitais | Datasets reais não vêm sincronizados; gerar dados sintéticos alinhados ao evento |
 | D5 | Fusão por **motor de regras** (não end-to-end) | Explicável, demonstrável e suficiente para o desafio |
 | D6 | **Azure Blob + App Service/Functions** | Requisito de nuvem do desafio |
+| D7 | Incluir **módulo de texto/NLP** | Fecha a tríade "áudio, vídeo e texto" do enunciado |
+| D8 | **Medir o ganho da fusão** (vs. modalidade única) | Prova o valor da multimodalidade — o diferencial avaliado |
+| D9 | Alerta em **tempo real** (WebSocket/SSE) + **relatório automático** | Requisitos explícitos do PDF |
 
 ## 6. Riscos e mitigações
 
@@ -65,7 +73,8 @@ Esse recorte foi escolhido porque:
 ## 7. Definição de "pronto" do projeto
 
 O projeto está pronto quando:
-1. As 3 modalidades produzem saída individual com métricas.
-2. O motor de fusão gera o JSON de risco padronizado (ver [contrato-api](contrato-api.md)).
-3. O pipeline roda ponta-a-ponta (upload → IA → alerta) — idealmente na Azure.
-4. Relatório técnico e vídeo de até 15 min estão prontos (ver [Fase 4](04-fase4-entregaveis.md)).
+1. As 4 modalidades produzem saída individual com métricas.
+2. O motor de fusão gera o JSON de risco padronizado (ver [contrato-api](contrato-api.md)) **e há métrica do ganho da fusão**.
+3. O pipeline roda ponta-a-ponta (upload → IA → alerta em tempo real + relatório automático) — idealmente na Azure.
+4. Privacidade/LGPD tratada (ver [doc dedicado](07-privacidade-e-seguranca.md)).
+5. Relatório técnico e vídeo de até 15 min estão prontos (ver [Fase 4](04-fase4-entregaveis.md)).

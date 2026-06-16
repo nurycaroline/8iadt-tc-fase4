@@ -6,7 +6,9 @@
 - [ ] Modelo de **vídeo** (YOLOv8) treinado e exportado (`.pt`/`.onnx`) com métricas (mAP, precisão/recall).
 - [ ] Modelo de **sinais vitais** treinado com métricas (acurácia, F1, matriz de confusão).
 - [ ] Módulo de **áudio** funcionando (transcrição + classificação) com exemplos.
+- [ ] Módulo de **texto/NLP** funcionando com exemplos.
 - [ ] **Limiares clínicos** documentados.
+- [ ] **Baseline por modalidade única** registrada (para comparar com a fusão na Fase 3).
 
 ---
 
@@ -34,7 +36,17 @@
 - **Classificação:** pode ser por palavras-chave + análise de sentimento (Azure Text Analytics) ou um classificador simples treinado nos 5 rótulos.
 - **Saída:** categoria (`ansiedade`, `depressao_pos_parto`, `violencia`, `neutro`) + confiança.
 
-## Tarefa 2.4 — Definição de limiares clínicos (gatilhos)
+## Tarefa 2.4 — Análise de texto (NLP)
+- **Entrada:** laudos, prescrições hormonais e evolução clínica (Fase 1, Tarefa 1.4).
+- **Abordagem (enxuta):** extração de palavras-chave de risco + **análise de sentimento** (Azure Text Analytics) ou um classificador simples.
+- **Saída:** lista de achados de risco no texto + categoria (ex.: `complicacao`, `prescricao_risco`, `neutro`).
+- Padronizar a saída num dicionário para a fusão.
+
+## Tarefa 2.5 — Baseline por modalidade única
+- Antes da fusão, registre a performance de **cada modalidade isolada** detectando o evento de risco.
+- Servirá de comparação para provar, na Fase 3, que a **fusão reduz falsos positivos / melhora a detecção**.
+
+## Tarefa 2.6 — Definição de limiares clínicos (gatilhos)
 Documentar os disparadores matemáticos do alerta, por exemplo:
 
 | Sinal | Condição de alerta |
@@ -43,6 +55,7 @@ Documentar os disparadores matemáticos do alerta, por exemplo:
 | Frequência cardíaca fetal (FHR) | fora de `110–160 bpm` |
 | Detecção visual de sangue | confiança `≥ 0.85` |
 | Risco no áudio | categoria de risco com confiança `≥ 0.7` |
+| Achado no texto clínico | termo/categoria de risco identificado |
 
 > Esses limiares alimentam o **motor de fusão** da Fase 3.
 

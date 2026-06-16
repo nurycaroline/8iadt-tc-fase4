@@ -22,15 +22,15 @@
                                 │ HTTP POST /inferencia
                                 ▼
                          ┌─────────────┐
-                         │ Python      │  YOLOv8 + Sinais Vitais + Áudio
-                         │ (FastAPI)   │  ──► Motor de Fusão (regras)
+                         │ Python      │  YOLOv8 + Sinais Vitais + Áudio + Texto
+                         │ (FastAPI)   │  ──► Motor de Fusão ──► Relatório automático
                          └──────┬──────┘
                                 │ JSON de risco
                                 ▼
-                         ┌─────────────┐
-                         │ Banco +     │  ──► Dashboard / Alerta
-                         │ Dashboard   │
-                         └─────────────┘
+                         ┌─────────────┐   WebSocket/SSE   ┌────────────┐
+                         │ Banco +     │ ────────────────► │ Dashboard  │
+                         │ Node        │  alerta em        │ (tempo real)│
+                         └─────────────┘  tempo real       └────────────┘
 ```
 
 ## 2. Por que essa abordagem
@@ -44,10 +44,11 @@
 
 | Camada | Tecnologia | Responsabilidade |
 |--------|-----------|------------------|
-| Orquestrador | Node.js + Express | Upload, autenticação, banco, dashboard, integração Azure |
-| Motor de IA | Python + FastAPI + Uvicorn | YOLOv8, sinais vitais, áudio, fusão |
-| Armazenamento | Azure Blob Storage | Vídeos, frames de alerta |
+| Orquestrador | Node.js + Express | Upload, autenticação, banco, dashboard, alerta em tempo real (WebSocket/SSE), integração Azure |
+| Motor de IA | Python + FastAPI + Uvicorn | YOLOv8, sinais vitais, áudio, texto/NLP, fusão, relatório automático |
+| Armazenamento | Azure Blob Storage | Vídeos, frames de alerta, relatórios |
 | Hospedagem | Azure App Service / Functions / Container | Rodar os serviços |
+| Orquestração local | Docker + docker-compose | Subir tudo com um comando (ver [qualidade-testes-ci.md](qualidade-testes-ci.md)) |
 
 ## 4. Exemplo conceitual
 
@@ -77,3 +78,8 @@ async def inferencia(data: Request):
 - O **Node.js** é o repositório principal.
 - O **Python** fica em `/ai-service` no mesmo repositório (ou repo separado).
 - No vídeo final, mostre esse diagrama de comunicação em tempo real.
+
+## 6. Reprodutibilidade, testes e segurança
+- **Docker/docker-compose** para subir a stack — ver [qualidade-testes-ci.md](qualidade-testes-ci.md).
+- **Testes automatizados + CI** (foco no motor de fusão) — ver [qualidade-testes-ci.md](qualidade-testes-ci.md).
+- **Privacidade/LGPD** (TLS, Key Vault, anonimização) — ver [07-privacidade-e-seguranca.md](07-privacidade-e-seguranca.md).
