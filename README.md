@@ -17,7 +17,7 @@ Solução de IA que analisa **vídeo cirúrgico**, **áudio de consultas** e **s
 - [Fase 3 — Fusão e Nuvem](docs/03-fase3-fusao-e-nuvem.md)
 - [Fase 4 — Entregáveis](docs/04-fase4-entregaveis.md)
 - [Relatórios automáticos](docs/06-relatorios-automaticos.md) · [Privacidade e Segurança (LGPD)](docs/07-privacidade-e-seguranca.md)
-- [Arquitetura](docs/arquitetura.md) · [Contrato de API](docs/contrato-api.md) · [Datasets](docs/datasets.md)
+- [Arquitetura](docs/arquitetura.md) · [Front-end (dashboard)](docs/frontend.md) · [Contrato de API](docs/contrato-api.md) · [Datasets](docs/datasets.md)
 - [Qualidade: Docker, testes e CI](docs/qualidade-testes-ci.md) · [Cronograma por dependências](docs/cronograma-dependencias.md) · [Glossário](docs/glossario.md) · [Checklist](docs/05-checklist-entrega.md)
 
 ## Stack prevista

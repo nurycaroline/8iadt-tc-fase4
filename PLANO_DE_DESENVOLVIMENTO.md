@@ -24,6 +24,7 @@ Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisõ
 | Componente | [`docs/06-relatorios-automaticos.md`](docs/06-relatorios-automaticos.md) | Relatórios clínicos automáticos (requisito do PDF) |
 | Componente | [`docs/07-privacidade-e-seguranca.md`](docs/07-privacidade-e-seguranca.md) | Privacidade, segurança e LGPD |
 | Apoio | [`docs/arquitetura.md`](docs/arquitetura.md) | Arquitetura de software (Node + Python + Azure) |
+| Apoio | [`docs/frontend.md`](docs/frontend.md) | Dashboard de monitoramento (front-end) |
 | Apoio | [`docs/contrato-api.md`](docs/contrato-api.md) | Contrato de API entre serviços |
 | Apoio | [`docs/datasets.md`](docs/datasets.md) | Datasets recomendados e como obtê-los |
 | Apoio | [`docs/qualidade-testes-ci.md`](docs/qualidade-testes-ci.md) | Docker, testes automatizados e CI |
@@ -114,7 +115,9 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 │   ├── tests/                 # jest
 │   ├── Dockerfile
 │   └── package.json
-├── frontend/ (opcional)       # Dashboard de alertas (tempo real)
+├── frontend/                  # Dashboard React (tempo real) — ver docs/frontend.md
+│   ├── src/
+│   └── package.json
 ├── data/                      # Mini-dataset (NÃO versionar dados grandes/sensíveis)
 └── scripts/                   # Geração de dados sintéticos, conversões
 ```
