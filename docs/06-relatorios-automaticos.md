@@ -19,6 +19,7 @@ Por isso, não é só "logar o resultado": é gerar um **documento legível** po
 
 ```
 RELATÓRIO DE MONITORAMENTO MULTIMODAL — Caso {case_id}
+Paciente: {primeiro_nome}, {idade} anos {— gestante, {idade_gestacional} sem (se aplicável)}
 Data/hora: {timestamp}
 Nível de risco: {BAIXO | MÉDIO | ALTO}
 

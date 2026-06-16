@@ -9,6 +9,13 @@
 ```json
 {
   "case_id": "abc-123",
+  "paciente": {
+    "id": "pac-001",
+    "primeiro_nome": "Maria",
+    "idade": 31,
+    "gestante": true,
+    "idade_gestacional_semanas": 28
+  },
   "video_url": "https://<conta>.blob.core.windows.net/videos/cirurgia01.mp4",
   "dados_vitais": {
     "csv_url": "https://<conta>.blob.core.windows.net/sinais/case01.csv"
@@ -17,6 +24,8 @@
   "texto_clinico": "Laudo/evolução/prescrição em texto ou URL do documento"
 }
 ```
+
+> O objeto `paciente` é o **contexto mínimo** (criado na "entrada do paciente") e alimenta o cabeçalho do relatório automático. Os dados são pseudonimizados — ver [privacidade/LGPD](07-privacidade-e-seguranca.md).
 
 > Campos opcionais: enviar só as modalidades disponíveis para aquele caso.
 

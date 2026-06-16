@@ -83,3 +83,34 @@ async def inferencia(data: Request):
 - **Docker/docker-compose** para subir a stack — ver [qualidade-testes-ci.md](qualidade-testes-ci.md).
 - **Testes automatizados + CI** (foco no motor de fusão) — ver [qualidade-testes-ci.md](qualidade-testes-ci.md).
 - **Privacidade/LGPD** (TLS, Key Vault, anonimização) — ver [07-privacidade-e-seguranca.md](07-privacidade-e-seguranca.md).
+
+## 7. Modelo de dados
+
+Modelo enxuto: cada **entrada cria um Paciente novo**, que recebe **um Caso** (os dados enviados + o resultado da análise). Dados do paciente são mínimos e pseudonimizados.
+
+```mermaid
+classDiagram
+    class Paciente {
+      +string id
+      +string primeiroNome
+      +int idade
+      +bool gestante
+      +int idadeGestacionalSemanas
+    }
+    class Caso {
+      +string id
+      +string pacienteId
+      +string videoUrl
+      +string audioUrl
+      +string sinaisVitaisCsvUrl
+      +string textoClinico
+      +string riscoDetectado
+      +string relatorioUrl
+      +datetime timestamp
+    }
+    Paciente "1" --> "0..1" Caso : possui
+```
+
+- `gestante = false` → `idadeGestacionalSemanas` não se aplica.
+- **Excluir** o paciente remove em cascata o seu `Caso` e os artefatos no Blob.
+- Endpoints de gestão (Front-end ↔ Node): `POST /pacientes`, `GET /pacientes`, `DELETE /pacientes/{id}`. A análise (`POST /analisar`) referencia o `pacienteId`.
