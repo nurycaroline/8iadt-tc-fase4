@@ -27,7 +27,7 @@ público simples) e aparecem como passos opcionais.
 
 ## Blockers / dependências externas
 
-- Acesso/licença dos datasets pode exigir login (UCO PhyRehab, Androids). Fallback: obtenção manual
+- Acesso/licença dos datasets pode exigir login (IntelliRehabDS, Androids). Fallback: obtenção manual
   documentada em `data/README.md` (T2).
 - Decisão pendente do grupo: usar **Whisper local** ou **Azure Speech-to-Text** para transcrição
   (T7) — design deixa o backend trocável por env var.

@@ -1,7 +1,7 @@
 """Fisioterapia / recuperação — preparação para YOLOv8-pose (P3).
 
-Prepara amostras de exercícios de reabilitação (UCO PhyRehab / IntelliRehabDS) para estimativa de
-pose, reaproveitando os keypoints fornecidos quando existirem, e rotula repetições como
+Prepara amostras de exercícios de reabilitação (IntelliRehabDS) para estimativa de pose,
+reaproveitando os keypoints fornecidos quando existirem, e rotula repetições como
 ``correto``/``incorreto``. Grava ``data/video_fisioterapia/metadados.json``.
 
 Uso:
@@ -62,7 +62,7 @@ def extrair_frames(video, destino, fps: int = 2):
 def main() -> int:
     pasta = data_dir("video_fisioterapia")
     LOG.info(
-        "Baixe amostras de exercícios (UCO PhyRehab/IntelliRehabDS) para %s — ver data/README.md.",
+        "Baixe amostras de exercícios (IntelliRehabDS) para %s — ver data/README.md.",
         pasta,
     )
     if not ffmpeg_disponivel():

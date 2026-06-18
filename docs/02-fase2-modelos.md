@@ -25,7 +25,7 @@
 ## Tarefa 2.2 — Análise de fisioterapia (YOLOv8-pose)
 - **Biblioteca:** `ultralytics` (modelo `*-pose`).
 - **Passos:**
-  1. Estimar **keypoints** do corpo nos vídeos de exercício (UCO PhyRehab / IntelliRehabDS).
+  1. Estimar **keypoints** do corpo nos vídeos de exercício (IntelliRehabDS).
   2. Derivar ângulos/repetições e classificar a execução como `correto / incorreto` (ou medir amplitude/evolução).
   3. Avaliar com os rótulos de correção do dataset.
 - **Objetivo clínico:** acompanhar a **recuperação física** ao longo do tempo.

@@ -49,7 +49,7 @@ Ou rode uma modalidade isolada:
 | Texto clínico     | `python -m scripts.data_prep.texto_clinico`     | **auto**  | Gera documentos sintéticos (offline)|
 | Caso sintético    | `python -m scripts.data_prep.caso_sintetico`    | **auto**  | Junta 1 amostra de cada modalidade  |
 | Áudio             | `python -m scripts.data_prep.audio_transcrever` | manual    | Coloque 5 `.wav` em `data/audio/` (TTS/gravações); Whisper local ou Azure via env |
-| Fisioterapia      | `python -m scripts.data_prep.fisioterapia_pose` | manual    | Dataset UCO/IntelliRehab tem origem externa; coloque vídeos em `data/video_fisioterapia/` |
+| Fisioterapia      | `python -m scripts.data_prep.fisioterapia_pose` | manual    | IntelliRehabDS (Zenodo) tem origem externa; coloque vídeos em `data/video_fisioterapia/` |
 
 Se um download automático falhar (rede, URL ou licença que exige login), os scripts emitem uma mensagem
 clara com a instrução de **obtenção manual** — baixe a amostra do link na tabela de origem e coloque-a
@@ -66,8 +66,8 @@ na pasta indicada.
 | ----------------- | ----------------------------- | ---------------------- | ------ |
 | Sinais vitais     | Maternal Health Risk (UCI)    | **CC BY 4.0**          | https://archive.ics.uci.edu/dataset/863/maternal+health+risk |
 | Cicatriz (vídeo)  | AZH Wound                     | Acadêmico (ver repo)   | https://github.com/uwm-bigdata/wound-classification-using-images-and-locations |
-| Fisioterapia      | UCO Physical Rehabilitation   | Acadêmico (ver repo)   | https://github.com/AVAuco/ucophyrehab |
-| Fisioterapia (alt)| IntelliRehabDS                | Acadêmico (Zenodo)     | https://zenodo.org/records/4610859 |
+| Fisioterapia      | IntelliRehabDS                | Acadêmico (Zenodo)     | https://zenodo.org/records/4610859 |
+| Fisioterapia (alt)| REHAB24-6                     | Acadêmico              | (buscar "REHAB24-6 dataset") |
 | Áudio             | Androids Corpus               | Acadêmico              | https://github.com/androidscorpus/data |
 | Áudio (alt)       | DEPAC                         | Acadêmico              | https://aclanthology.org/2022.clpsych-1.1.pdf |
 | Texto clínico     | Gerado sinteticamente         | N/A (próprio)          | `scripts/data_prep/texto_clinico.py` |

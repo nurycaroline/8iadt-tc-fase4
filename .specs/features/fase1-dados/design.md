@@ -120,7 +120,7 @@ caso sintético. Opcionais (manual): áudio e fisioterapia.
 
 ### 4.4 Fisioterapia → pose (`fisioterapia_pose.py`) — P3
 
-- Baixa amostras do **UCO PhyRehab** ou **IntelliRehabDS**.
+- Baixa amostras do **IntelliRehabDS** (alternativa: REHAB24-6).
 - Reaproveita keypoints fornecidos quando existirem; senão extrai frames e prepara para YOLOv8-pose.
 - Rotula repetições `correto`/`incorreto`.
 

@@ -4,7 +4,7 @@
 
 ## Resultado esperado (Definition of Done)
 - [ ] Amostra de **vídeo/imagem de cicatriz** (AZH Wound) baixada e convertida para o formato YOLO via script.
-- [ ] Amostra de **vídeo de fisioterapia** (UCO PhyRehab / IntelliRehabDS) preparada para YOLOv8-pose.
+- [ ] Amostra de **vídeo de fisioterapia** (IntelliRehabDS) preparada para YOLOv8-pose.
 - [ ] 5 amostras de **sinais vitais** (Maternal Health Risk) limpas e rotuladas.
 - [ ] 5 áudios de consulta/relato (ou sintéticos/abertos) transcritos.
 - [ ] 5 documentos de **texto clínico** (laudos/exames/evolução) rotulados.
@@ -25,7 +25,7 @@
 > **Observação sobre o domínio:** o AZH Wound não é específico de cesárea, mas **feridas cirúrgicas têm aparência semelhante**. Registrar essa decisão (e a limitação) no relatório técnico.
 
 ## Tarefa 1.2 — Vídeo: fisioterapia / recuperação (pose)
-- **Datasets:** **UCO Physical Rehabilitation** (2.160 vídeos com pose marcada) ou **IntelliRehabDS** (movimentos rotulados como correto/incorreto). Ver [datasets.md](datasets.md).
+- **Dataset:** **IntelliRehabDS** (movimentos de 29 sujeitos rotulados como correto/incorreto, via Kinect). Ver [datasets.md](datasets.md).
 - **Passos:**
   1. Baixar amostras de alguns exercícios.
   2. Preparar para **YOLOv8-pose** (keypoints) ou usar os keypoints já fornecidos como referência.

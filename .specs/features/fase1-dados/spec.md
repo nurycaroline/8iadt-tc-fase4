@@ -167,7 +167,7 @@ YOLOv8-pose, para que a Fase 2 acompanhe a qualidade do movimento.
 
 **Acceptance Criteria**:
 
-1. WHEN o script de fisioterapia roda THEN ele SHALL baixar amostras de alguns exercícios (UCO PhyRehab ou IntelliRehabDS) para `data/video_fisioterapia/`.
+1. WHEN o script de fisioterapia roda THEN ele SHALL baixar amostras de alguns exercícios (IntelliRehabDS) para `data/video_fisioterapia/`.
 2. WHEN preparado THEN o material SHALL estar no formato esperado pelo YOLOv8-pose (keypoints) ou reaproveitar os keypoints fornecidos.
 3. WHEN rotulado THEN as repetições SHALL ser marcadas como `correto`/`incorreto`.
 
