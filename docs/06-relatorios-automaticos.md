@@ -4,9 +4,9 @@
 
 ## 1. Por que é um componente próprio
 O enunciado lista relatórios automáticos como entrega técnica, com 4 tipos de conteúdo:
-- Desvios em procedimentos obstétricos;
-- Sinais de complicações em cirurgias ginecológicas;
-- Indicadores visuais de desconforto psicológico;
+- Desvios em procedimentos/acompanhamento obstétrico;
+- Sinais de complicações no puerpério (ex.: infecção da cicatriz, pré-eclâmpsia);
+- Indicadores de desconforto psicológico (depressão pós-parto/ansiedade);
 - Alertas para possíveis casos de violência doméstica.
 
 Por isso, não é só "logar o resultado": é gerar um **documento legível** por caso.
@@ -27,13 +27,14 @@ Nível de risco: {BAIXO | MÉDIO | ALTO}
    {mensagem_alerta}
 
 2. EVIDÊNCIAS POR MODALIDADE
-   - Vídeo:        {evento} (confiança {x}) — frame anexo
-   - Sinais vitais:{tipo} (valor {y}) — gráfico anexo
-   - Áudio:        {categoria} (confiança {z}) — trecho/transcrição
-   - Texto/laudo:  {achados de NLP}
+   - Vídeo (cicatriz):  {evento} (confiança {x}) — imagem anexa
+   - Vídeo (fisioterapia): {execução/evolução} — keypoints
+   - Sinais vitais:     {tipo} (valor {y}) — gráfico anexo
+   - Áudio:             {categoria} (confiança {z}) — trecho/transcrição
+   - Texto/laudo:       {achados de NLP}
 
 3. CLASSIFICAÇÃO E GATILHOS ACIONADOS
-   {quais limiares foram cruzados — ex.: PA<90, FHR fora de 110-160}
+   {quais limiares foram cruzados — ex.: PA≥140/90, cicatriz com sinal de infecção}
 
 4. RECOMENDAÇÃO / ENCAMINHAMENTO
    {ação sugerida conforme o nível de risco}
@@ -47,10 +48,10 @@ AVISO: Documento de apoio à decisão clínica. Não substitui avaliação médi
 ## 4. Geração por tipo de risco
 | Tipo de relatório | Disparado quando | Conteúdo-chave |
 |-------------------|------------------|----------------|
-| Complicação cirúrgica | vídeo=sangramento + sinais vitais anômalos | hemorragia + instabilidade |
-| Desvio obstétrico | FHR fora da faixa / contrações anômalas | risco fetal |
-| Desconforto psicológico | áudio=ansiedade/depressão | encaminhamento psicológico |
-| Violência doméstica | áudio=violência / sinais corporais | protocolo de proteção |
+| Infecção puerperal | cicatriz com sinal de infecção + febre/dor relatada | risco de infecção da cesárea |
+| Risco materno / pré-eclâmpsia | sinais vitais de risco (PA alta) + cefaleia/proteinúria | risco hipertensivo |
+| Desconforto psicológico | áudio=ansiedade/depressão pós-parto | encaminhamento psicológico |
+| Violência doméstica | áudio/texto=violência | protocolo de proteção |
 
 ## 5. Implementação sugerida
 - Função `gerar_relatorio(json_fusao) -> markdown` no serviço Python.

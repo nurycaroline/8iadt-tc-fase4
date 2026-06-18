@@ -4,7 +4,7 @@
 
 ## 1. Objetivo
 - Dar **visão em tempo real** do risco de cada paciente monitorada.
-- Mostrar lado a lado as **4 modalidades** (vídeo, sinais vitais, áudio, texto) e a **decisão da fusão**.
+- Mostrar lado a lado as **modalidades** (vídeo da cicatriz, fisioterapia, sinais vitais, áudio, texto) e a **decisão da fusão**.
 - Disparar **alerta visual/sonoro** quando o risco for `MÉDIO`/`ALTO`.
 - Permitir **upload de caso** e **download do relatório automático**.
 
@@ -43,12 +43,13 @@
 - Contadores: nº de casos por nível de risco.
 
 ### 3.5 Detalhe do caso — **a tela principal**
-- Cabeçalho com os dados do paciente (primeiro nome, idade, gestante/idade gestacional).
-Layout em painéis sincronizados pela **linha do tempo do vídeo**:
-- **Vídeo cirúrgico** com *bounding boxes* do YOLO sobrepostas + marcadores de evento na timeline.
-- **Gráficos de sinais vitais** (PA, FHR, UC) com **linhas de limiar** (ex.: PA<90, FHR fora de 110–160), rolando em sincronia com o vídeo.
-- **Painel de áudio**: forma de onda + transcrição + badge da categoria (ansiedade, violência...).
-- **Painel de texto/NLP**: laudo/evolução com **trechos de risco destacados**.
+- Cabeçalho com os dados do paciente (primeiro nome, idade, gestante/idade gestacional ou semanas de pós-parto).
+Layout em painéis por modalidade:
+- **Vídeo/foto da cicatriz** com *bounding box* do YOLO + badge (`ferida_ok` / `ferida_alerta`).
+- **Vídeo da fisioterapia** com *keypoints* do YOLOv8-pose + avaliação da execução (correta/incorreta, amplitude).
+- **Sinais vitais** (PA, FC, glicemia, temperatura) com **destaque de limiar** (ex.: PA≥140/90) e a classe de risco do modelo.
+- **Painel de áudio**: forma de onda + transcrição + badge da categoria (depressão pós-parto, ansiedade, violência...).
+- **Painel de texto/NLP**: laudo/exame/evolução com **trechos de risco destacados**.
 - **Painel de fusão**: medidor de risco (gauge `BAIXO/MÉDIO/ALTO`), lista de evidências e a `mensagem_alerta`.
 - Botão **"Ver/baixar relatório"** (PDF gerado automaticamente).
 
@@ -92,12 +93,12 @@ Serviço Python (IA) → JSON de risco + relatorio_url
 **Dashboard:**
 ```
 ┌───────────────────────────────────────────────────────────┐
-│ 🔴 ALERTA: Maria (#A123) — sangramento + queda de PA       │
+│ 🔴 ALERTA: Maria (#A123) — cicatriz infectada + febre      │
 ├───────────────────────────────────────────────────────────┤
 │ Monitoramento            🟢 3   🟡 1   🔴 1                 │
 │ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐            │
 │ │Maria 🔴 │ │Júlia 🟡 │ │Ana   🟢 │ │Bia   🟢 │            │
-│ │Cir. gin.│ │Pré-natal│ │Consulta │ │Fisiot.  │            │
+│ │Pós-parto│ │Pré-eclâ.│ │Pós-parto│ │Fisiot.  │            │
 │ └─────────┘ └─────────┘ └─────────┘ └─────────┘            │
 └───────────────────────────────────────────────────────────┘
 ```
@@ -105,14 +106,16 @@ Serviço Python (IA) → JSON de risco + relatorio_url
 **Detalhe do caso:**
 ```
 ┌────────────────────────────┬──────────────────────────────┐
-│  VÍDEO (YOLO overlay)       │  SINAIS VITAIS (sincronizado) │
-│  ▢ sangramento 0.89         │  PA  ─╮      ╭── limiar 90     │
-│  ▶───────●──────────── 04:21│  FHR ─┴──────┴──               │
+│  VÍDEO CICATRIZ (YOLO)      │  SINAIS VITAIS                │
+│  ▢ ferida_alerta 0.86       │  PA 150/95  ⚠ ≥140/90         │
+│                             │  classe: pré-eclâmpsia        │
 ├────────────────────────────┼──────────────────────────────┤
-│  ÁUDIO: "tom de ansiedade"  │  TEXTO/LAUDO: "sangramento     │
-│  ▁▂▅▇▅▂▁  transcrição...    │  aumentado" (destaque risco)   │
+│  FISIOTERAPIA (pose)        │  TEXTO/LAUDO: "relato de febre │
+│  ⦿ execução: incorreta      │  e dor na cicatriz" (risco)    │
 ├────────────────────────────┴──────────────────────────────┤
-│  FUSÃO:  🔴 RISCO ALTO   "Sangramento + instabilidade"      │
+│  ÁUDIO: "tom de tristeza" ▁▂▅▇▅▂▁  → depressão_pos_parto    │
+├─────────────────────────────────────────────────────────────┤
+│  FUSÃO:  🔴 RISCO ALTO   "Sinal de infecção + febre/dor"    │
 │          [ Ver relatório PDF ]                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -124,4 +127,4 @@ Serviço Python (IA) → JSON de risco + relatorio_url
 - **Disclaimer** visível: apoio à decisão, não diagnóstico.
 
 ## 8. Foco para a demonstração
-A tela de **detalhe do caso** é o "money shot" do vídeo: o avaliador vê o vídeo rodando, os sinais vitais oscilando em sincronia e, no instante do evento, o **alerta vermelho da fusão** aparecendo em tempo real. Priorize deixar essa tela impecável.
+A tela de **detalhe do caso** é o "money shot" do vídeo: o avaliador vê a cicatriz com o sinal detectado pelo YOLO, os sinais vitais classificados, o áudio/texto analisados e, ao processar o caso, o **alerta vermelho da fusão** aparecendo em tempo real. Priorize deixar essa tela impecável.

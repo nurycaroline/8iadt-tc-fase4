@@ -1,8 +1,11 @@
 # Tech Challenge Fase 4 — IA Multimodal para Saúde da Mulher (8IADT)
 
-Solução de IA que analisa **vídeo cirúrgico**, **áudio de consultas** e **sinais vitais**, e faz a **fusão multimodal** desses dados para gerar **alertas clínicos em tempo real**, com integração à **nuvem (Azure)**.
+Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada): a paciente envia, de casa, **áudio** (relato/consulta), **vídeo** (cicatriz da cesárea e exercícios de fisioterapia), **sinais vitais** (pressão, batimentos, glicemia) e **texto** (laudos/exames). O sistema faz a **fusão multimodal** desses dados para detectar **sinais precoces de risco** e gerar **alertas clínicos em tempo real**, com integração à **nuvem (Azure)**.
 
 > Este repositório começa pela fase de **planejamento**. O plano completo de desenvolvimento, organizado em partes, está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)**.
+
+## A dor que a solução resolve
+No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risco (infecção da cicatriz, pré-eclâmpsia, depressão pós-parto, violência) aparecem aos poucos e ficam **espalhados** em sistemas e pessoas diferentes. Quando alguém cruza tudo, a complicação já aconteceu. Esta solução é o "cérebro" que **junta as modalidades da mesma paciente** e **alerta cedo** a equipe.
 
 ## Por onde começar
 1. Leia o [plano mestre](PLANO_DE_DESENVOLVIMENTO.md).
@@ -22,7 +25,7 @@ Solução de IA que analisa **vídeo cirúrgico**, **áudio de consultas** e **s
 
 ## Stack prevista
 - **Backend/orquestrador:** Node.js + Express (alerta em tempo real via WebSocket/SSE)
-- **Motor de IA:** Python + FastAPI (YOLOv8, scikit-learn, Whisper/Azure Speech, NLP de texto)
+- **Motor de IA:** Python + FastAPI (YOLOv8 + YOLOv8-pose, scikit-learn, Whisper/Azure Speech, NLP de texto)
 - **Nuvem:** Azure Blob Storage + App Service/Functions
 - **Infra/qualidade:** Docker + docker-compose, testes (pytest/jest), CI (GitHub Actions)
 

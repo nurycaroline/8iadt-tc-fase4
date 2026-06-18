@@ -22,7 +22,7 @@
            └──────────┬─────────┴──────────────────┴───────────────┘
                       ▼
         ┌──────────────────────────────┐
-        │ M9. MOCK DE SINCRONIZAÇÃO  ★  │  (★ bloqueia a fusão)
+        │ M9. CASO DE EXEMPLO SINTÉTICO ★│  (★ bloqueia a demo da fusão)
         └──────────────┬───────────────┘
                        ▼
         ┌──────────────────────────────┐
@@ -46,7 +46,7 @@
 
 `M0 → (M1+M9) → M5 → M10 → M11 → M12 → M13`
 
-- O **mock de sincronização (M9)** é o gargalo mais subestimado: sem ele, a **fusão (M10)** não tem como ser demonstrada. **Faça M9 cedo.**
+- O **caso de exemplo sintético (M9)** é o gargalo mais subestimado: sem ele (juntar amostras numa paciente fictícia), a **fusão (M10)** não tem como ser demonstrada. **Faça M9 cedo.**
 - M5 (YOLO) costuma ser o item mais demorado (treino). Comece o quanto antes, em paralelo.
 
 ## 3. O que pode rodar em paralelo
@@ -57,7 +57,7 @@
 ## 4. Marcos de validação (gates)
 | Marco | Critério para avançar |
 |-------|-----------------------|
-| Fim da Fase 1 | mini-dataset (5/5/5) + mock pronto |
+| Fim da Fase 1 | mini-dataset (5 por modalidade) + caso de exemplo sintético pronto |
 | Fim da Fase 2 | 4 modelos com métricas individuais |
 | Fim da Fase 3 | pipeline ponta-a-ponta + métricas da fusão |
 | Fim da Fase 4 | repo + relatório + vídeo publicados |

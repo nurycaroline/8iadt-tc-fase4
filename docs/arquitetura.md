@@ -8,7 +8,7 @@
 1. Upload      → usuário envia vídeo/áudio/sinais para a API Node.js
 2. Armazenamento → Node salva o arquivo no Azure Blob Storage
 3. Disparo     → Node chama o serviço Python (HTTP/REST ou fila RabbitMQ)
-4. Inferência  → Python baixa o arquivo, roda YOLO + sinais vitais + áudio
+4. Inferência  → Python baixa os arquivos, roda YOLO/YOLO-pose + sinais vitais + áudio + texto
 5. Resposta    → Python retorna JSON com o veredito (risco)
 6. Persistência→ Node grava no banco e dispara o alerta para o dashboard
 ```
@@ -54,11 +54,14 @@
 
 **Node.js (Express):**
 ```javascript
-app.post('/analisar-cirurgia', async (req, res) => {
+app.post('/analisar', async (req, res) => {
   const videoUrl = await uploadParaAzure(req.file);
   const resultadoIA = await axios.post('http://servico-python/inferencia', {
-    url: videoUrl,
+    paciente_id: req.body.paciente_id,
+    video_url: videoUrl,
     dados_vitais: req.body.dados_vitais,
+    audio_url: req.body.audio_url,
+    texto_clinico: req.body.texto_clinico,
   });
   await db.salvarLog(resultadoIA.data);
   res.json(resultadoIA.data);
@@ -69,9 +72,9 @@ app.post('/analisar-cirurgia', async (req, res) => {
 ```python
 @app.post("/inferencia")
 async def inferencia(data: Request):
-    deteccao = modelo_yolo.predict(data.url)
+    cicatriz = modelo_yolo.predict(data.video_url)
     anomalia = checar_sinais_vitais(data.dados_vitais)
-    return {"status": "ok", "risco": avaliar_fusao(deteccao, anomalia)}
+    return {"status": "ok", "risco": avaliar_fusao(cicatriz, anomalia)}
 ```
 
 ## 5. Decisões de empacotamento
@@ -100,7 +103,8 @@ classDiagram
     class Caso {
       +string id
       +string pacienteId
-      +string videoUrl
+      +string videoCicatrizUrl
+      +string videoFisioterapiaUrl
       +string audioUrl
       +string sinaisVitaisCsvUrl
       +string textoClinico

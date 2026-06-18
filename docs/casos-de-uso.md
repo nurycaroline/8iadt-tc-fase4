@@ -70,12 +70,14 @@ flowchart LR
 ```mermaid
 flowchart LR
     UC5(["UC5 · Analisar dados multimodais"])
-    A1(["Analisar vídeo · YOLOv8"])
+    A1(["Analisar vídeo da cicatriz · YOLOv8"])
+    A1b(["Analisar fisioterapia · YOLOv8-pose"])
     A2(["Analisar sinais vitais · RF / Isolation Forest"])
     A3(["Analisar áudio · ASR + classificação"])
     A4(["Analisar texto · NLP"])
 
     UC5 -. «include» .-> A1
+    UC5 -. «include» .-> A1b
     UC5 -. «include» .-> A2
     UC5 -. «include» .-> A3
     UC5 -. «include» .-> A4
@@ -89,7 +91,7 @@ flowchart LR
 | **UC2** | Listar pacientes | Operador, Equipe Médica | Exibe a lista de pacientes e o status do seu monitoramento |
 | **UC3** | Excluir paciente | Operador, Equipe Médica | Remove o paciente e os dados/análise associados |
 | **UC4** | Enviar dados para análise | Operador | Faz upload de vídeo, áudio, sinais vitais e/ou texto do paciente; armazena no Azure Blob e inicia o processamento (requer UC1) |
-| **UC5** | Analisar dados multimodais | Serviço de IA | Processa cada modalidade com seu modelo (YOLOv8, RF/Isolation Forest, ASR+classificação, NLP) |
+| **UC5** | Analisar dados multimodais | Serviço de IA | Processa cada modalidade com seu modelo (YOLOv8 na cicatriz, YOLOv8-pose na fisioterapia, RF/Isolation Forest nos sinais vitais, ASR+classificação no áudio, NLP no texto) |
 | **UC6** | Fundir e classificar risco | Serviço de IA | O motor de regras combina as evidências e classifica o risco em `BAIXO` / `MÉDIO` / `ALTO` |
 | **UC7** | Emitir alerta em tempo real | Equipe Médica | Quando o risco é `MÉDIO`/`ALTO`, notifica a equipe no dashboard em tempo real (WebSocket/SSE) |
 | **UC8** | Gerar e visualizar relatório automático | Equipe Médica | Gera o relatório clínico do caso (PDF, com cabeçalho do paciente) e a equipe visualiza/baixa |

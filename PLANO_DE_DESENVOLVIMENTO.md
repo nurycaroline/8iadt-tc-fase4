@@ -1,6 +1,6 @@
 # Plano de Desenvolvimento — Tech Challenge Fase 4 (8IADT)
 
-> Solução de **IA Multimodal para Saúde da Mulher**: análise de **vídeo cirúrgico**, **áudio de consultas** e **sinais vitais**, com **fusão multimodal** para gerar alertas clínicos em tempo real, hospedada em **nuvem (Azure)**.
+> Solução de **IA Multimodal para Saúde da Mulher**: **acompanhamento contínuo no pós-parto** com análise de **vídeo** (cicatriz da cesárea + fisioterapia), **áudio de consultas/relatos**, **sinais vitais** e **texto clínico**, com **fusão multimodal** para gerar **alertas precoces** em tempo real, hospedada em **nuvem (Azure)**.
 
 Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisões de projeto e como o trabalho está dividido em partes. Cada parte tem um documento próprio dentro de [`docs/`](docs/).
 
@@ -18,7 +18,7 @@ Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisõ
 |------|-----------|-------------|
 | Visão geral | [`docs/00-visao-geral-e-escopo.md`](docs/00-visao-geral-e-escopo.md) | Problema, escopo escolhido, decisões e riscos |
 | Fase 1 | [`docs/01-fase1-dados.md`](docs/01-fase1-dados.md) | Aquisição e preparação de dados |
-| Fase 2 | [`docs/02-fase2-modelos.md`](docs/02-fase2-modelos.md) | Modelos individuais (vídeo, áudio, sinais vitais) |
+| Fase 2 | [`docs/02-fase2-modelos.md`](docs/02-fase2-modelos.md) | Modelos individuais (vídeo, áudio, sinais vitais, texto) |
 | Fase 3 | [`docs/03-fase3-fusao-e-nuvem.md`](docs/03-fase3-fusao-e-nuvem.md) | Fusão multimodal + deploy na nuvem |
 | Fase 4 | [`docs/04-fase4-entregaveis.md`](docs/04-fase4-entregaveis.md) | Repositório, relatório técnico e vídeo |
 | Componente | [`docs/casos-de-uso.md`](docs/casos-de-uso.md) | Casos de uso (diagramas Mermaid) |
@@ -37,7 +37,7 @@ Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisõ
 
 ## 2. O que o desafio exige (resumo do PDF)
 
-O Tech Challenge pede uma solução de IA que monitore pacientes por **dados multimodais (áudio, vídeo e texto)** para identificar sinais precoces de risco em saúde da mulher.
+O Tech Challenge pede uma solução de IA que monitore pacientes por **dados multimodais (áudio, vídeo e texto)** para identificar **sinais precoces de risco** em saúde da mulher.
 
 - **Funcionalidades** — escolher **pelo menos 2**.
 - **Objetivos** — escolher **pelo menos 3**.
@@ -46,31 +46,45 @@ O Tech Challenge pede uma solução de IA que monitore pacientes por **dados mul
   2. **Análise de Áudio Especializada** (consultas, pré-natal, pós-parto, vítimas de violência).
 - **Entregáveis da fase**: repositório Git completo, relatório técnico e vídeo de até 15 min.
 
-> ⚠️ **Atenção (gap identificado):** as anotações iniciais focavam em **Vídeo + Sinais Vitais** e **não incluíam Áudio**. Como o PDF lista **Áudio** entre as entregas técnicas obrigatórias, este plano **inclui um módulo de áudio** (mesmo que enxuto) para reduzir risco de perda de nota. Veja a decisão em [`docs/00-visao-geral-e-escopo.md`](docs/00-visao-geral-e-escopo.md).
+> 💡 O enunciado enfatiza **monitorar continuamente** para achar **sinais precoces**. Por isso o cenário central é o **acompanhamento no pós-parto** (a paciente envia dados ao longo do tempo, de casa), e não um evento pontual de cirurgia.
 
 ---
 
 ## 3. Escopo escolhido (decisão de projeto)
 
-Para manter o projeto realista e com forte "fusão multimodal" (que é o diferencial avaliado), o escopo recomendado é:
+Para manter o projeto realista, alinhado ao "monitoramento contínuo" do enunciado e com forte "fusão multimodal" (que é o diferencial avaliado), o escopo recomendado é:
 
-**Cenário clínico central:** *Hemorragia / complicação em cirurgia ginecológica-obstétrica, com paciente sob vigilância de sinais vitais e histórico de consulta.*
+**Cenário clínico central:** *Acompanhamento contínuo da mulher no **pós-parto** (e gestação avançada). A paciente, em casa, envia periodicamente seus dados; o sistema cruza tudo e alerta a equipe diante de **sinais precoces de risco**.*
+
+**Riscos-alvo monitorados:** infecção da cicatriz da cesárea, pré-eclâmpsia/hipertensão, depressão pós-parto/ansiedade, violência doméstica e evolução da recuperação física.
 
 **4 modalidades implementadas (áudio, vídeo, sinais vitais e texto):**
-1. **Vídeo** — YOLOv8 detecta sangramento/anatomia/instrumentos em vídeo cirúrgico.
-2. **Sinais vitais** — modelo clássico (Random Forest / Isolation Forest) detecta anomalia (queda de PA, FHR fora da faixa).
-3. **Áudio** — transcrição + classificação de sinais de risco psicológico/violência em áudio de consulta.
-4. **Texto/NLP** — análise de laudos, prescrições hormonais e evolução clínica (fecha a tríade "áudio, vídeo e texto" do enunciado).
+1. **Vídeo** — YOLOv8 detecta sinais de **infecção na cicatriz** da cesárea; **YOLOv8-pose** acompanha os **exercícios de fisioterapia**/recuperação.
+2. **Sinais vitais** — modelo clássico (Random Forest / Isolation Forest) sobre dados clínicos tabulares (PA, FC, glicemia, temperatura) detecta **risco materno / pré-eclâmpsia**.
+3. **Áudio** — transcrição + classificação de sinais de **depressão pós-parto, ansiedade e violência** em áudio de consulta/relato.
+4. **Texto/NLP** — análise de laudos, exames e evolução clínica (fecha a tríade "áudio, vídeo e texto" do enunciado).
 
-**Fusão multimodal (o "pulo do gato"):** um motor de regras combina os sinais e classifica o risco em `BAIXO / MÉDIO / ALTO`, disparando **alerta em tempo real** (WebSocket/SSE) para a equipe e gerando um **relatório automático**.
+**Fusão multimodal (o "pulo do gato"):** um motor de regras combina os sinais **da mesma paciente** e classifica o risco em `BAIXO / MÉDIO / ALTO`, disparando **alerta em tempo real** (WebSocket/SSE) para a equipe e gerando um **relatório automático**.
 
 **Mapeamento de requisitos:** ver tabela completa em [`docs/00-visao-geral-e-escopo.md`](docs/00-visao-geral-e-escopo.md).
 
 ---
 
-## 4. Arquitetura em uma frase
+## 4. O que liga os dados (a coerência do projeto)
 
-**Node.js** (orquestrador: upload, API, banco, dashboard, Azure Blob) **+** **Python/FastAPI** (motor de IA: YOLO, sinais vitais, áudio) **+** **Azure** (Blob Storage + hospedagem). Detalhes em [`docs/arquitetura.md`](docs/arquitetura.md).
+Os dados **não são análises soltas**. Eles são amarrados por três "colas":
+
+1. **A paciente + um caso** — cada paciente cadastrada recebe **um conjunto de dados** (vídeo/áudio/sinais/texto). Tudo pertence à **mesma pessoa, no mesmo episódio de cuidado**.
+2. **A linha do tempo do pós-parto** — cada modalidade observa um ângulo do **mesmo acompanhamento**: o relato (áudio/texto), o corpo (cicatriz/fisioterapia em vídeo) e os números (sinais vitais).
+3. **O motor de fusão** — cruza as evidências e gera **um** nível de risco, provando que a combinação vale mais que a soma das partes.
+
+> ⚠️ **Treino x uso real.** Os **datasets públicos** servem **só para treinar** cada modelo (são de pessoas diferentes — tudo bem). O **"mesmo paciente"** só existe no **uso real**, quando alguém é cadastrado e envia os próprios dados. Para **demonstrar** a fusão sem um paciente real, montamos um **"caso de exemplo" sintético** juntando amostras (ver [Fase 1](docs/01-fase1-dados.md)).
+
+---
+
+## 5. Arquitetura em uma frase
+
+**Node.js** (orquestrador: upload, API, banco, dashboard, Azure Blob) **+** **Python/FastAPI** (motor de IA: YOLO/YOLO-pose, sinais vitais, áudio, texto) **+** **Azure** (Blob Storage + hospedagem). Detalhes em [`docs/arquitetura.md`](docs/arquitetura.md).
 
 ```
 Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (FastAPI)
@@ -82,20 +96,20 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 
 ---
 
-## 5. Fases em ordem (visão macro)
+## 6. Fases em ordem (visão macro)
 
 | Fase | Objetivo | Resultado "pronto" |
 |------|----------|--------------------|
-| **1 — Dados** | Obter e preparar mini-datasets de vídeo, sinais vitais e áudio | Dados limpos e anotados para começar a treinar |
-| **2 — Modelos** | Treinar/validar cada IA isoladamente | 3 modelos funcionando individualmente com métricas |
+| **1 — Dados** | Obter e preparar mini-datasets de vídeo, sinais vitais, áudio e texto | Dados limpos e anotados para começar a treinar |
+| **2 — Modelos** | Treinar/validar cada IA isoladamente | 4 modelos funcionando individualmente com métricas |
 | **3 — Fusão + Nuvem** | Motor de regras + API + deploy Azure | Pipeline ponta-a-ponta rodando na nuvem |
 | **4 — Entregáveis** | Repo, relatório e vídeo | Tudo pronto para submissão |
 
-> **Princípio guia:** comece com um **mini-dataset** (5 vídeos, 5 planilhas, 5 áudios) e faça o pipeline rodar ponta-a-ponta. "Se rodar com 5, roda com 500." Só depois escale.
+> **Princípio guia:** comece com um **mini-dataset** (5 amostras por modalidade) e faça o pipeline rodar ponta-a-ponta. "Se rodar com 5, roda com 500." Só depois escale.
 
 ---
 
-## 6. Estrutura de repositório recomendada
+## 7. Estrutura de repositório recomendada
 
 ```
 .
@@ -127,7 +141,7 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 
 ---
 
-## 7. Próximo passo imediato
+## 8. Próximo passo imediato
 
 1. Ler [`docs/00-visao-geral-e-escopo.md`](docs/00-visao-geral-e-escopo.md) e confirmar o escopo com o grupo.
 2. Dividir as fases entre os integrantes (sugestão de divisão no doc da Fase 4).
