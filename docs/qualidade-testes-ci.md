@@ -40,8 +40,8 @@ Comando único: `docker compose up`. Documentar no README.
 Exemplo de caso de teste da fusão:
 ```python
 def test_fusao_alto_risco():
-    r = avaliar_fusao(video={"evento": "sangramento", "confianca": 0.9},
-                      vitais={"tipo": "hipotensao", "valor": 85})
+    r = avaliar_fusao(cicatriz={"evento": "sinal_infeccao", "confianca": 0.9},
+                      vitais={"tipo": "hipertensao", "valor": "150/95"})
     assert r["risco_detectado"] == "ALTO"
 ```
 

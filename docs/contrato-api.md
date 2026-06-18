@@ -16,12 +16,13 @@
     "gestante": true,
     "idade_gestacional_semanas": 28
   },
-  "video_url": "https://<conta>.blob.core.windows.net/videos/cirurgia01.mp4",
+  "video_cicatriz_url": "https://<conta>.blob.core.windows.net/videos/cicatriz01.jpg",
+  "video_fisioterapia_url": "https://<conta>.blob.core.windows.net/videos/fisio01.mp4",
   "dados_vitais": {
     "csv_url": "https://<conta>.blob.core.windows.net/sinais/case01.csv"
   },
   "audio_url": "https://<conta>.blob.core.windows.net/audios/consulta01.wav",
-  "texto_clinico": "Laudo/evolução/prescrição em texto ou URL do documento"
+  "texto_clinico": "Laudo/evolução/exame em texto ou URL do documento"
 }
 ```
 
@@ -37,12 +38,13 @@
   "case_id": "abc-123",
   "risco_detectado": "ALTO",
   "evidencias": {
-    "video": { "evento": "sangramento", "confianca": 0.89 },
-    "sinais_vitais": { "tipo": "taquicardia", "valor": 125 },
-    "audio": { "categoria": "ansiedade", "confianca": 0.74 },
-    "texto": { "achado": "complicacao", "trecho": "sangramento aumentado no pós-operatório" }
+    "video_cicatriz": { "evento": "sinal_infeccao", "confianca": 0.86 },
+    "video_fisioterapia": { "execucao": "incorreta", "amplitude": "reduzida" },
+    "sinais_vitais": { "tipo": "hipertensao", "valor": "150/95" },
+    "audio": { "categoria": "depressao_pos_parto", "confianca": 0.74 },
+    "texto": { "achado": "sinal_infeccao", "trecho": "relato de febre e dor na cicatriz" }
   },
-  "mensagem_alerta": "Sangramento detectado com instabilidade hemodinâmica.",
+  "mensagem_alerta": "Sinal de infecção na cicatriz com relato de febre/dor.",
   "relatorio_url": "https://<conta>.blob.core.windows.net/relatorios/abc-123.pdf"
 }
 ```
@@ -52,20 +54,21 @@
 | Campo | Valores |
 |-------|---------|
 | `risco_detectado` | `BAIXO`, `MEDIO`, `ALTO` |
-| `evidencias.video.evento` | `sangramento`, `instrumento`, `anatomia`, `nenhum` |
-| `evidencias.sinais_vitais.tipo` | `normal`, `hipotensao`, `taquicardia`, `fhr_anomala` |
+| `evidencias.video_cicatriz.evento` | `ferida_ok`, `sinal_infeccao`, `nenhum` |
+| `evidencias.video_fisioterapia.execucao` | `correta`, `incorreta`, `nao_avaliado` |
+| `evidencias.sinais_vitais.tipo` | `normal`, `risco_medio`, `hipertensao`, `pre_eclampsia` |
 | `evidencias.audio.categoria` | `neutro`, `ansiedade`, `depressao_pos_parto`, `violencia`, `fadiga` |
-| `evidencias.texto.achado` | `complicacao`, `prescricao_risco`, `neutro` |
+| `evidencias.texto.achado` | `complicacao`, `sinal_infeccao`, `neutro` |
 
 ## 4. Regra de derivação do risco (resumo)
 
-| Vídeo | Sinais vitais | Risco |
-|-------|---------------|-------|
-| sangramento | anômalo | **ALTO** |
-| sangramento | normal | **MEDIO** |
-| nenhum | anômalo | **MEDIO** |
-| nenhum | normal | **BAIXO** |
+| Vídeo (cicatriz) | Sinais vitais | Risco |
+|------------------|---------------|-------|
+| sinal de infecção | de risco | **ALTO** |
+| sinal de infecção | normal | **MEDIO** |
+| ok / nenhum | de risco | **MEDIO** |
+| ok / nenhum | normal | **BAIXO** |
 
-> O **áudio** e o **texto/NLP** entram como **contexto adicional** e podem elevar a prioridade de encaminhamento (ex.: violência → protocolo específico; laudo confirmando complicação → reforça o risco). Detalhes em [Fase 3](03-fase3-fusao-e-nuvem.md).
+> O **áudio** e o **texto/NLP** entram como **contexto adicional** e podem elevar a prioridade de encaminhamento (ex.: violência → protocolo específico; laudo confirmando febre/proteinúria → reforça o risco de infecção/pré-eclâmpsia). Detalhes em [Fase 3](03-fase3-fusao-e-nuvem.md).
 
 > O campo `relatorio_url` aponta para o **relatório automático** gerado por caso — ver [docs/06-relatorios-automaticos.md](06-relatorios-automaticos.md).

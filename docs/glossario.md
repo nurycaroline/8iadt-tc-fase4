@@ -5,24 +5,26 @@
 ## Termos clínicos
 | Termo | Significado |
 |-------|-------------|
-| **FHR** (Fetal Heart Rate) | Frequência cardíaca fetal. Faixa normal ~ **110–160 bpm**. Fora disso = sinal de risco |
-| **UC** (Uterine Contractions) | Contrações uterinas; medidas no tocograma |
-| **CTG** (Cardiotocografia) | Exame que registra FHR + UC simultaneamente |
-| **PA** | Pressão arterial. Sistólica `< 90 mmHg` é sinal de hipotensão/instabilidade |
-| **Hemorragia pós-parto (HPP)** | Sangramento excessivo após o parto; emergência obstétrica — evento de risco central do projeto |
-| **Instabilidade hemodinâmica** | Sinais vitais (PA, FC) fora do equilíbrio, indicando comprometimento circulatório |
+| **Puerpério / Pós-parto** | Período após o parto; foco do acompanhamento contínuo do projeto |
+| **Pré-natal** | Acompanhamento durante a gestação |
+| **PA** | Pressão arterial. Sistólica/diastólica `≥ 140/90 mmHg` é sinal de hipertensão/pré-eclâmpsia |
+| **Pré-eclâmpsia** | Hipertensão na gestação/puerpério com proteinúria; risco materno grave — alvo dos sinais vitais |
+| **Proteinúria** | Proteína na urina; sinal associado à pré-eclâmpsia |
+| **Infecção puerperal** | Infecção no pós-parto (ex.: na cicatriz da cesárea) — alvo do vídeo da cicatriz |
+| **Deiscência** | Abertura/separação das bordas de uma ferida cirúrgica |
+| **Cicatriz da cesárea** | Ferida cirúrgica monitorada por vídeo/foto (sinal de infecção) |
+| **Cesárea** | Parto cirúrgico por incisão abdominal |
 | **Taquicardia** | Frequência cardíaca elevada |
 | **Hipotensão** | Pressão arterial baixa |
-| **Histerectomia** | Cirurgia de remoção do útero (caso do dataset AutoLaparo) |
-| **Laparoscopia** | Cirurgia minimamente invasiva por pequenas incisões com câmera |
-| **EHG / Eletroisterograma** | Atividade elétrica do útero |
-| **Pré-natal / Pós-parto** | Acompanhamento antes / depois do parto |
+| **Fisioterapia / Reabilitação** | Exercícios de recuperação física no pós-parto; acompanhados por vídeo (pose) |
 | **Depressão pós-parto** | Transtorno de humor após o parto; alvo do módulo de áudio |
 
 ## Termos técnicos
 | Termo | Significado |
 |-------|-------------|
-| **YOLOv8** | Modelo de detecção/segmentação de objetos em imagem/vídeo |
+| **YOLOv8** | Modelo de detecção/segmentação de objetos em imagem/vídeo (usado na cicatriz) |
+| **YOLOv8-pose** | Variante do YOLOv8 que estima **keypoints** do corpo (usado na fisioterapia) |
+| **Keypoints** | Pontos do corpo (articulações) detectados na estimativa de pose |
 | **mAP** (mean Average Precision) | Métrica de qualidade de detecção (ex.: mAP@0.5) |
 | **Random Forest** | Modelo de ML clássico de classificação |
 | **Isolation Forest** | Algoritmo de detecção de anomalias não supervisionado |
@@ -33,4 +35,4 @@
 | **Azure Blob Storage** | Armazenamento de objetos (arquivos) na nuvem |
 | **SAS token** | Token de acesso temporário a um recurso do Azure Storage |
 | **RBAC** | Controle de acesso baseado em papéis |
-| **Mini-dataset** | Amostra pequena (5/5/5) para validar o pipeline antes de escalar |
+| **Mini-dataset** | Amostra pequena (5 por modalidade) para validar o pipeline antes de escalar |

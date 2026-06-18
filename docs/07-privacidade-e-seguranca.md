@@ -27,7 +27,7 @@
 - Pesos de modelo grandes via **Git LFS** (não dados clínicos).
 
 ## 4. Dados sintéticos como estratégia de privacidade
-Usar dados sintéticos (PA sincronizada, áudios em TTS) **resolve dois problemas de uma vez**: viabiliza a demonstração e elimina o risco de expor paciente real. Cite isso como decisão de privacidade no relatório.
+Usar dados sintéticos (o **caso de exemplo** que junta amostras numa paciente fictícia, sinais vitais e áudios em TTS) **resolve dois problemas de uma vez**: viabiliza a demonstração da fusão e elimina o risco de expor paciente real. Cite isso como decisão de privacidade no relatório.
 
 ## 5. Disclaimer ético (incluir no README e no relatório)
 > Esta é uma solução acadêmica de **apoio à decisão clínica**. Não realiza diagnóstico nem substitui a avaliação de profissionais de saúde. Não deve ser usada em ambiente real sem validação clínica e regulatória adequada.

@@ -2,52 +2,66 @@
 
 > Baixe **apenas amostras** para o mini-dataset. Registre origem e licença de cada um (vai para o relatório). Não versione os dados.
 
-## 1. Vídeo cirúrgico (visão computacional)
+> ⚠️ **Treino x uso real.** Estas bases servem **só para treinar** cada modelo — são de **pessoas diferentes**, e tudo bem. O **"mesmo paciente"** só existe no **uso real**. Para demonstrar a fusão, monte um **caso de exemplo sintético** juntando 1 amostra de cada (ver [Fase 1, Tarefa 1.6](01-fase1-dados.md)).
 
-> **Sem Roboflow e sem anotação manual.** Todos os datasets abaixo **já vêm anotados**; basta um **script automático** para converter as máscaras de segmentação para o formato YOLO (`.txt` com polígonos normalizados).
+## 1. Vídeo — cicatriz da cesárea (visão computacional)
 
-### Já anotados (recomendados)
+> Objetivo: treinar o YOLOv8 a reconhecer **sinal de infecção** na cicatriz (vermelhidão, secreção, deiscência).
+
 | Dataset | O que é | Por que usar | Link |
 |---------|---------|--------------|------|
-| **CholecSeg8k** ⭐ | 8.080 frames com **segmentação pixel-a-pixel** em 13 classes, incluindo **Blood (sangue)**, Grasper e L-hook (instrumentos) e anatomia | **Melhor escolha** — já traz sangramento + instrumentos + anatomia anotados; pronto no Hugging Face/Kaggle (CC BY-NC-SA 4.0) | https://huggingface.co/datasets/minwoosun/CholecSeg8k |
-| **SurgBlood** | 5.330 frames de 95 vídeos com **regiões e pontos de sangramento** anotados por cirurgiões (CVPR 2026) | Específico para **hemorragia** intraoperatória | https://github.com/PJLallen/SurgBlood |
-| **AutoLaparo** | Histerectomia laparoscópica com máscaras de segmentação pixel-a-pixel | Anatomia **ginecológica** (útero/instrumentos) já anotada | https://autolaparo.github.io/ |
+| **AZH Wound** ⭐ | 730 imagens de feridas (diabética, pressão, **cirúrgica**, venosa), anotadas por especialistas | Melhor base pública aberta de feridas; inclui **feridas cirúrgicas** | https://github.com/uwm-bigdata/wound-classification-using-images-and-locations |
+| **Imaging-based SSI (referência)** | Pipeline para triagem de imagens de ferida pós-operatória enviadas pelo paciente | Inspiração de metodologia (dados são proprietários) | https://pubmed.ncbi.nlm.nih.gov/40607706/ |
 
-### Complementares (também anotados)
+**Estratégia (sem anotação manual pesada):**
+1. Definir 2 classes simples: `ferida_ok` e `ferida_alerta` (sinal de infecção).
+2. Converter para o formato YOLO via script (bounding box/polígono).
+3. Treinar YOLOv8n/s e avaliar mAP/precisão/recall.
+
+> **Domínio:** o AZH Wound não é específico de cesárea, mas **feridas cirúrgicas têm aparência semelhante**. Documente a decisão e a limitação no relatório.
+
+## 2. Vídeo — fisioterapia / recuperação (pose)
+
+> Objetivo: usar **YOLOv8-pose** para acompanhar os exercícios de reabilitação no pós-parto.
+
 | Dataset | O que é | Por que usar | Link |
 |---------|---------|--------------|------|
-| **CholecT50** | Reconhecimento de ações/ferramentas, bounding boxes nas pontas | Presença de ferramentas e fases | https://github.com/CAMMA-public/cholect50 |
-| **SurgToolLoc** | Localização de ferramentas com bounding boxes no teste | Medir acurácia do YOLO | https://surgtoolloc.grand-challenge.org/data/ |
+| **UCO Physical Rehabilitation** ⭐ | 2.160 vídeos de 27 sujeitos em 16 exercícios, com pose (2D/3D) | Direto para estimativa de pose em reabilitação | https://github.com/AVAuco/ucophyrehab |
+| **IntelliRehabDS** | Movimentos de 29 sujeitos (pacientes e controles) via Kinect, com rótulo correto/incorreto | Bom para classificar execução do exercício | https://zenodo.org/records/4610859 |
+| **REHAB24-6** | Vídeo RGB + esqueleto 2D/3D, repetições corretas/incorretas | Alternativa com rótulo de qualidade | (buscar "REHAB24-6 dataset") |
 
-**Estratégia para "sangramento" (sem anotar à mão):**
-1. **Sangue:** usar a classe **Blood** do CholecSeg8k (ou as máscaras do SurgBlood) — já anotada.
-2. **Anatomia ginecológica:** usar as máscaras do AutoLaparo (útero/instrumentos).
-3. **Conversão:** script automático máscara → YOLO-Seg; treinar YOLOv8-Seg com as classes combinadas.
-4. **Fusão lógica** com sinais vitais (a IA não decide tudo sozinha).
+## 3. Sinais vitais (tabular / dados clínicos)
 
-> **Domínio:** CholecSeg8k/SurgBlood são de cirurgia hepatobiliar (vesícula/fígado). Como o **sangue tem aparência semelhante** entre cirurgias laparoscópicas, combiná-los com AutoLaparo (ginecológico) é uma decisão razoável — documente no relatório.
-> Os datasets **MICCAI EndoVis** também são padrão-ouro e já vêm com ground truth de alta qualidade.
+> Objetivo: classificar **risco materno / pré-eclâmpsia** a partir de PA, FC, glicemia e temperatura.
 
-## 2. Sinais vitais (séries temporais)
+| Dataset | O que é | Por que usar | Link |
+|---------|---------|--------------|------|
+| **Maternal Health Risk (UCI)** ⭐ | 1.013 registros (PA sistólica/diastólica, glicemia, temperatura, FC) com nível de risco `low/mid/high`; **CC BY 4.0** | Base aberta e direta para Random Forest | https://archive.ics.uci.edu/dataset/863/maternal+health+risk |
+| **Preeclampsia (sintético, HF)** | ~21 mil amostras focadas em pré-eclâmpsia (fatores de risco com odds ratios da literatura) | Mais volume/foco em pré-eclâmpsia | https://huggingface.co/datasets/electricsheepafrica/africa-synth-maternal-health-preeclampsia-dataset-all |
+| **Maternal health pregnancy (sintético, HF)** | 30 mil registros de pré-natal (PA, hemoglobina, glicemia, proteinúria, desfecho) | Cenários variados de risco | https://huggingface.co/datasets/LinderStacy-1/maternal-health-pregnancy |
 
-| Dataset | O que é | Por que usar |
-|---------|---------|--------------|
-| **CTU-CHB Intrapartum Cardiotocography** | 552 registros de CTG no parto (FHR + UC) | Dataset definitivo de monitoramento fetal; padrões de risco classificados |
-| **VitalDB** | Sinais vitais multiparâmetro de alta resolução em cirurgia (PA invasiva/não invasiva, FC, oximetria) | Simular paciente na mesa de operação; alimentar a queda de PA |
-| **OB-1 Fetal ECG Database** | ECG fetal do couro cabeludo + atividade uterina, batimento a batimento | Alternativa/complemento ao CTG, foco em variabilidade de FHR |
-| **Term-Preterm EHG (Tocograma)** | Eletroisterograma + tocograma | Prever contrações anômalas / trabalho de parto prematuro |
+## 4. Áudio (consultas / relatos)
 
-> Buscar no **PhysioNet** e no **UCI Machine Learning Repository** (ex.: *Cardiotocography Data Set*).
+> Objetivo: detectar **depressão pós-parto / ansiedade / violência** na fala.
 
-## 3. Áudio (consultas)
+| Fonte | O que é | Uso | Link |
+|-------|---------|-----|------|
+| **Androids Corpus** ⭐ | 228 gravações (saudáveis vs. com depressão), leitura e fala espontânea; uso acadêmico | Treinar/validar classificação de depressão na fala | https://github.com/androidscorpus/data |
+| **DEPAC** | Fala rotulada com escalas de depressão (PHQ-9) e ansiedade (GAD-7) | Mais tarefas de fala e rótulos | https://aclanthology.org/2022.clpsych-1.1.pdf |
+| **Áudios sintéticos (TTS)** | Falas de consulta nas categorias-alvo geradas por TTS | Rápido e sem questão de privacidade (demo) | — |
+| **Gravações próprias (consentimento simulado)** | Falas curtas gravadas pelo grupo | Demonstração realista no vídeo | — |
+
+> **Limitação honesta:** não existe base só de depressão **pós-parto**. Usa-se base de depressão/ansiedade **geral** + áudios sintéticos. Explique isso no relatório.
+> Para transcrição: **Whisper** (local) ou **Azure Speech-to-Text**. Para sentimento: **Azure Text Analytics**.
+
+## 5. Texto clínico (NLP)
+
+> Objetivo: achar sinais de risco em laudos/exames/evolução (ex.: PA alta, proteinúria, febre/dor na cicatriz).
 
 | Fonte | Uso |
 |-------|-----|
-| **Áudios sintéticos (TTS)** | Gerar falas de consulta nas categorias-alvo (rápido e sem questão de privacidade) |
-| **RAVDESS / bases de fala emocional** | Treinar/validar classificação de emoção/sentimento |
-| **Gravações próprias (consentimento simulado)** | Demonstração realista no vídeo |
+| **Laudos/evolução sintéticos** | Gerar ~5 documentos com achados normais e de risco (rápido e sem privacidade) |
+| **Campos textuais dos datasets de pré-natal (HF)** | Reaproveitar descrições/desfechos como texto clínico |
 
-> Para transcrição: **Whisper** (local) ou **Azure Speech-to-Text**. Para sentimento: **Azure Text Analytics**.
-
-## 4. Mock de sincronização (gerado por você)
-Script Python que produz uma série de **PA materna** alinhada ao vídeo, com **queda no segundo do sangramento**. É o que torna a **fusão demonstrável** — ver [Fase 1, Tarefa 1.4](01-fase1-dados.md).
+## 6. Caso de exemplo sintético (gerado por você)
+Script Python que monta uma **paciente fictícia** combinando 1 amostra de cada modalidade num caso coerente (ex.: cicatriz com alerta + PA alta + áudio com sinal de risco + laudo com proteinúria). É o que torna a **fusão demonstrável** — ver [Fase 1, Tarefa 1.6](01-fase1-dados.md).
