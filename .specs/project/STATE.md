@@ -6,8 +6,11 @@
 
 ## Fase atual
 
-**Fase 1 — Aquisição e Preparação de Dados** (planejamento concluído; implementação pendente).
+**Fase 1 — Aquisição e Preparação de Dados** — **implementada**.
 Plano em [`.specs/features/fase1-dados/`](../features/fase1-dados/) (spec → design → tasks).
+Código em `scripts/data_prep/` (+ testes em `scripts/tests/`); estrutura em `data/`.
+Gate verde: `ruff check scripts` + `pytest` (12 testes). Scripts offline (texto clínico, caso
+sintético) validados ponta-a-ponta; downloads (vitais/cicatriz/áudio/fisio) dependem de rede/licença.
 
 ## Decisões registradas
 
