@@ -1,0 +1,32 @@
+# ──────────────────────────────────────────────────────────────
+# Dados (LGPD): nunca versionar dados brutos/sensíveis de pacientes.
+# Versionamos apenas a estrutura de pastas e pequenos metadados textuais.
+# Ver docs/01-fase1-dados.md e docs/07-privacidade-e-seguranca.md
+# ──────────────────────────────────────────────────────────────
+/data/**
+
+# Exceções: estrutura + metadados/refs versionáveis (texto leve)
+!/data/**/
+!/data/README.md
+!/data/**/.gitkeep
+!/data/audio/metadados.json
+!/data/texto_clinico/rotulos.json
+!/data/casos/*.json
+!/data/video_cicatriz/data.yaml
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# ── Modelos/pesos (Fase 2) ──
+*.pt
+*.onnx
+
+# ── SO/editor ──
+.DS_Store
