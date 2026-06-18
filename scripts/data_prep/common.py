@@ -54,35 +54,29 @@ def data_dir(modalidade: str | None = None) -> Path:
     return path
 
 
-def download(url: str, dest: str | os.PathLike[str], *, overwrite: bool = False) -> Path:
-    """Baixa ``url`` para ``dest`` de forma segura e idempotente.
+def download(
+    url: str, dest: str | os.PathLike[str], *, overwrite: bool = False, timeout: int = 120
+) -> Path:
+    """Baixa ``url`` para ``dest`` de forma segura e idempotente (usa a stdlib ``urllib``).
 
     Grava primeiro num arquivo temporário e só então renomeia para ``dest`` (atômico),
     evitando arquivos parciais corrompidos. Se já existir e ``overwrite`` for falso, retorna o
     arquivo existente. Em falha, levanta :class:`DownloadError` com instrução de obtenção manual.
     """
+    import shutil as _shutil
+    import urllib.request
+
     dest = Path(dest)
     if dest.exists() and not overwrite:
         return dest
     dest.parent.mkdir(parents=True, exist_ok=True)
 
-    try:
-        import requests  # import tardio: dependência opcional em tempo de teste
-    except ImportError as exc:  # pragma: no cover - ambiente sem requests
-        raise DownloadError(
-            "Pacote 'requests' não instalado. Rode: "
-            "pip install -r scripts/requirements-data.txt"
-        ) from exc
-
     tmp_fd, tmp_name = tempfile.mkstemp(dir=str(dest.parent), suffix=".part")
     tmp_path = Path(tmp_name)
     try:
-        with requests.get(url, stream=True, timeout=60) as resp:
-            resp.raise_for_status()
-            with os.fdopen(tmp_fd, "wb") as fh:
-                for chunk in resp.iter_content(chunk_size=8192):
-                    if chunk:
-                        fh.write(chunk)
+        req = urllib.request.Request(url, headers={"User-Agent": "tc-fase4-dataprep"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp, os.fdopen(tmp_fd, "wb") as fh:
+            _shutil.copyfileobj(resp, fh)
         tmp_path.replace(dest)
         return dest
     except Exception as exc:
