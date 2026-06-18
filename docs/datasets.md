@@ -4,18 +4,29 @@
 
 ## 1. Vídeo cirúrgico (visão computacional)
 
+> **Sem Roboflow e sem anotação manual.** Todos os datasets abaixo **já vêm anotados**; basta um **script automático** para converter as máscaras de segmentação para o formato YOLO (`.txt` com polígonos normalizados).
+
+### Já anotados (recomendados)
 | Dataset | O que é | Por que usar | Link |
 |---------|---------|--------------|------|
-| **AutoLaparo** | Histerectomia laparoscópica com máscaras de segmentação pixel-a-pixel | **Melhor escolha inicial** — já traz anatomia/instrumentos anotados | https://autolaparo.github.io/ |
-| **CholecT50** | Reconhecimento de ações/ferramentas cirúrgicas, bounding boxes nas pontas | Treinar YOLO em presença de ferramentas e fases | https://github.com/CAMMA-public/cholect50 |
+| **CholecSeg8k** ⭐ | 8.080 frames com **segmentação pixel-a-pixel** em 13 classes, incluindo **Blood (sangue)**, Grasper e L-hook (instrumentos) e anatomia | **Melhor escolha** — já traz sangramento + instrumentos + anatomia anotados; pronto no Hugging Face/Kaggle (CC BY-NC-SA 4.0) | https://huggingface.co/datasets/minwoosun/CholecSeg8k |
+| **SurgBlood** | 5.330 frames de 95 vídeos com **regiões e pontos de sangramento** anotados por cirurgiões (CVPR 2026) | Específico para **hemorragia** intraoperatória | https://github.com/PJLallen/SurgBlood |
+| **AutoLaparo** | Histerectomia laparoscópica com máscaras de segmentação pixel-a-pixel | Anatomia **ginecológica** (útero/instrumentos) já anotada | https://autolaparo.github.io/ |
+
+### Complementares (também anotados)
+| Dataset | O que é | Por que usar | Link |
+|---------|---------|--------------|------|
+| **CholecT50** | Reconhecimento de ações/ferramentas, bounding boxes nas pontas | Presença de ferramentas e fases | https://github.com/CAMMA-public/cholect50 |
 | **SurgToolLoc** | Localização de ferramentas com bounding boxes no teste | Medir acurácia do YOLO | https://surgtoolloc.grand-challenge.org/data/ |
 
-**Estratégia para "sangramento" (anomalia de estado, não objeto fixo):**
-1. Segmentar anatomia (útero/ovário) com YOLOv8-Seg usando AutoLaparo.
-2. Treinar classificador leve "presença de sangue" por frame (dataset de sangue é raro).
-3. Fusão lógica com sinais vitais (não deixar a IA decidir tudo sozinha).
+**Estratégia para "sangramento" (sem anotar à mão):**
+1. **Sangue:** usar a classe **Blood** do CholecSeg8k (ou as máscaras do SurgBlood) — já anotada.
+2. **Anatomia ginecológica:** usar as máscaras do AutoLaparo (útero/instrumentos).
+3. **Conversão:** script automático máscara → YOLO-Seg; treinar YOLOv8-Seg com as classes combinadas.
+4. **Fusão lógica** com sinais vitais (a IA não decide tudo sozinha).
 
-> Os datasets **MICCAI EndoVis** são o padrão-ouro acadêmico e já vêm com ground truth de alta qualidade, economizando anotação manual.
+> **Domínio:** CholecSeg8k/SurgBlood são de cirurgia hepatobiliar (vesícula/fígado). Como o **sangue tem aparência semelhante** entre cirurgias laparoscópicas, combiná-los com AutoLaparo (ginecológico) é uma decisão razoável — documente no relatório.
+> Os datasets **MICCAI EndoVis** também são padrão-ouro e já vêm com ground truth de alta qualidade.
 
 ## 2. Sinais vitais (séries temporais)
 

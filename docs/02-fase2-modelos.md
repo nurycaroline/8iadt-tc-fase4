@@ -19,9 +19,10 @@
   2. Treinar em GPU (Colab) com poucas épocas no mini-dataset; depois escalar.
   3. Avaliar **mAP@0.5**, precisão e recall por classe.
   4. Exportar em **ONNX** (ou PyTorch) para a inferência.
-- **Estratégia para sangramento (anomalia visual):** como dataset de sangue é raro, combinar:
-  - Segmentação de anatomia/instrumentos (AutoLaparo) **+**
-  - Classificador leve "presença de sangue" por frame.
+- **Estratégia para sangramento (anomalia visual):** treinar YOLOv8-Seg com classes combinadas de datasets **já anotados** (sem marcação manual):
+  - **Sangue** → classe `Blood` do **CholecSeg8k** (ou máscaras do **SurgBlood**).
+  - **Anatomia/instrumentos ginecológicos** → máscaras do **AutoLaparo**.
+  - Conversão automática máscara → formato YOLO. Ver [datasets.md](datasets.md).
 
 ## Tarefa 2.2 — Análise de sinais vitais
 - **Biblioteca:** `scikit-learn`.

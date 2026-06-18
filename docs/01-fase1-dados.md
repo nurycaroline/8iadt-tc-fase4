@@ -3,7 +3,7 @@
 > Objetivo: ter um **mini-dataset** limpo e pronto para as 3 modalidades, mais o **mock de sincronização** vídeo↔sinais vitais.
 
 ## Resultado esperado (Definition of Done)
-- [ ] 5 clipes curtos de vídeo cirúrgico selecionados e anotados.
+- [ ] Amostra de vídeo cirúrgico **já anotada** (CholecSeg8k/SurgBlood/AutoLaparo) baixada e convertida para o formato YOLO via script (sem anotação manual).
 - [ ] 5 séries de sinais vitais (CTG/VitalDB) limpas e rotuladas.
 - [ ] 5 áudios de consulta (ou sintéticos/abertos) transcritos.
 - [ ] 5 documentos de **texto clínico** (laudos/prescrições/evolução) rotulados.
@@ -13,13 +13,19 @@
 ---
 
 ## Tarefa 1.1 — Vídeo (visão computacional)
-- **Datasets:** AutoLaparo (histerectomia laparoscópica, com máscaras), CholecT50, SurgToolLoc. Ver [datasets.md](datasets.md).
-- **Passos:**
-  1. Baixar uma **amostra** (não o dataset inteiro).
-  2. Extrair frames dos vídeos (ex.: 1 fps) com OpenCV/ffmpeg.
-  3. Anotar classes-alvo no **Roboflow**: `sangramento`, `utero`, `ovario`, `instrumento`.
-  4. Exportar no **formato YOLOv8** (`.txt` com coordenadas normalizadas, ou segmentação).
-- **"Hello World":** converter as máscaras do AutoLaparo para o formato YOLO e visualizar 1 frame anotado.
+> **Sem Roboflow e sem anotação manual.** Usamos datasets que **já vêm anotados** (ground truth) e apenas **convertemos** as máscaras para o formato YOLO via script automático.
+- **Datasets já anotados (recomendados):**
+  - **CholecSeg8k** — segmentação pixel-a-pixel pronta, com classe **Blood (sangue)** + instrumentos + anatomia (Hugging Face/Kaggle).
+  - **SurgBlood** — regiões/pontos de **sangramento** já anotados (específico para hemorragia).
+  - **AutoLaparo** — anatomia **ginecológica** (histerectomia) já com máscaras.
+  - Ver detalhes e links em [datasets.md](datasets.md).
+- **Passos (tudo automático):**
+  1. Baixar uma **amostra** do dataset já anotado (não o dataset inteiro).
+  2. Rodar um **script de conversão** das máscaras de segmentação → **formato YOLOv8** (`.txt` com polígonos normalizados). Sem marcação manual.
+  3. (Se necessário) Extrair frames adicionais com OpenCV/ffmpeg — já cobertos pelos datasets acima.
+- **"Hello World":** converter as máscaras de **1 amostra** (ex.: CholecSeg8k) para o formato YOLO e visualizar 1 frame com as anotações sobrepostas.
+
+> **Observação sobre o domínio:** CholecSeg8k/SurgBlood são de cirurgia hepatobiliar (vesícula/fígado), não ginecológica. Como o **sangue tem aparência semelhante** entre cirurgias laparoscópicas, combinamos **AutoLaparo (anatomia ginecológica)** + **CholecSeg8k/SurgBlood (sangramento)**. Registrar essa decisão no relatório técnico.
 
 ## Tarefa 1.2 — Sinais vitais (tabular/série temporal)
 - **Datasets:** CTU-CHB Intrapartum CTG (FHR + UC), VitalDB (PA, FC, oximetria em cirurgia). Ver [datasets.md](datasets.md).
