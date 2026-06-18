@@ -9,8 +9,10 @@
 **Fase 1 — Aquisição e Preparação de Dados** — **implementada**.
 Plano em [`.specs/features/fase1-dados/`](../features/fase1-dados/) (spec → design → tasks).
 Código em `scripts/data_prep/` (+ testes em `scripts/tests/`); estrutura em `data/`.
-Gate verde: `ruff check scripts` + `pytest` (12 testes). Scripts offline (texto clínico, caso
-sintético) validados ponta-a-ponta; downloads (vitais/cicatriz/áudio/fisio) dependem de rede/licença.
+Gate verde: `ruff check scripts` + `pytest` (12 testes). Orquestrador `python -m scripts.data_prep`
+validado: sinais vitais (UCI) e cicatriz (AZH Wound, download+conversão+preview) baixam de verdade;
+texto/caso sintético gerados offline. Áudio e fisioterapia exigem obtenção manual (sem download
+público simples) e aparecem como passos opcionais.
 
 ## Decisões registradas
 

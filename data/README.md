@@ -30,18 +30,35 @@ data/
 
 Pré-requisitos: `pip install -r scripts/requirements-data.txt`.
 
-| Modalidade        | Script                                  | Observação                                  |
-| ----------------- | --------------------------------------- | ------------------------------------------- |
-| Sinais vitais     | `python -m scripts.data_prep.sinais_vitais`     | Baixa via `ucimlrepo` (UCI id 863)  |
-| Cicatriz (YOLO)   | `python -m scripts.data_prep.cicatriz_yolo`     | Baixa 1 amostra do AZH Wound        |
-| Áudio             | `python -m scripts.data_prep.audio_transcrever` | Whisper local (ou Azure via env)    |
-| Texto clínico     | `python -m scripts.data_prep.texto_clinico`     | Gera documentos sintéticos (offline)|
-| Fisioterapia      | `python -m scripts.data_prep.fisioterapia_pose` | Amostras de UCO PhyRehab/IntelliRehab|
-| Caso sintético    | `python -m scripts.data_prep.caso_sintetico`    | Junta 1 amostra de cada modalidade  |
+**Baixar/gerar tudo de uma vez (recomendado):**
+
+```bash
+python -m scripts.data_prep
+```
+
+O orquestrador roda todas as modalidades (best-effort) e imprime um resumo. Modalidades **manuais**
+(áudio e fisioterapia) aparecem como `FALHOU` quando os arquivos ainda não foram adicionados — isso é
+esperado; adicione as amostras e rode de novo.
+
+Ou rode uma modalidade isolada:
+
+| Modalidade        | Script                                          | Obtenção  | Observação                          |
+| ----------------- | ----------------------------------------------- | --------- | ----------------------------------- |
+| Sinais vitais     | `python -m scripts.data_prep.sinais_vitais`     | **auto**  | Baixa via `ucimlrepo` (UCI id 863)  |
+| Cicatriz (YOLO)   | `python -m scripts.data_prep.cicatriz_yolo`     | **auto**  | Baixa `Test.zip` do AZH Wound (~4 MB), extrai amostras, converte e gera preview |
+| Texto clínico     | `python -m scripts.data_prep.texto_clinico`     | **auto**  | Gera documentos sintéticos (offline)|
+| Caso sintético    | `python -m scripts.data_prep.caso_sintetico`    | **auto**  | Junta 1 amostra de cada modalidade  |
+| Áudio             | `python -m scripts.data_prep.audio_transcrever` | manual    | Coloque 5 `.wav` em `data/audio/` (TTS/gravações); Whisper local ou Azure via env |
+| Fisioterapia      | `python -m scripts.data_prep.fisioterapia_pose` | manual    | Dataset UCO/IntelliRehab tem origem externa; coloque vídeos em `data/video_fisioterapia/` |
 
 Se um download automático falhar (rede, URL ou licença que exige login), os scripts emitem uma mensagem
 clara com a instrução de **obtenção manual** — baixe a amostra do link na tabela de origem e coloque-a
 na pasta indicada.
+
+> **Cicatriz — mapeamento de classes:** o AZH Wound classifica por *tipo* de ferida (não por infecção).
+> O script usa a pasta `N` (pele sem ferida) como `ferida_ok` e a pasta `S` (ferida cirúrgica) como
+> `ferida_alerta`, gerando 1 caixa por imagem. É um *proxy* para o "hello world" do YOLO; a limitação
+> está registrada abaixo.
 
 ## Origem e licença dos datasets
 
