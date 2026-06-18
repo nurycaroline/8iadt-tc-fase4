@@ -18,6 +18,7 @@ Plano em [`.specs/features/fase1-dados/`](../features/fase1-dados/) (spec → de
 | S3  | Caso sintético segue o objeto de requisição do contrato de API    | design.md DD4         |
 | S4  | Testes unitários só em funções puras (limpeza/conversão/builder)  | design.md DD5         |
 | S5  | `data/` ignorado pelo Git; só `data/README.md` versionado         | design.md DD7         |
+| S6  | **Python 3.13** (não 3.14): whisper não suporta 3.14 ainda        | design.md DD8         |
 
 ## Blockers / dependências externas
 

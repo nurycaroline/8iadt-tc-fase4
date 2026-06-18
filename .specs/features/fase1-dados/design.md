@@ -42,8 +42,9 @@ abaixo está apenas o conjunto de pacotes, sem inventar números de versão.
 | Testes                           | `pytest`                     | funções puras       |
 | Lint                             | `ruff`                       | todos os scripts    |
 
-> Linguagem: **Python 3.11** (consistente com `docs/qualidade-testes-ci.md`). As dependências de
-> preparação ficam em `scripts/requirements-data.txt` (separadas das do `ai-service/` da Fase 2).
+> Linguagem: **Python 3.13** (última estável é 3.14, mas o `openai-whisper` só suporta até 3.13 — em
+> 3.14 a instalação quebra por `numba`/`triton`; ver DD8). As dependências de preparação ficam em
+> `scripts/requirements-data.txt` (separadas das do `ai-service/` da Fase 2).
 
 ## 3. Estrutura de pastas (a criar)
 
@@ -153,6 +154,7 @@ Funções compartilhadas para manter os scripts pequenos e idempotentes:
 | DD5 | Testar apenas **funções puras** (limpeza, conversão, builder) | Download/IO dependem de rede; o valor está na lógica determinística |
 | DD6 | Reuso de keypoints fornecidos (fisio) quando existirem        | Evita anotação manual pesada (política do projeto)                  |
 | DD7 | `data/` ignorado; só `data/README.md` versionado             | LGPD/privacidade — nada de dados reais/sensíveis no Git             |
+| DD8 | **Python 3.13** (não 3.14, a última estável)                  | `openai-whisper` (T7) não suporta 3.14 (`numba`/`triton`); 3.13 é o teto compatível com todas as deps |
 
 ## 6. Estratégia de testes (entra em cada tarefa)
 
