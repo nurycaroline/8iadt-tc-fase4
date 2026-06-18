@@ -1,0 +1,16 @@
+{
+  "case_id": "caso-baixo",
+  "paciente": {
+    "id": "pac-demo-001",
+    "primeiro_nome": "Maria",
+    "idade": 31,
+    "gestante": false,
+    "idade_gestacional_semanas": null
+  },
+  "video_cicatriz_url": "data/video_cicatriz/images/ferida_ok_01.jpg",
+  "dados_vitais": {
+    "csv_url": "data/sinais_vitais/maternal_amostras.csv"
+  },
+  "audio_url": "data/audio/consulta_neutro.wav",
+  "texto_clinico": "data/texto_clinico/evolucao_01.txt"
+}
