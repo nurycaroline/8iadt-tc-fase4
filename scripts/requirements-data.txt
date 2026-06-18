@@ -1,0 +1,26 @@
+# Dependências da Fase 1 — preparação de dados (Python 3.13; ver design.md DD8).
+# Separadas das deps do ai-service/ (Fase 2). Instale num venv:
+#   python -m venv .venv && source .venv/bin/activate
+#   pip install -r scripts/requirements-data.txt
+#
+# Versões mínimas conservadoras; o pip resolve a última compatível.
+
+# Manipulação tabular (sinais vitais)
+pandas>=2.2
+
+# Download de datasets
+requests>=2.32
+ucimlrepo>=0.0.7          # Maternal Health Risk (UCI id 863)
+
+# Imagem / formato YOLO (cicatriz, fisioterapia)
+opencv-python>=4.10
+Pillow>=10.4
+ultralytics>=8.3
+pyyaml>=6.0
+
+# Áudio (transcrição). Whisper local; backend Azure é opcional via env var.
+openai-whisper>=20240930
+
+# Qualidade
+pytest>=8.3
+ruff>=0.6
