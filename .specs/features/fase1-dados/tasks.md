@@ -2,7 +2,7 @@
 
 **Spec**: [`spec.md`](spec.md)
 **Design**: [`design.md`](design.md)
-**Status**: Draft
+**Status**: Done (implementado em `scripts/data_prep/` + `data/`; gate `ruff` + `pytest` verde, 12 testes)
 
 > Cada tarefa = 1 entregável atômico (um arquivo/uma função/uma capacidade), com `Done when` testável
 > e um commit. Funções puras carregam testes na própria tarefa (co-located), conforme `design.md` §6.
