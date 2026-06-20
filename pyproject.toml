@@ -5,6 +5,9 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["app", "scripts"]
+
 [tool.pytest.ini_options]
 pythonpath = [".", "ai-service"]
 testpaths = ["scripts/tests", "ai-service/tests"]
