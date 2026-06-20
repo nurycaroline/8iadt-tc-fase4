@@ -44,6 +44,18 @@ def extrair_metricas(results_csv) -> dict:
     }
 
 
+def _data_yaml_absoluto(data_yaml: Path) -> Path:
+    """Reescreve o ``data.yaml`` com ``path`` absoluto (o Ultralytics resolve relativo ao CWD)."""
+    import yaml
+
+    cfg = yaml.safe_load(data_yaml.read_text(encoding="utf-8"))
+    base = data_dir("video_cicatriz")
+    cfg["path"] = str(base)
+    destino = base / "data_abs.yaml"
+    destino.write_text(yaml.safe_dump(cfg, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    return destino
+
+
 def treinar(data_yaml=None, *, epochs: int = 20, imgsz: int = 320, modelo: str = MODELO_BASE):
     """Treina o YOLOv8 e devolve ``(caminho_best_pt, metricas, metricas_por_classe)``."""
     from ultralytics import YOLO
@@ -55,6 +67,7 @@ def treinar(data_yaml=None, *, epochs: int = 20, imgsz: int = 320, modelo: str =
         raise FileNotFoundError(
             f"{data_yaml} não encontrado. Rode a Fase 1: python -m scripts.data_prep.cicatriz_yolo"
         )
+    data_yaml = _data_yaml_absoluto(data_yaml)
 
     yolo = YOLO(modelo)
     resultados = yolo.train(

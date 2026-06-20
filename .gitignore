@@ -36,5 +36,10 @@ venv/
 !/ai-service/models/baseline.json
 !/ai-service/models/**/*.png
 
+# ── Saídas de treino do Ultralytics (YOLO) ──
+runs/
+runs_cicatriz/
+yolov8*.pt
+
 # ── SO/editor ──
 .DS_Store
