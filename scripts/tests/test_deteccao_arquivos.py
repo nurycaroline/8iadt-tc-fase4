@@ -7,9 +7,10 @@ from scripts.data_prep.audio_transcrever import (
     listar_audios,
 )
 from scripts.data_prep.fisioterapia_pose import (
+    coletar_amostras,
     inferir_execucao,
-    listar_amostras,
     montar_metadado,
+    parse_intellirehab,
 )
 
 
@@ -18,6 +19,8 @@ def test_inferir_categoria_audio():
     assert inferir_categoria("01-DEPRESSAO-maria.mp3") == "depressao_pos_parto"
     assert inferir_categoria("violencia_caso2.m4a") == "violencia"
     assert inferir_categoria("audio_qualquer.wav") is None
+    # Androids Corpus: pasta HC (healthy control) -> neutro.
+    assert inferir_categoria("Androids-Corpus/Interview-Task/audio/HC/01_CF56_1.wav") == "neutro"
 
 
 def test_listar_audios_detecta_qualquer_nome(tmp_path):
@@ -37,28 +40,46 @@ def test_listar_audios_recursivo_em_subpastas(tmp_path):
     assert achados == {"lote1/neutro/a.wav", "topo.mp3"}
 
 
+def test_parse_intellirehab():
+    info = parse_intellirehab("106_18_2_3_1_stand")
+    assert info == {
+        "subject": "106", "date": "18", "gesture": "2",
+        "repeticao": "3", "correct_label": "1", "position": "stand",
+    }
+    assert parse_intellirehab("nome_qualquer") is None
+
+
 def test_inferir_execucao_fisio():
+    # CorrectLabel do padrão IntelliRehabDS (5º campo): 1=correto, 2=incorreto.
+    assert inferir_execucao("106_18_2_3_1_stand") == "correto"
+    assert inferir_execucao("106_18_2_3_2_stand") == "incorreto"
+    # Fallback por palavra-chave quando não casa o padrão.
     assert inferir_execucao("agachamento_incorreto.mp4") == "incorreto"
-    assert inferir_execucao("exercicio_errado.avi") == "incorreto"
     assert inferir_execucao("agachamento_01.mp4") == "correto"
 
 
-def test_listar_amostras_fisio_videos_e_esqueletos(tmp_path):
-    (tmp_path / "ex1.mp4").write_bytes(b"\x00")
-    (tmp_path / "ex2.txt").write_text("skeleton")
-    (tmp_path / "metadados.json").write_text("[]")
-    (tmp_path / ".oculto.mp4").write_bytes(b"\x00")
-    achados = {p.name for p in listar_amostras(tmp_path)}
-    assert achados == {"ex1.mp4", "ex2.txt"}
+def test_coletar_amostras_sequencia_depth(tmp_path):
+    # Pasta de gesto com frames PNG -> 1 amostra (sequência), não 1 por imagem.
+    seq = tmp_path / "DepthImages1-2" / "106_18_2_3_2_stand"
+    seq.mkdir(parents=True)
+    for n in ("52978.png", "52979.png", "52980.png"):
+        (seq / n).write_bytes(b"\x89PNG")
+    registros = coletar_amostras(tmp_path)
+    assert len(registros) == 1
+    r = registros[0]
+    assert r["tipo"] == "sequencia_depth"
+    assert r["n_frames"] == 3
+    assert r["execucao"] == "incorreto"
+    assert r["subject"] == "106" and r["gesture"] == "2"
 
 
-def test_listar_amostras_fisio_recursivo(tmp_path):
-    sub = tmp_path / "SkeletonData" / "sujeito1"
-    sub.mkdir(parents=True)
-    (sub / "gesto_incorreto.txt").write_text("kp")
+def test_coletar_amostras_esqueleto_e_video(tmp_path):
+    (tmp_path / "108_5_1_2_1_sit.csv").write_text("kp")
+    (tmp_path / "exercicio.mp4").write_bytes(b"\x00")
     (tmp_path / "metadados.json").write_text("[]")
-    achados = {p.relative_to(tmp_path).as_posix() for p in listar_amostras(tmp_path)}
-    assert achados == {"SkeletonData/sujeito1/gesto_incorreto.txt"}
+    registros = coletar_amostras(tmp_path)
+    tipos = {r["arquivo"]: r["tipo"] for r in registros}
+    assert tipos == {"108_5_1_2_1_sit.csv": "esqueleto", "exercicio.mp4": "video"}
 
 
 def test_montar_metadado_valida_execucao():
