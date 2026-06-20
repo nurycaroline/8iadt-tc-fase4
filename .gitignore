@@ -25,8 +25,16 @@ venv/
 .ruff_cache/
 
 # ── Modelos/pesos (Fase 2) ──
+# Pesos não são versionados (tamanho + reprodutíveis pelo treino). Métricas/gráficos sim.
 *.pt
 *.onnx
+*.joblib
+/ai-service/models/**
+!/ai-service/models/**/
+!/ai-service/models/.gitkeep
+!/ai-service/models/**/metrics.json
+!/ai-service/models/baseline.json
+!/ai-service/models/**/*.png
 
 # ── SO/editor ──
 .DS_Store
