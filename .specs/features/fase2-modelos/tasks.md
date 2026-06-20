@@ -2,7 +2,9 @@
 
 **Spec**: [`spec.md`](spec.md)
 **Design**: [`design.md`](design.md)
-**Status**: Planejado (não implementado). Gate alvo: `ruff check scripts ai-service` + `pytest -q` verde.
+**Status**: Implementado (T1–T14) em `ai-service/`. Gate verde: `ruff check scripts ai-service` +
+`pytest -q` (63 testes). Treinos reais executados: sinais vitais (Random Forest, 451 amostras) e
+cicatriz (YOLOv8n smoke, 6 imagens → ONNX). Áudio/fisioterapia degradam sem dados (obtenção manual).
 
 > Cada tarefa = 1 entregável atômico (um arquivo/uma função/uma capacidade), com `Done when` testável
 > e um commit. Funções puras carregam testes na própria tarefa (co-located), conforme `design.md` §6.

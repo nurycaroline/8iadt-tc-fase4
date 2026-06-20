@@ -6,14 +6,18 @@
 
 ## Fase atual
 
-**Fase 2 — Desenvolvimento dos Modelos Individuais** — **planejada** (ainda não implementada).
+**Fase 2 — Desenvolvimento dos Modelos Individuais** — **implementada** (T1–T14).
 Plano em [`.specs/features/fase2-modelos/`](../features/fase2-modelos/) (spec → design → tasks).
-Escopo: 1 módulo por modalidade em `ai-service/app/` (sinais vitais, cicatriz YOLOv8, fisioterapia
-pose, áudio, texto), cada um com **métricas próprias** e **saída padronizada** (dict do contrato de
-API §3); limiares clínicos centralizados (`limiares.py`) e baseline por modalidade única para a
-Fase 3. 14 tarefas (T1→T4 fundação; T5–T12 modalidades em paralelo; T13→T14 baseline+docs).
-Insumo: mini-dataset da Fase 1 em `data/` (reusar, não re-baixar — DD2). Gate alvo:
-`ruff check scripts ai-service` + `pytest -q`.
+Código em `ai-service/app/` (um módulo por modalidade) + testes em `ai-service/tests/`. Cada
+modalidade expõe inferência com **saída padronizada** (dict do contrato §3); limiares em
+`app/limiares.py`; baseline em `ai-service/models/baseline.json`. Gate verde:
+`ruff check scripts ai-service` + `pytest -q` (63 testes).
+Treinos reais executados neste ambiente: **sinais vitais** (Random Forest, 451 amostras,
+acurácia≈0.65/F1≈0.62) e **cicatriz** (YOLOv8n smoke, 6 imagens AZH, mAP50≈0.93, export ONNX ok).
+**Texto/NLP** 5/5 vs. rótulos. **Áudio/fisioterapia**: classificadores/geometria testados; treino/
+inferência completa exige dados de obtenção manual (degradam sem quebrar — DD10).
+Observações do ambiente: Python **3.12** (não 3.13; dentro da faixa suportada); o detector de
+cicatriz é **smoke** e precisa escalar (GPU/Colab) para detecções confiáveis acima do limiar.
 
 **Fase 1 — Aquisição e Preparação de Dados** — **implementada**.
 Plano em [`.specs/features/fase1-dados/`](../features/fase1-dados/) (spec → design → tasks).
@@ -54,9 +58,11 @@ público simples) e aparecem como passos opcionais.
 ## Todos / próximos passos
 
 - [x] Planejar a Fase 2 (spec → design → tasks em `.specs/features/fase2-modelos/`).
-- [ ] Implementar a Fase 2 seguindo `tasks.md` (T1→T4 fundação; T5–T12 modalidades em paralelo; T13→T14).
-- [ ] Confirmar versões estáveis dos pacotes ao criar `ai-service/requirements.txt` (T1).
-- [ ] Após o gate da Fase 2 (4 modelos com métricas), iniciar o planejamento da Fase 3 (fusão + nuvem).
+- [x] Implementar a Fase 2 seguindo `tasks.md` (T1–T14). Gate verde (ruff + 63 testes).
+- [ ] **Escalar o detector de cicatriz** (mais dados/épocas em GPU/Colab) — smoke atual não detecta
+      acima do limiar de confiança.
+- [ ] Obter amostras de **áudio** e **fisioterapia** (manual) e rodar o baseline completo dessas modalidades.
+- [ ] Iniciar o planejamento da Fase 3 (motor de fusão + API FastAPI/Node + nuvem Azure).
 
 ## Ideias adiadas
 
