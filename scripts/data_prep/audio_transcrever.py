@@ -1,7 +1,8 @@
 """Áudio — transcrição e rotulação das amostras de consulta/relato.
 
-Transcreve 5 áudios curtos (categorias-alvo) com Whisper local (padrão) ou Azure Speech-to-Text
-(se ``AUDIO_BACKEND=azure`` e credenciais via env) e grava ``data/audio/metadados.json``.
+Detecta **qualquer** arquivo de áudio presente em ``data/audio/`` (não exige nomes fixos),
+transcreve com Whisper local (padrão) ou Azure Speech-to-Text (``AUDIO_BACKEND=azure``) e grava
+``data/audio/metadados.json``. A categoria é inferida pelo nome do arquivo (ajustável depois).
 
 Uso:
     python -m scripts.data_prep.audio_transcrever
@@ -11,6 +12,7 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 
 from .common import data_dir, get_logger, write_json
 
@@ -19,14 +21,17 @@ LOG = get_logger("audio")
 # Categorias alinhadas ao contrato de API (docs/contrato-api.md).
 CATEGORIAS = ["neutro", "ansiedade", "depressao_pos_parto", "violencia", "fadiga"]
 
-# Áudios esperados (1 por categoria). O arquivo deve ser colocado em data/audio/ pelo usuário
-# (gravação própria/TTS) ou obtido de Androids/DEPAC — ver data/README.md.
-AMOSTRAS_ESPERADAS = {
-    "consulta_neutro.wav": "neutro",
-    "relato_ansiedade.wav": "ansiedade",
-    "relato_depressao.wav": "depressao_pos_parto",
-    "relato_violencia.wav": "violencia",
-    "relato_fadiga.wav": "fadiga",
+# Extensões de áudio reconhecidas.
+AUDIO_EXTS = (".wav", ".mp3", ".m4a", ".flac", ".ogg", ".aac", ".opus", ".wma")
+
+# Palavra-chave no nome do arquivo -> categoria (primeira que casar).
+PALAVRAS_CATEGORIA: dict[str, str] = {
+    "neutro": "neutro",
+    "ansiedade": "ansiedade",
+    "depress": "depressao_pos_parto",
+    "pos_parto": "depressao_pos_parto",
+    "violenc": "violencia",
+    "fadiga": "fadiga",
 }
 
 
@@ -34,6 +39,20 @@ def validar_categoria(categoria: str) -> str:
     if categoria not in CATEGORIAS:
         raise ValueError(f"Categoria inválida: {categoria!r}. Use uma de {CATEGORIAS}.")
     return categoria
+
+
+def inferir_categoria(nome_arquivo: str) -> str | None:
+    """Infere a categoria a partir do nome do arquivo (ou None se não reconhecer)."""
+    base = nome_arquivo.lower()
+    for chave, categoria in PALAVRAS_CATEGORIA.items():
+        if chave in base:
+            return categoria
+    return None
+
+
+def listar_audios(pasta: Path) -> list[Path]:
+    """Lista todos os arquivos de áudio na pasta (qualquer nome, extensões conhecidas)."""
+    return sorted(p for p in pasta.iterdir() if p.suffix.lower() in AUDIO_EXTS)
 
 
 def transcrever_whisper(caminho, modelo: str = "base") -> str:
@@ -71,32 +90,40 @@ def transcrever(caminho) -> str:
 
 def main() -> int:
     pasta = data_dir("audio")
-    registros = []
-    faltando = []
+    audios = listar_audios(pasta)
 
-    for arquivo, categoria in AMOSTRAS_ESPERADAS.items():
-        caminho = pasta / arquivo
-        validar_categoria(categoria)
-        if not caminho.exists():
-            faltando.append(arquivo)
-            continue
-        LOG.info("Transcrevendo %s (%s)...", arquivo, categoria)
+    if not audios:
+        LOG.error(
+            "Nenhum arquivo de áudio (%s) em %s. Adicione gravações/TTS — ver data/README.md.",
+            "/".join(AUDIO_EXTS), pasta,
+        )
+        return 1
+
+    registros = []
+    sem_rotulo = []
+    for caminho in audios:
+        categoria = inferir_categoria(caminho.name) or "nao_rotulado"
+        if categoria == "nao_rotulado":
+            sem_rotulo.append(caminho.name)
+        LOG.info("Transcrevendo %s (%s)...", caminho.name, categoria)
         try:
             texto = transcrever(caminho)
         except Exception as exc:
-            LOG.error("Falha ao transcrever %s: %s", arquivo, exc)
-            continue
-        registros.append({"arquivo": arquivo, "transcricao": texto, "categoria": categoria})
-
-    if faltando:
-        LOG.error(
-            "Faltam %d áudios em %s: %s. Adicione gravações/TTS conforme data/README.md.",
-            len(faltando), pasta, ", ".join(faltando),
+            LOG.warning("Transcrição de %s falhou (%s); registrando sem texto.", caminho.name, exc)
+            texto = ""
+        registros.append(
+            {"arquivo": caminho.name, "transcricao": texto, "categoria": categoria}
         )
 
     write_json(pasta / "metadados.json", registros)
-    LOG.info("metadados.json escrito com %d transcrições.", len(registros))
-    return 0 if registros else 1
+    LOG.info("metadados.json escrito com %d áudio(s).", len(registros))
+    if sem_rotulo:
+        LOG.warning(
+            "Sem categoria inferida para: %s. Ajuste 'categoria' em metadados.json "
+            "(use o nome do arquivo com a palavra-chave, ex.: relato_ansiedade.wav).",
+            ", ".join(sem_rotulo),
+        )
+    return 0
 
 
 if __name__ == "__main__":

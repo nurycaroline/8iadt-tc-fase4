@@ -1,8 +1,8 @@
 """Fisioterapia / recuperação — preparação para YOLOv8-pose (P3).
 
-Prepara amostras de exercícios de reabilitação (IntelliRehabDS) para estimativa de pose,
-reaproveitando os keypoints fornecidos quando existirem, e rotula repetições como
-``correto``/``incorreto``. Grava ``data/video_fisioterapia/metadados.json``.
+Detecta **qualquer** amostra presente em ``data/video_fisioterapia/``: vídeos de exercício
+(``.mp4``, ``.avi``, ...) e/ou esqueletos/keypoints do IntelliRehabDS (``.txt``/``.csv``).
+Rotula a execução (``correto``/``incorreto``) inferindo pelo nome e grava ``metadados.json``.
 
 Uso:
     python -m scripts.data_prep.fisioterapia_pose
@@ -11,6 +11,7 @@ Uso:
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 from .common import data_dir, ffmpeg_disponivel, get_logger, write_json
 
@@ -18,11 +19,22 @@ LOG = get_logger("fisioterapia")
 
 EXECUCOES = ("correto", "incorreto")
 
+VIDEO_EXTS = (".mp4", ".avi", ".mov", ".mkv", ".webm")
+SKELETON_EXTS = (".txt", ".csv", ".json")
+
 
 def validar_execucao(rotulo: str) -> str:
     if rotulo not in EXECUCOES:
         raise ValueError(f"Execução inválida: {rotulo!r}. Use uma de {EXECUCOES}.")
     return rotulo
+
+
+def inferir_execucao(nome_arquivo: str) -> str:
+    """Infere a execução pelo nome do arquivo (``incorreto`` se indicado; senão ``correto``)."""
+    base = nome_arquivo.lower()
+    if "incorr" in base or "errad" in base or "_inc" in base:
+        return "incorreto"
+    return "correto"
 
 
 def montar_metadado(arquivo: str, exercicio: str, execucao: str, keypoints_ref: str | None) -> dict:
@@ -34,6 +46,19 @@ def montar_metadado(arquivo: str, exercicio: str, execucao: str, keypoints_ref: 
         "execucao": execucao,
         "keypoints_ref": keypoints_ref,
     }
+
+
+def listar_amostras(pasta: Path) -> list[Path]:
+    """Lista vídeos e arquivos de esqueleto na pasta (ignora metadados.json e ocultos)."""
+    exts = VIDEO_EXTS + SKELETON_EXTS
+    return sorted(
+        p
+        for p in pasta.iterdir()
+        if p.is_file()
+        and p.suffix.lower() in exts
+        and p.name != "metadados.json"
+        and not p.name.startswith(".")
+    )
 
 
 def extrair_frames(video, destino, fps: int = 2):
@@ -61,31 +86,40 @@ def extrair_frames(video, destino, fps: int = 2):
 
 def main() -> int:
     pasta = data_dir("video_fisioterapia")
-    LOG.info(
-        "Baixe amostras de exercícios (IntelliRehabDS) para %s — ver data/README.md.",
-        pasta,
-    )
     if not ffmpeg_disponivel():
-        LOG.info("ffmpeg não encontrado: extração de frames usará OpenCV.")
+        LOG.info("ffmpeg não encontrado: extração de frames (se necessária) usará OpenCV.")
 
-    videos = sorted([*pasta.glob("*.mp4"), *pasta.glob("*.avi")])
+    amostras = listar_amostras(pasta)
+    if not amostras:
+        LOG.error(
+            "Nenhuma amostra (%s) em %s. Adicione vídeos ou esqueletos do IntelliRehabDS "
+            "(Zenodo) — ver data/README.md.",
+            "/".join(VIDEO_EXTS + SKELETON_EXTS), pasta,
+        )
+        return 1
+
     registros = []
-    for video in videos:
-        keypoints = video.with_suffix(".json")
+    for caminho in amostras:
+        eh_skeleton = caminho.suffix.lower() in SKELETON_EXTS
+        keypoints = None
+        if eh_skeleton:
+            keypoints = caminho.name
+        else:
+            sidecar = caminho.with_suffix(".json")
+            if not sidecar.exists():
+                sidecar = caminho.with_suffix(".txt")
+            keypoints = sidecar.name if sidecar.exists() else None
         registros.append(
             montar_metadado(
-                arquivo=video.name,
-                exercicio=video.stem,
-                execucao="correto",
-                keypoints_ref=keypoints.name if keypoints.exists() else None,
+                arquivo=caminho.name,
+                exercicio=caminho.stem,
+                execucao=inferir_execucao(caminho.name),
+                keypoints_ref=keypoints,
             )
         )
 
     write_json(pasta / "metadados.json", registros)
-    if not registros:
-        LOG.error("Nenhuma amostra de fisioterapia encontrada em %s.", pasta)
-        return 1
-    LOG.info("metadados.json escrito com %d amostras.", len(registros))
+    LOG.info("metadados.json escrito com %d amostra(s).", len(registros))
     return 0
 
 
