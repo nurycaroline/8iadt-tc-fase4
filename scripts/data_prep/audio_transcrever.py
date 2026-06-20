@@ -14,9 +14,12 @@ import os
 import sys
 from pathlib import Path
 
-from .common import data_dir, get_logger, write_json
+from .common import data_dir, ffmpeg_disponivel, get_logger, write_json
 
 LOG = get_logger("audio")
+
+# Formatos que o libsndfile (soundfile) lê sem ffmpeg.
+SOUNDFILE_EXTS = (".wav", ".flac", ".ogg", ".aiff", ".aif")
 
 # Categorias alinhadas ao contrato de API (docs/contrato-api.md).
 CATEGORIAS = ["neutro", "ansiedade", "depressao_pos_parto", "violencia", "fadiga"]
@@ -42,11 +45,14 @@ def validar_categoria(categoria: str) -> str:
 
 
 def inferir_categoria(nome_arquivo: str) -> str | None:
-    """Infere a categoria a partir do nome do arquivo (ou None se não reconhecer)."""
-    base = nome_arquivo.lower()
+    """Infere a categoria a partir do nome/caminho do arquivo (ou None se não reconhecer)."""
+    base = nome_arquivo.lower().replace("\\", "/")
     for chave, categoria in PALAVRAS_CATEGORIA.items():
         if chave in base:
             return categoria
+    # Androids Corpus: pasta "HC" = healthy control (saudável -> neutro).
+    if "hc" in base.split("/"):
+        return "neutro"
     return None
 
 
@@ -70,12 +76,38 @@ def _diagnostico_pasta(pasta: Path, limite: int = 10) -> None:
         LOG.error("  - %s", p.relative_to(pasta).as_posix())
 
 
+def _carregar_audio_16k(caminho):
+    """Decodifica um áudio para mono float32 a 16 kHz usando soundfile (sem ffmpeg)."""
+    import numpy as np
+    import soundfile as sf
+
+    data, sr = sf.read(str(caminho), dtype="float32", always_2d=False)
+    if getattr(data, "ndim", 1) > 1:
+        data = data.mean(axis=1)
+    if sr != 16000 and len(data) > 0:
+        n = int(round(len(data) * 16000 / sr))
+        x_antigo = np.linspace(0.0, 1.0, num=len(data), endpoint=False)
+        x_novo = np.linspace(0.0, 1.0, num=n, endpoint=False)
+        data = np.interp(x_novo, x_antigo, data).astype(np.float32)
+    return np.ascontiguousarray(data, dtype=np.float32)
+
+
 def transcrever_whisper(caminho, modelo: str = "base") -> str:
-    """Transcreve um áudio com Whisper local."""
+    """Transcreve um áudio com Whisper local.
+
+    Whisper normalmente usa ffmpeg para decodificar. Se o ffmpeg não estiver disponível e o
+    formato for legível pelo soundfile (wav/flac/ogg/aiff), decodifica via soundfile e passa o
+    array ao Whisper — evitando a dependência do ffmpeg.
+    """
     import whisper
 
+    caminho = Path(caminho)
     model = whisper.load_model(modelo)
-    resultado = model.transcribe(str(caminho))
+    if not ffmpeg_disponivel() and caminho.suffix.lower() in SOUNDFILE_EXTS:
+        audio = _carregar_audio_16k(caminho)
+        resultado = model.transcribe(audio)
+    else:
+        resultado = model.transcribe(str(caminho))
     return str(resultado.get("text", "")).strip()
 
 
@@ -127,7 +159,13 @@ def main() -> int:
         try:
             texto = transcrever(caminho)
         except Exception as exc:
-            LOG.warning("Transcrição de %s falhou (%s); registrando sem texto.", rel, exc)
+            dica = ""
+            if "ffmpeg" in str(exc).lower():
+                dica = (
+                    " Instale o ffmpeg (macOS: 'brew install ffmpeg') ou o pacote 'soundfile' "
+                    "(pip install soundfile) para formatos wav/flac/ogg."
+                )
+            LOG.warning("Transcrição de %s falhou (%s); registrando sem texto.%s", rel, exc, dica)
             texto = ""
         registros.append({"arquivo": rel, "transcricao": texto, "categoria": categoria})
 
