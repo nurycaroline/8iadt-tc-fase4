@@ -26,8 +26,7 @@
 
 | Dataset | O que é | Por que usar | Link |
 |---------|---------|--------------|------|
-| **UCO Physical Rehabilitation** ⭐ | 2.160 vídeos de 27 sujeitos em 16 exercícios, com pose (2D/3D) | Direto para estimativa de pose em reabilitação | https://github.com/AVAuco/ucophyrehab |
-| **IntelliRehabDS** | Movimentos de 29 sujeitos (pacientes e controles) via Kinect, com rótulo correto/incorreto | Bom para classificar execução do exercício | https://zenodo.org/records/4610859 |
+| **IntelliRehabDS** ⭐ | Movimentos de 29 sujeitos (pacientes e controles) via Kinect, com rótulo correto/incorreto | Bom para classificar execução do exercício | https://zenodo.org/records/4610859 |
 | **REHAB24-6** | Vídeo RGB + esqueleto 2D/3D, repetições corretas/incorretas | Alternativa com rótulo de qualidade | (buscar "REHAB24-6 dataset") |
 
 ## 3. Sinais vitais (tabular / dados clínicos)

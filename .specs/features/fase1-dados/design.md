@@ -104,16 +104,23 @@ Funções compartilhadas para manter os scripts pequenos e idempotentes:
 
 ### 4.3 Cicatriz → YOLO (`cicatriz_yolo.py`)
 
-- Baixa **uma amostra** do **AZH Wound**.
-- `converter_para_yolo(anotacao, img_size) -> labels`: gera `.txt` normalizado (bbox/polígono) com
-  classes `ferida_ok` (0) e `ferida_alerta` (1). Caso a fonte traga máscara/segmentação, derivar bbox.
-- Gera `data.yaml` (classes + paths) no formato Ultralytics.
-- `visualizar(img, labels) -> arquivo`: salva imagem com anotações sobrepostas (OpenCV).
+- `baixar_amostras()`: baixa o `Test.zip` do **AZH Wound** (~4 MB) e extrai amostras das pastas
+  `N` (→ `ferida_ok`) e `S` (ferida cirúrgica → `ferida_alerta`). Proxy documentado (a base é de
+  classificação, sem rótulo de infecção).
+- `bbox_para_yolo()` / `caixa_imagem_inteira()`: geram `.txt` normalizado (1 caixa por imagem).
+- `montar_data_yaml()` / `escrever_data_yaml()`: `data.yaml` no formato Ultralytics (caminho relativo).
+- `visualizar(img, labels) -> arquivo`: salva imagem com anotações sobrepostas (Pillow).
 - **Funções puras testáveis:** normalização de coordenadas e geração do `data.yaml`.
+
+### 4.8 Orquestrador (`python -m scripts.data_prep`)
+
+`__main__.py` roda todas as modalidades de uma vez (best-effort), imprime um resumo e retorna código
+de saída != 0 só se um passo **essencial** falhar. Essenciais (auto): texto, sinais vitais, cicatriz,
+caso sintético. Opcionais (manual): áudio e fisioterapia.
 
 ### 4.4 Fisioterapia → pose (`fisioterapia_pose.py`) — P3
 
-- Baixa amostras do **UCO PhyRehab** ou **IntelliRehabDS**.
+- Baixa amostras do **IntelliRehabDS** (alternativa: REHAB24-6).
 - Reaproveita keypoints fornecidos quando existirem; senão extrai frames e prepara para YOLOv8-pose.
 - Rotula repetições `correto`/`incorreto`.
 
