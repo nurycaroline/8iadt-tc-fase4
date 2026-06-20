@@ -28,6 +28,15 @@ def test_listar_audios_detecta_qualquer_nome(tmp_path):
     assert achados == {"qualquer_nome.wav", "OUTRO.MP3"}
 
 
+def test_listar_audios_recursivo_em_subpastas(tmp_path):
+    sub = tmp_path / "lote1" / "neutro"
+    sub.mkdir(parents=True)
+    (sub / "a.wav").write_bytes(b"\x00")
+    (tmp_path / "topo.mp3").write_bytes(b"\x00")
+    achados = {p.relative_to(tmp_path).as_posix() for p in listar_audios(tmp_path)}
+    assert achados == {"lote1/neutro/a.wav", "topo.mp3"}
+
+
 def test_inferir_execucao_fisio():
     assert inferir_execucao("agachamento_incorreto.mp4") == "incorreto"
     assert inferir_execucao("exercicio_errado.avi") == "incorreto"
@@ -41,6 +50,15 @@ def test_listar_amostras_fisio_videos_e_esqueletos(tmp_path):
     (tmp_path / ".oculto.mp4").write_bytes(b"\x00")
     achados = {p.name for p in listar_amostras(tmp_path)}
     assert achados == {"ex1.mp4", "ex2.txt"}
+
+
+def test_listar_amostras_fisio_recursivo(tmp_path):
+    sub = tmp_path / "SkeletonData" / "sujeito1"
+    sub.mkdir(parents=True)
+    (sub / "gesto_incorreto.txt").write_text("kp")
+    (tmp_path / "metadados.json").write_text("[]")
+    achados = {p.relative_to(tmp_path).as_posix() for p in listar_amostras(tmp_path)}
+    assert achados == {"SkeletonData/sujeito1/gesto_incorreto.txt"}
 
 
 def test_montar_metadado_valida_execucao():

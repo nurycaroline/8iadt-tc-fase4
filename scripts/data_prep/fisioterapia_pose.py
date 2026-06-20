@@ -49,16 +49,31 @@ def montar_metadado(arquivo: str, exercicio: str, execucao: str, keypoints_ref: 
 
 
 def listar_amostras(pasta: Path) -> list[Path]:
-    """Lista vídeos e arquivos de esqueleto na pasta (ignora metadados.json e ocultos)."""
+    """Lista vídeos e esqueletos na pasta e subpastas (ignora metadados.json e ocultos)."""
     exts = VIDEO_EXTS + SKELETON_EXTS
     return sorted(
         p
-        for p in pasta.iterdir()
+        for p in pasta.rglob("*")
         if p.is_file()
         and p.suffix.lower() in exts
         and p.name != "metadados.json"
         and not p.name.startswith(".")
     )
+
+
+def _diagnostico_pasta(pasta: Path, limite: int = 10) -> None:
+    """Lista (no log) os arquivos realmente presentes, para diagnosticar extensões/subpastas."""
+    presentes = [
+        p
+        for p in pasta.rglob("*")
+        if p.is_file() and p.name != "metadados.json" and not p.name.startswith(".")
+    ]
+    if not presentes:
+        LOG.error("A pasta %s está vazia (nem subpastas com arquivos).", pasta)
+        return
+    LOG.error("Arquivos encontrados na pasta (%d), mas sem extensão reconhecida:", len(presentes))
+    for p in presentes[:limite]:
+        LOG.error("  - %s", p.relative_to(pasta).as_posix())
 
 
 def extrair_frames(video, destino, fps: int = 2):
@@ -92,28 +107,30 @@ def main() -> int:
     amostras = listar_amostras(pasta)
     if not amostras:
         LOG.error(
-            "Nenhuma amostra (%s) em %s. Adicione vídeos ou esqueletos do IntelliRehabDS "
-            "(Zenodo) — ver data/README.md.",
+            "Nenhuma amostra (%s) em %s (busca recursiva). Adicione vídeos ou esqueletos do "
+            "IntelliRehabDS (Zenodo) — ver data/README.md.",
             "/".join(VIDEO_EXTS + SKELETON_EXTS), pasta,
         )
+        _diagnostico_pasta(pasta)
         return 1
 
     registros = []
     for caminho in amostras:
+        rel = caminho.relative_to(pasta).as_posix()
         eh_skeleton = caminho.suffix.lower() in SKELETON_EXTS
         keypoints = None
         if eh_skeleton:
-            keypoints = caminho.name
+            keypoints = rel
         else:
             sidecar = caminho.with_suffix(".json")
             if not sidecar.exists():
                 sidecar = caminho.with_suffix(".txt")
-            keypoints = sidecar.name if sidecar.exists() else None
+            keypoints = sidecar.relative_to(pasta).as_posix() if sidecar.exists() else None
         registros.append(
             montar_metadado(
-                arquivo=caminho.name,
+                arquivo=rel,
                 exercicio=caminho.stem,
-                execucao=inferir_execucao(caminho.name),
+                execucao=inferir_execucao(rel),
                 keypoints_ref=keypoints,
             )
         )

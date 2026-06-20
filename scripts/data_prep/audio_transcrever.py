@@ -51,8 +51,23 @@ def inferir_categoria(nome_arquivo: str) -> str | None:
 
 
 def listar_audios(pasta: Path) -> list[Path]:
-    """Lista todos os arquivos de áudio na pasta (qualquer nome, extensões conhecidas)."""
-    return sorted(p for p in pasta.iterdir() if p.suffix.lower() in AUDIO_EXTS)
+    """Lista arquivos de áudio na pasta e subpastas (qualquer nome, extensões conhecidas)."""
+    return sorted(
+        p
+        for p in pasta.rglob("*")
+        if p.is_file() and p.suffix.lower() in AUDIO_EXTS and not p.name.startswith(".")
+    )
+
+
+def _diagnostico_pasta(pasta: Path, limite: int = 10) -> None:
+    """Lista (no log) os arquivos realmente presentes, para ajudar a diagnosticar extensões."""
+    presentes = [p for p in pasta.rglob("*") if p.is_file() and not p.name.startswith(".")]
+    if not presentes:
+        LOG.error("A pasta %s está vazia (nem subpastas com arquivos).", pasta)
+        return
+    LOG.error("Arquivos encontrados na pasta (%d), mas sem extensão de áudio:", len(presentes))
+    for p in presentes[:limite]:
+        LOG.error("  - %s", p.relative_to(pasta).as_posix())
 
 
 def transcrever_whisper(caminho, modelo: str = "base") -> str:
@@ -94,26 +109,27 @@ def main() -> int:
 
     if not audios:
         LOG.error(
-            "Nenhum arquivo de áudio (%s) em %s. Adicione gravações/TTS — ver data/README.md.",
+            "Nenhum arquivo de áudio (%s) em %s (busca recursiva). "
+            "Adicione gravações/TTS — ver data/README.md.",
             "/".join(AUDIO_EXTS), pasta,
         )
+        _diagnostico_pasta(pasta)
         return 1
 
     registros = []
     sem_rotulo = []
     for caminho in audios:
-        categoria = inferir_categoria(caminho.name) or "nao_rotulado"
+        rel = caminho.relative_to(pasta).as_posix()
+        categoria = inferir_categoria(rel) or "nao_rotulado"
         if categoria == "nao_rotulado":
-            sem_rotulo.append(caminho.name)
-        LOG.info("Transcrevendo %s (%s)...", caminho.name, categoria)
+            sem_rotulo.append(rel)
+        LOG.info("Transcrevendo %s (%s)...", rel, categoria)
         try:
             texto = transcrever(caminho)
         except Exception as exc:
-            LOG.warning("Transcrição de %s falhou (%s); registrando sem texto.", caminho.name, exc)
+            LOG.warning("Transcrição de %s falhou (%s); registrando sem texto.", rel, exc)
             texto = ""
-        registros.append(
-            {"arquivo": caminho.name, "transcricao": texto, "categoria": categoria}
-        )
+        registros.append({"arquivo": rel, "transcricao": texto, "categoria": categoria})
 
     write_json(pasta / "metadados.json", registros)
     LOG.info("metadados.json escrito com %d áudio(s).", len(registros))
