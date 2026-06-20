@@ -1,0 +1,22 @@
+{
+  "texto": {
+    "n": 5,
+    "precisao": 1.0,
+    "recall": 1.0,
+    "taxa_falsos_positivos": 0.0,
+    "tp": 3,
+    "fp": 0,
+    "fn": 0,
+    "tn": 2
+  },
+  "sinais_vitais": {
+    "n": 451,
+    "precisao": 0.5943,
+    "recall": 0.9286,
+    "taxa_falsos_positivos": 0.2094,
+    "tp": 104,
+    "fp": 71,
+    "fn": 8,
+    "tn": 268
+  }
+}
