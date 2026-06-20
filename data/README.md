@@ -49,18 +49,23 @@ Ou rode uma modalidade isolada:
 | Texto clínico     | `python -m scripts.data_prep.texto_clinico`     | **auto**  | Gera documentos sintéticos (offline)|
 | Caso sintético    | `python -m scripts.data_prep.caso_sintetico`    | **auto**  | Junta 1 amostra de cada modalidade  |
 | Áudio             | `python -m scripts.data_prep.audio_transcrever` | manual    | Coloque áudios (`.wav/.mp3/.m4a/...`) em `data/audio/` — detecta **qualquer nome**. Whisper local ou Azure via env para transcrever |
-| Fisioterapia      | `python -m scripts.data_prep.fisioterapia_pose` | manual    | Coloque vídeos (`.mp4/.avi/...`) **ou** esqueletos do IntelliRehabDS (`.txt/.csv`) em `data/video_fisioterapia/` — detecta qualquer nome |
+| Fisioterapia      | `python -m scripts.data_prep.fisioterapia_pose` | manual    | IntelliRehabDS: aceita **sequências DepthImages** (cada pasta de gesto = 1 amostra), **esqueletos** (`.csv/.txt`) e vídeos. Em `data/video_fisioterapia/` |
 
 Se um download automático falhar (rede, URL ou licença que exige login), os scripts emitem uma mensagem
 clara com a instrução de **obtenção manual** — baixe a amostra do link na tabela de origem e coloque-a
 na pasta indicada.
 
-> **Áudio e fisioterapia processam qualquer arquivo presente** — não exigem nomes fixos. A **categoria**
-> do áudio e a **execução** da fisioterapia são inferidas por palavras-chave no nome (ex.:
-> `relato_ansiedade.wav` → `ansiedade`; `agachamento_incorreto.mp4` → `incorreto`). Se não reconhecer,
-> marca como `nao_rotulado`/`correto` e avisa para ajustar no `metadados.json`. Sem o pacote
-> `openai-whisper` instalado, o áudio é catalogado com `transcricao` vazia (apenas aviso) — instale-o
-> (ou use `AUDIO_BACKEND=azure`) para gerar o texto.
+> **Áudio e fisioterapia processam qualquer arquivo presente** (busca recursiva em subpastas) — não
+> exigem nomes fixos. A **categoria** do áudio e a **execução** da fisioterapia são inferidas pelo nome:
+> áudio por palavra-chave (`relato_ansiedade.wav` → `ansiedade`; pasta `HC` do Androids → `neutro`);
+> fisioterapia pelo padrão IntelliRehabDS `Subject_Date_Gesture_Repetition_CorrectLabel_Position`
+> (`CorrectLabel` 1=correto, 2=incorreto). Se não reconhecer, marca `nao_rotulado`/`correto` e avisa
+> para ajustar no `metadados.json`.
+>
+> **Transcrição (ffmpeg):** o Whisper normalmente usa **ffmpeg**. Se não tiver ffmpeg
+> (`brew install ffmpeg`), instale o `soundfile` (`pip install soundfile`) — o script decodifica
+> `wav/flac/ogg` sem ffmpeg. Sem o `openai-whisper`, o áudio é catalogado com `transcricao` vazia
+> (apenas aviso); use `AUDIO_BACKEND=azure` para o backend de nuvem.
 
 > **Cicatriz — mapeamento de classes:** o AZH Wound classifica por *tipo* de ferida (não por infecção).
 > O script usa a pasta `N` (pele sem ferida) como `ferida_ok` e a pasta `S` (ferida cirúrgica) como
