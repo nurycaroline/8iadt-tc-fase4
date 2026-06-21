@@ -1,0 +1,37 @@
+# Dependências do serviço de IA — Fase 2 (modelos individuais).
+# Separadas de scripts/requirements-data.txt (Fase 1). Instale num venv:
+#   python -m venv .venv && source .venv/bin/activate
+#   pip install -r ai-service/requirements.txt
+#
+# Python 3.12+ (testado em 3.12). O openai-whisper ainda não suporta 3.14 (ver design.md DD8).
+# Versões mínimas conservadoras; o pip resolve a última compatível.
+
+# Visão computacional: detecção (cicatriz) e pose (fisioterapia)
+ultralytics>=8.3
+opencv-python>=4.10
+Pillow>=10.4
+
+# Export de modelo (ONNX) + runtime
+onnx>=1.17
+onnxruntime>=1.20
+
+# Modelo tabular + métricas (sinais vitais, baseline)
+scikit-learn>=1.5
+pandas>=2.2
+numpy>=1.26
+joblib>=1.4
+
+# Gráficos (matriz de confusão, curvas)
+matplotlib>=3.9
+
+# Áudio (transcrição). Whisper local; backend Azure opcional via env var.
+openai-whisper>=20240930
+# Decodifica wav/flac/ogg sem ffmpeg (fallback do Whisper).
+soundfile>=0.12
+
+# Config/leitura YAML (data.yaml do YOLO)
+pyyaml>=6.0
+
+# Qualidade
+pytest>=8.3
+ruff>=0.6

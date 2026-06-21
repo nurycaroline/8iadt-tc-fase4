@@ -2,6 +2,13 @@
 
 > Objetivo: construir e **validar cada IA separadamente** antes de uni-las. Cada modelo entrega métricas próprias.
 
+> **Implementação:** código em [`ai-service/`](../ai-service/) (um módulo por modalidade em `app/`),
+> planejamento em [`.specs/features/fase2-modelos/`](../.specs/features/fase2-modelos/). Cada modalidade
+> expõe uma função de inferência que devolve o **dicionário de evidência** do
+> [contrato de API §3](contrato-api.md). Limiares clínicos em `app/limiares.py`; baseline por
+> modalidade única em `ai-service/models/baseline.json`. Como treinar/inferir: ver
+> [`ai-service/README.md`](../ai-service/README.md).
+
 ## Resultado esperado (Definition of Done)
 - [ ] Modelo de **vídeo — cicatriz** (YOLOv8) treinado e exportado (`.pt`/`.onnx`) com métricas (mAP, precisão/recall).
 - [ ] Modelo de **vídeo — fisioterapia** (YOLOv8-pose) funcionando com avaliação de movimento.
