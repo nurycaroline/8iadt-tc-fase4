@@ -29,19 +29,21 @@ público simples) e aparecem como passos opcionais.
 
 ## Decisões registradas
 
-| #   | Decisão                                                            | Origem                |
-| --- | ----------------------------------------------------------------- | --------------------- |
-| S1  | Scripts de dados em `scripts/data_prep/` (não em `ai-service/`)    | design.md DD1         |
-| S2  | `requirements-data.txt` separado das deps do serviço de IA        | design.md DD2         |
-| S3  | Caso sintético segue o objeto de requisição do contrato de API    | design.md DD4         |
-| S4  | Testes unitários só em funções puras (limpeza/conversão/builder)  | design.md DD5         |
-| S5  | `data/` ignorado pelo Git; só `data/README.md` versionado         | design.md DD7         |
-| S6  | **Python 3.13** (não 3.14): whisper não suporta 3.14 ainda        | design.md DD8 (F1/F2) |
-| S7  | Serviço de IA em `ai-service/app/`; pesos não versionados          | fase2 design.md DD1/DD4 |
-| S8  | Cada modalidade expõe `inferir() -> dict` do contrato de API §3    | fase2 design.md DD3   |
-| S9  | Sinais vitais = Random Forest (principal); Isolation Forest opcional | fase2 design.md DD6 |
-| S10 | Áudio/Texto = regras/palavras-chave (sentimento Azure opcional)   | fase2 design.md DD7   |
-| S11 | Testes do `ai-service/` integrados ao `pyproject` da raiz          | fase2 design.md DD11  |
+> Origem: links para o documento de design da fase correspondente (F1 = Fase 1, F2 = Fase 2).
+
+| #   | Decisão                                                              | Origem                                                          |
+| --- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| S1  | Scripts de dados em `scripts/data_prep/` (não em `ai-service/`)      | [F1 design DD1](../features/fase1-dados/design.md)             |
+| S2  | `requirements-data.txt` separado das deps do serviço de IA          | [F1 design DD2](../features/fase1-dados/design.md)             |
+| S3  | Caso sintético segue o objeto de requisição do contrato de API      | [F1 design DD4](../features/fase1-dados/design.md)             |
+| S4  | Testes unitários só em funções puras (limpeza/conversão/builder)    | [F1 design DD5](../features/fase1-dados/design.md)             |
+| S5  | `data/` ignorado pelo Git; só `data/README.md` versionado           | [F1 design DD7](../features/fase1-dados/design.md)             |
+| S6  | **Python 3.13/3.12** (não 3.14): whisper não suporta 3.14 ainda     | [F1 design DD8](../features/fase1-dados/design.md)             |
+| S7  | Serviço de IA em `ai-service/app/`; pesos não versionados           | [F2 design DD1/DD4](../features/fase2-modelos/design.md)       |
+| S8  | Cada modalidade expõe `inferir() -> dict` do contrato de API §3     | [F2 design DD3](../features/fase2-modelos/design.md)           |
+| S9  | Sinais vitais = Random Forest (principal); Isolation Forest opcional | [F2 design DD6](../features/fase2-modelos/design.md)           |
+| S10 | Áudio/Texto = regras/palavras-chave (sentimento Azure opcional)     | [F2 design DD7](../features/fase2-modelos/design.md)           |
+| S11 | Testes do `ai-service/` integrados ao `pyproject` da raiz           | [F2 design DD11](../features/fase2-modelos/design.md)          |
 
 ## Blockers / dependências externas
 

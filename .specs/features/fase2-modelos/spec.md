@@ -8,8 +8,8 @@
 
 ## Problem Statement
 
-A Fase 1 entregou o mini-dataset limpo das 4 modalidades (vídeo de cicatriz, vídeo de fisioterapia,
-sinais vitais, áudio e texto clínico) e o caso de exemplo sintético. Agora é preciso **construir e
+A Fase 1 entregou o mini-dataset limpo das 4 modalidades (vídeo — com dois usos: cicatriz e
+fisioterapia —, sinais vitais, áudio e texto clínico) e o caso de exemplo sintético. Agora é preciso **construir e
 validar cada IA separadamente**, antes de uni-las. Sem modelos individuais funcionando e com **métricas
 próprias** — e sem uma **saída padronizada** (um dicionário por modalidade alinhado ao
 [contrato de API](../../../docs/contrato-api.md)) — o **motor de fusão da Fase 3** não tem o que cruzar e
@@ -263,15 +263,24 @@ execução; validar a derivação de ângulo em keypoints sintéticos conhecidos
 
 ## Success Criteria
 
-Como saberemos que a Fase 2 está pronta (gate de fim de fase do
-[cronograma](../../../docs/cronograma-dependencias.md) §4: **4 modelos com métricas individuais**):
+Como saberemos que a Fase 2 está pronta. O **gate de fim de fase** do
+[cronograma](../../../docs/cronograma-dependencias.md) §4 exige **4 modelos com métricas individuais**.
+Os 4 modelos que contam para o gate são: **cicatriz** (vídeo/detecção), **sinais vitais**, **áudio** e
+**texto**. A **fisioterapia** (segundo uso do vídeo, P3) é exigida pelo DoD de
+[`docs/02-fase2-modelos.md`](../../../docs/02-fase2-modelos.md), mas é **opcional para o gate**.
 
-- [ ] As 4 modalidades produzem **saída individual** (dicionário padronizado) com **métricas próprias**.
-- [ ] Cicatriz: YOLOv8 treinado + **exportado** (`.pt`/`.onnx`) + mAP/precisão/recall registrados.
-- [ ] Fisioterapia: YOLOv8-pose avaliando execução (`correta`/`incorreta` + amplitude).
-- [ ] Sinais vitais: modelo persistido + acurácia/F1/matriz de confusão.
-- [ ] Áudio e texto: módulos funcionando com exemplos coerentes com os rótulos da Fase 1.
+Itens obrigatórios para o gate:
+
+- [ ] **Cicatriz** (vídeo): YOLOv8 treinado + **exportado** (`.pt`/`.onnx`) + mAP/precisão/recall registrados.
+- [ ] **Sinais vitais**: modelo persistido + acurácia/F1/matriz de confusão.
+- [ ] **Áudio**: transcrição + classificação funcionando com exemplos coerentes com os rótulos da Fase 1.
+- [ ] **Texto**: módulo funcionando com exemplos coerentes com `data/texto_clinico/rotulos.json`.
+- [ ] Cada um dos 4 modelos produz **saída individual** (dicionário padronizado) com **métricas próprias**.
 - [ ] **Limiares clínicos** centralizados em `limiares.py` e documentados.
 - [ ] **Baseline por modalidade única** salvo (`baseline.json`) para comparação na Fase 3.
 - [ ] Cada saída é **compatível com o [contrato de API §3](../../../docs/contrato-api.md)** (valores válidos).
 - [ ] Gate verde: `ruff check` + `pytest` (funções puras: schemas, limiares, derivações, classificadores).
+
+Item do DoD (não bloqueia o gate):
+
+- [ ] **Fisioterapia** (P3): YOLOv8-pose avaliando execução (`correta`/`incorreta` + amplitude).
