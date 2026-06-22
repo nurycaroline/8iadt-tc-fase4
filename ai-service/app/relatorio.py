@@ -33,6 +33,27 @@ GATILHO_LABEL = {
 
 NIVEL_DISPLAY = {"ALTO": "ALTO", "MEDIO": "MÉDIO", "BAIXO": "BAIXO"}
 
+# Encaminhamento especializado por tipo de risco (docs/06 §4): cada gatilho clínico mapeia para o
+# conteúdo-chave/conduta do PDF. Reusa os gatilhos de ``app.fusao`` (rastreabilidade), sem duplicar
+# a decisão de risco — sem gatilho especializado, cai na recomendação por nível.
+ENCAMINHAMENTO_GATILHO = {
+    "infeccao_puerperal": (
+        "Risco de infecção da cesárea — reavaliar a ferida operatória e acionar avaliação médica "
+        "para conduta (curativo/antibioticoterapia) com prioridade."
+    ),
+    "pre_eclampsia": (
+        "Risco hipertensivo / pré-eclâmpsia — monitorar a pressão arterial e sinais de alarme; "
+        "encaminhar para avaliação obstétrica urgente."
+    ),
+    "violencia": (
+        "Protocolo de proteção à mulher — acionar a rede de apoio e os canais de proteção "
+        "conforme o protocolo institucional."
+    ),
+    "desconforto_psicologico": (
+        "Encaminhamento para avaliação/apoio psicológico (depressão pós-parto/ansiedade)."
+    ),
+}
+
 DISCLAIMER = (
     "AVISO: Documento de apoio à decisão clínica gerado automaticamente. "
     "Não substitui a avaliação de profissionais de saúde."
@@ -119,7 +140,7 @@ def gerar_markdown(
             "",
             "## 4. Recomendação / encaminhamento",
             "",
-            RECOMENDACAO.get(risco, RECOMENDACAO["BAIXO"]),
+            _secao_recomendacao(risco, gatilhos),
             "",
             "## 5. Anexos",
             "",
@@ -131,6 +152,26 @@ def gerar_markdown(
             "",
         ]
     )
+
+
+def _secao_recomendacao(risco: str, gatilhos: list[str]) -> str:
+    """Monta a seção 4: **ação geral por nível** + **encaminhamentos especializados** (docs/06 §4).
+
+    Cada gatilho clínico acionado contribui com seu encaminhamento próprio (infecção puerperal,
+    pré-eclâmpsia, violência, desconforto psicológico). Quando nenhum gatilho especializado é
+    acionado, fica apenas a ação geral por nível (compatibilidade — sem regressão).
+    """
+    nivel = NIVEL_DISPLAY.get(risco, risco)
+    linhas = [f"**Ação geral (risco {nivel}):** {RECOMENDACAO.get(risco, RECOMENDACAO['BAIXO'])}"]
+
+    especificos = [
+        ENCAMINHAMENTO_GATILHO[g] for g in gatilhos if g in ENCAMINHAMENTO_GATILHO
+    ]
+    if especificos:
+        linhas.append("")
+        linhas.append("**Encaminhamentos específicos:**")
+        linhas.extend(f"- {texto}" for texto in especificos)
+    return "\n".join(linhas)
 
 
 def _secao_anexos(evidencias: dict[str, Any]) -> str:

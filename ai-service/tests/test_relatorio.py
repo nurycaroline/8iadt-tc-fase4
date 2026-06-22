@@ -50,6 +50,37 @@ def test_markdown_reflete_o_gatilho():
     assert "sinal_infeccao" in md
 
 
+def test_recomendacao_especializada_por_gatilho():
+    # docs/06 §4: cada gatilho clínico tem encaminhamento próprio.
+    md = relatorio.gerar_markdown(
+        case_id="c-mix",
+        paciente=PACIENTE,
+        fusao={
+            "risco_detectado": "ALTO",
+            "mensagem_alerta": "Vários sinais.",
+            "gatilhos": ["infeccao_puerperal", "violencia", "desconforto_psicologico"],
+        },
+        evidencias=EVIDENCIAS,
+    )
+    assert "Ação geral (risco ALTO)" in md
+    assert "Encaminhamentos específicos" in md
+    assert "infecção da cesárea" in md
+    assert "protocolo de proteção" in md
+    assert "apoio psicológico" in md
+
+
+def test_recomendacao_cai_no_nivel_sem_gatilho_especializado():
+    # Sem gatilho especializado, mantém só a ação geral por nível (sem regressão).
+    md = relatorio.gerar_markdown(
+        case_id="c-baixo",
+        paciente=PACIENTE,
+        fusao={"risco_detectado": "BAIXO", "mensagem_alerta": "", "gatilhos": []},
+        evidencias={},
+    )
+    assert "Ação geral (risco BAIXO)" in md
+    assert "Encaminhamentos específicos" not in md
+
+
 def test_salvar_relatorio_fallback_sem_pdf(tmp_path, monkeypatch):
     # Sem weasyprint disponível, o relatório é salvo em HTML (fallback garantido).
     monkeypatch.setattr(relatorio, "_tentar_pdf", lambda html: None)
