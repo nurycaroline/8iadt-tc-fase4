@@ -6,6 +6,18 @@
 
 ## Fase atual
 
+**Fase 4 — Empacotamento e Entregáveis** — **planejada** (spec → design → tasks).
+Plano em [`.specs/features/fase4-entregaveis/`](../features/fase4-entregaveis/): 14 requisitos
+(F4E-01..F4E-14) e 9 tarefas (T1–T9). Fase de **documentação/empacotamento** (não cria código de produto):
+audita o **repositório** (4.1), consolida **evidências reais** (métricas da Fase 2,
+`models/metricas_fusao.json`, exemplo de relatório automático via `app/relatorio.py`, log do
+`scripts/e2e_demo.py`), escreve o **relatório técnico** (`docs/relatorio-tecnico.md`, 6 seções do PDF) com
+exportação para PDF (fallback HTML/Markdown), e o **roteiro do vídeo** (`docs/roteiro-video.md`, 8 pontos,
+≤15 min). Decisões DD-F4-1..DD-F4-8 (relatório em Markdown+PDF fallback; diagramas Mermaid inline;
+**reusar artefatos reais, nunca inventar**; **vídeo = roteiro + placeholder de link**, pois gravação/
+publicação é **ação humana**; limitações documentadas honestamente; gate verde como critério de
+fechamento). **A implementar** (a partir de `tasks.md`).
+
 **Fase 3 — Fusão Multimodal e Integração em Nuvem** — **implementada** (T1–T18).
 Plano em [`.specs/features/fase3-fusao-e-nuvem/`](../features/fase3-fusao-e-nuvem/) (spec → design → tasks):
 17 requisitos (F3F-01..F3F-17) e 18 tarefas (T1–T18). Núcleo de valor = **motor de fusão**
@@ -102,6 +114,12 @@ público simples) e aparecem como passos opcionais.
       deps Python adicionadas em `ai-service/requirements.txt`.
 - [ ] **Escalar o detector de cicatriz** (GPU/Colab) para o `caso_alto` fechar `ALTO` ponta-a-ponta sem
       mock (hoje degrada e a fusão decide com vitais+texto).
+- [x] Planejar a Fase 4 (spec → design → tasks em `.specs/features/fase4-entregaveis/`): repositório,
+      relatório técnico e vídeo (14 requisitos F4E-01..F4E-14, 9 tarefas T1–T9).
+- [ ] Implementar a Fase 4 seguindo `tasks.md` (T1–T9): auditoria do repo, evidências, relatório técnico
+      (+PDF), roteiro do vídeo, README (créditos/link), checklist + gate, STATE/docs/04.
+- [ ] **Ação humana (grupo):** gravar e publicar o **vídeo** (≤15 min, "Não listado") e colar o link no
+      README — o agente entrega o roteiro (`docs/roteiro-video.md`) e o placeholder.
 
 ## Ideias adiadas
 
