@@ -6,6 +6,21 @@
 
 ## Fase atual
 
+**Fase 6 — Relatórios Automáticos Especializados** — **planejada (Specify, RASCUNHO)**.
+Spec em [`.specs/features/fase6-relatorios-automaticos/`](../features/fase6-relatorios-automaticos/spec.md) e
+doc [`docs/09-fase6-relatorios-automaticos.md`](../../docs/09-fase6-relatorios-automaticos.md). O **relatório
+automático já existe** (Fase 3 — `ai-service/app/relatorio.py`, gerado pelo pipeline; download no dashboard na
+Fase 5). A Fase 6 fecha a lacuna restante entre o requisito [`docs/06`](../../docs/06-relatorios-automaticos.md)
+e o código: **5 requisitos** F6-01..F6-05 — (F6-01) **encaminhamento especializado por gatilho** (infecção
+puerperal/pré-eclâmpsia/desconforto psicológico/violência) em vez de só por nível; (F6-02) **anexos com links
+reais** dos artefatos (frame/gráfico/áudio/texto) no lugar de só listar nomes; (F6-03) **PDF garantido** na
+imagem (libs do `weasyprint` no `Dockerfile`) mantendo o **fallback HTML** (S16/DD7); (F6-04) **pré-visualização**
+do relatório no dashboard além do download; (F6-05) **testes + evidências** atualizadas (reuso via
+`scripts/gerar_evidencias.py`, S23). Nada de código alterado ainda — **Design/Tasks só após confirmar o escopo**
+com o grupo (ver "Decisões a confirmar" na spec: é esta Fase 6 ou outro 8IADT? origem do encaminhamento; anexos
+no fallback local; libs de PDF na imagem; profundidade do preview). **Fora de escopo:** gerar o **frame de
+alerta real** da cicatriz (depende do detector escalado — F5-01, bloqueado por ambiente) e gravar o **vídeo**.
+
 **Fase 5 — Produção, Escala e Robustez** — **parcialmente implementada**.
 Spec/tasks em [`.specs/features/fase5-producao-e-escala/`](../features/fase5-producao-e-escala/spec.md) e
 doc [`docs/08-fase5-producao-e-escala.md`](../../docs/08-fase5-producao-e-escala.md). As Fases 1–4 já
@@ -159,6 +174,13 @@ público simples) e aparecem como passos opcionais.
       ou outro desafio 8IADT? Whisper vs. Azure Speech; Git LFS vs. métricas; deploy A/B; SQLite vs. Postgres;
       profundidade do dashboard.
 - [ ] Após confirmação: **Design** (decisões técnicas) → **Tasks** (quebra atômica) → Execute da Fase 5.
+- [x] Planejar a Fase 6 (Specify, RASCUNHO em `.specs/features/fase6-relatorios-automaticos/` + `docs/09`):
+      5 requisitos F6-01..F6-05 fechando a lacuna entre `docs/06` (relatórios especializados) e o código atual.
+- [ ] **Confirmar o escopo da Fase 6 com o grupo** (ver "Decisões a confirmar" na spec): é especializar o
+      relatório existente ou outro desafio 8IADT? origem do encaminhamento (relatório vs. fusão); anexos no
+      fallback local; libs de PDF na imagem; profundidade do preview no dashboard.
+- [ ] Após confirmação: **Design** → **Tasks** → Execute da Fase 6 (encaminhamento por gatilho, anexos com
+      links, PDF na imagem, preview no dashboard, testes/evidências).
 
 ## Ideias adiadas
 

@@ -22,6 +22,7 @@ Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisõ
 | Fase 3 | [`docs/03-fase3-fusao-e-nuvem.md`](docs/03-fase3-fusao-e-nuvem.md) | Fusão multimodal + deploy na nuvem |
 | Fase 4 | [`docs/04-fase4-entregaveis.md`](docs/04-fase4-entregaveis.md) | Repositório, relatório técnico e vídeo |
 | Fase 5 _(rascunho)_ | [`docs/08-fase5-producao-e-escala.md`](docs/08-fase5-producao-e-escala.md) | Produção, escala e robustez (fecha itens em aberto) |
+| Fase 6 _(rascunho)_ | [`docs/09-fase6-relatorios-automaticos.md`](docs/09-fase6-relatorios-automaticos.md) | Relatórios automáticos especializados (conteúdo por tipo + anexos com links) |
 | Componente | [`docs/casos-de-uso.md`](docs/casos-de-uso.md) | Casos de uso (diagramas Mermaid) |
 | Componente | [`docs/06-relatorios-automaticos.md`](docs/06-relatorios-automaticos.md) | Relatórios clínicos automáticos (requisito do PDF) |
 | Componente | [`docs/07-privacidade-e-seguranca.md`](docs/07-privacidade-e-seguranca.md) | Privacidade, segurança e LGPD |
@@ -106,12 +107,19 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 | **3 — Fusão + Nuvem** | Motor de regras + API + deploy Azure | Pipeline ponta-a-ponta rodando na nuvem |
 | **4 — Entregáveis** | Repo, relatório e vídeo | Tudo pronto para submissão |
 | **5 — Produção/Escala** _(rascunho)_ | Escalar modelos, completar áudio/pose, deploy Azure real, dashboard React | Solução de **demo-grade** elevada a **produção** (itens em aberto fechados) |
+| **6 — Relatórios Automáticos** _(rascunho)_ | Especializar o relatório por tipo de risco, anexos com links reais, PDF garantido e preview no dashboard | Relatório do `docs/06` cumprido por completo (especializado + anexos navegáveis) |
 
 > **Princípio guia:** comece com um **mini-dataset** (5 amostras por modalidade) e faça o pipeline rodar ponta-a-ponta. "Se rodar com 5, roda com 500." Só depois escale.
 
 > **Sobre a Fase 5:** as Fases 1–4 já entregam o Tech Challenge. A **Fase 5 é um rascunho de planejamento**
 > (escopo a confirmar) que consolida o que ficou **em aberto** no [checklist](docs/05-checklist-entrega.md) e
 > no [`STATE.md`](.specs/project/STATE.md). Detalhes em [`docs/08-fase5-producao-e-escala.md`](docs/08-fase5-producao-e-escala.md).
+
+> **Sobre a Fase 6:** também é um **rascunho de planejamento** (escopo a confirmar). O **relatório automático
+> já existe** (Fase 3, com download no dashboard na Fase 5); a Fase 6 fecha a lacuna restante entre o
+> requisito [`docs/06-relatorios-automaticos.md`](docs/06-relatorios-automaticos.md) e o código —
+> **especializar o conteúdo por tipo de risco** e trazer **anexos com links reais**. Detalhes em
+> [`docs/09-fase6-relatorios-automaticos.md`](docs/09-fase6-relatorios-automaticos.md).
 
 ---
 
