@@ -34,6 +34,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 - [Fase 2 — Modelos](docs/02-fase2-modelos.md)
 - [Fase 3 — Fusão e Nuvem](docs/03-fase3-fusao-e-nuvem.md)
 - [Fase 4 — Entregáveis](docs/04-fase4-entregaveis.md)
+- **[Relatório técnico](docs/relatorio-tecnico.md)** (6 seções) · **[Roteiro do vídeo](docs/roteiro-video.md)** (≤15 min) · [Evidências consolidadas](docs/relatorio/)
 - [Casos de uso](docs/casos-de-uso.md) · [Relatórios automáticos](docs/06-relatorios-automaticos.md) · [Privacidade e Segurança (LGPD)](docs/07-privacidade-e-seguranca.md)
 - [Motor de IA (`ai-service/`)](ai-service/README.md) — modelos (Fase 2) + fusão/API/relatório (Fase 3)
 - [Backend orquestrador (`backend/`)](backend/README.md) — Node/Express, upload, storage, alerta em tempo real
@@ -82,9 +83,23 @@ python -m scripts.e2e_demo    # upload local → inferência → JSON de risco �
 > **Fallback local:** com `STORAGE_BACKEND=local` (padrão) tudo roda sem a Azure — garante a demo.
 > O deploy real na Azure está em [docs/deploy-azure.md](docs/deploy-azure.md).
 
-## Entregáveis da fase
-- Repositório Git com código completo
-- Relatório técnico
-- Vídeo de demonstração (até 15 min)
+## Entregáveis da fase (Fase 4)
+- **Repositório Git** com código completo (este repo) — estrutura, deps fixadas, Docker, testes e CI.
+- **Relatório técnico:** [`docs/relatorio-tecnico.md`](docs/relatorio-tecnico.md) (6 seções) — exportável
+  para PDF/HTML via `python -m scripts.exportar_relatorio` (fallback HTML quando faltam libs de PDF).
+- **Vídeo de demonstração (≤ 15 min):** roteiro pronto em [`docs/roteiro-video.md`](docs/roteiro-video.md).
+  - 🎬 **Link do vídeo:** _[a publicar — YouTube/Vimeo "Não listado"; substituir este placeholder pelo link]_
+
+## Créditos / Integrantes
+
+> Preencha os integrantes do grupo antes de submeter (não invente nomes).
+
+| Nome | RM | GitHub |
+| ---- | -- | ------ |
+| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
+| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
+| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
+
+Curso: Pós-Tech IA para Devs (8IADT) — Tech Challenge Fase 4.
 
 > ⚠️ Solução acadêmica de **apoio à decisão clínica** — não substitui avaliação médica. Ver [privacidade e segurança](docs/07-privacidade-e-seguranca.md).
