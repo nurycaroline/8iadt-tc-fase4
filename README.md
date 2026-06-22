@@ -9,6 +9,7 @@ Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (
 ```
 ai-service/   # Motor de IA (Python/FastAPI): modelos por modalidade, fusão, relatório, métricas
 backend/      # Orquestrador (Node/Express): upload, storage, persistência, alerta em tempo real
+frontend/     # Dashboard de produção (React+Vite+TS): monitoramento + alerta em tempo real (Fase 5)
 docs/         # Documentação: arquitetura, contrato de API, relatório técnico, roteiro do vídeo
 scripts/      # Preparação de dados (Fase 1), demo E2E e utilitários
 data/         # Estrutura de dados (conteúdo ignorado pelo Git — LGPD); só metadados leves versionados
@@ -34,6 +35,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 - [Fase 2 — Modelos](docs/02-fase2-modelos.md)
 - [Fase 3 — Fusão e Nuvem](docs/03-fase3-fusao-e-nuvem.md)
 - [Fase 4 — Entregáveis](docs/04-fase4-entregaveis.md)
+- [Fase 5 — Produção, Escala e Robustez](docs/08-fase5-producao-e-escala.md) _(dashboard, reforço de vitais, hardening)_
 - **[Relatório técnico](docs/relatorio-tecnico.md)** (6 seções) · **[Roteiro do vídeo](docs/roteiro-video.md)** (≤15 min) · [Evidências consolidadas](docs/relatorio/)
 - [Casos de uso](docs/casos-de-uso.md) · [Relatórios automáticos](docs/06-relatorios-automaticos.md) · [Privacidade e Segurança (LGPD)](docs/07-privacidade-e-seguranca.md)
 - [Motor de IA (`ai-service/`)](ai-service/README.md) — modelos (Fase 2) + fusão/API/relatório (Fase 3)
@@ -59,8 +61,9 @@ cp .env.example .env          # ajuste se for usar Azure; o padrão é storage l
 docker compose up --build     # sobe ai-service (8000) e backend (3000)
 ```
 
-Abra `http://localhost:3000/` (cliente do alerta). Envie um caso em `POST /analisar` e veja o alerta
-surgir quando a fusão fecha o risco `MEDIO`/`ALTO`.
+Com `docker compose up` o **dashboard** (Fase 5) sobe em `http://localhost:8080/`; o backend também
+expõe o cliente mínimo de fallback em `http://localhost:3000/`. Envie um caso em `POST /analisar` (ou pela
+tela "Enviar caso") e veja o alerta surgir quando a fusão fecha o risco `MEDIO`/`ALTO`.
 
 ### Sem Docker (local)
 
@@ -72,7 +75,14 @@ pip install -r ai-service/requirements.txt
 
 # 2) Backend (Node 20+), em outro terminal
 cd backend && npm install && npm start
+
+# 3) Dashboard (React), em outro terminal — proxy automático para o backend
+cd frontend && npm install && npm run dev   # http://localhost:5173
 ```
+
+> **Dashboard (Fase 5):** painel de monitoramento com lista/entrada de pacientes, upload do caso,
+> **detalhe do caso** (painéis por modalidade + fusão) e **alerta em tempo real**. Em produção, o backend
+> serve o build de `frontend/dist`; detalhes em [`frontend/README.md`](frontend/README.md).
 
 ### Demo ponta-a-ponta (em processo, sem subir a stack)
 

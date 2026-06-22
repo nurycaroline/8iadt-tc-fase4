@@ -6,19 +6,24 @@
 
 ## Fase atual
 
-**Fase 5 — Produção, Escala e Robustez** — **planejamento (Specify, RASCUNHO)**.
-Spec em [`.specs/features/fase5-producao-e-escala/`](../features/fase5-producao-e-escala/spec.md) e doc
-companheiro em [`docs/08-fase5-producao-e-escala.md`](../../docs/08-fase5-producao-e-escala.md). As Fases
-1–4 já entregam o Tech Challenge atual; **não havia "Fase 5"** definida — a proposta consolida os itens em
-**aberto** do [checklist](../../docs/05-checklist-entrega.md) e dos `todos`/`ideias adiadas` abaixo:
-(F5-01) escalar o detector de **cicatriz** (GPU/Colab) p/ o `caso_alto` fechar **ALTO** sem degradação;
-(F5-02) completar **áudio + fisioterapia** com métricas reais (remover DD10 onde houver dados);
-(F5-03) **deploy real na Azure** validado por smoke (mantendo fallback local); (F5-04) **dashboard React**
-de produção (substitui o cliente mínimo); (F5-05) reforçar **sinais vitais** com pré-eclâmpsia sintética;
-(F5-06) **hardening** (observabilidade/CI-CD/segurança). **Escopo a confirmar com o grupo** (ver
-"Decisões a confirmar" na spec) — incluindo se "Fase 5" se refere a **outro desafio (8IADT)** com PDF
-próprio. **Vídeo + integrantes** permanecem **ação humana** (não são desenvolvimento desta fase).
-**Próximo passo:** confirmar escopo → **Design** → **Tasks** → Execute.
+**Fase 5 — Produção, Escala e Robustez** — **parcialmente implementada**.
+Spec/tasks em [`.specs/features/fase5-producao-e-escala/`](../features/fase5-producao-e-escala/spec.md) e
+doc [`docs/08-fase5-producao-e-escala.md`](../../docs/08-fase5-producao-e-escala.md). As Fases 1–4 já
+entregam o Tech Challenge atual; a Fase 5 consolida os itens em **aberto** do
+[checklist](../../docs/05-checklist-entrega.md)/STATE. **Implementado o viável neste ambiente:**
+(F5-04) **dashboard React** de produção em `frontend/` (React+Vite+TS, react-query, socket.io-client),
+substituindo o cliente mínimo — backend ganhou `GET /casos`, `GET /casos/:id`, `GET /casos/:id/relatorio`
+e serve `frontend/dist` (SPA); (F5-05) **reforço dos sinais vitais** com pré-eclâmpsia sintética
+(`scripts/data_prep/preeclampsia_sintetico.py` + `treino.comparar_com_aumento` +
+`scripts/reforco_sinais_vitais.py`); (F5-06 parcial) **hardening** — `/ready`, job de CI do frontend,
+`frontend/Dockerfile`+nginx (proxy REST+WS) e serviço `frontend` no compose (`:8080`).
+**Bloqueado por ambiente** (código pronto/Azure-ready; degrada sem quebrar — DD10): (F5-01) escalar o
+detector de **cicatriz** exige GPU/Colab + dataset; (F5-02) **áudio/fisioterapia** exigem amostras com
+licença (obtenção manual); (F5-03) **deploy real na Azure** exige conta/credenciais. **Gate verde:**
+`ruff` + `pytest` (**102 testes** Python: 96 base + 6 da Fase 5); `eslint`+`jest` (**18 testes** Node:
+11 base + 7) e `eslint`+`vitest`+`build` (**7 testes** frontend). Decisões de escopo (Whisper vs. Azure
+Speech, LFS vs. métricas, deploy A/B, SQLite vs. Postgres) ainda na spec — defaults aplicados: Whisper
+local, só métricas, SQLite. **Vídeo + integrantes** permanecem **ação humana**.
 
 **Fase 4 — Empacotamento e Entregáveis** — **implementada** (T1–T9).
 Plano em [`.specs/features/fase4-entregaveis/`](../features/fase4-entregaveis/): 14 requisitos

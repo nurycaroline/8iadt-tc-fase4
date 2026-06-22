@@ -24,6 +24,30 @@
 > **Permanece ação humana** (não é desenvolvimento desta fase): gravar/publicar o **vídeo** e preencher os
 > **integrantes** no README — itens `[ ]` do [checklist §Vídeo/§Antes de submeter](05-checklist-entrega.md).
 
+## Estado da implementação
+
+> Implementado o que é **viável neste ambiente**; os itens que dependem de **recursos externos**
+> (GPU/Colab, datasets com licença, conta Azure) ficam documentados como **bloqueados por ambiente** —
+> o código já está preparado e a degradação é graciosa (DD10). Gate verde em todas as mudanças.
+
+| Req | Item | Estado | Evidência |
+|-----|------|--------|-----------|
+| F5-04 | Dashboard React de produção | ✅ **Implementado** | [`frontend/`](../frontend/) (React+Vite+TS, react-query, socket.io); backend serve `dist/` (SPA) |
+| F5-05 | Reforço dos sinais vitais (pré-eclâmpsia) | ✅ **Implementado** | [`scripts/data_prep/preeclampsia_sintetico.py`](../scripts/data_prep/preeclampsia_sintetico.py) + `app/sinais_vitais/treino.comparar_com_aumento` + [`scripts/reforco_sinais_vitais.py`](../scripts/reforco_sinais_vitais.py) |
+| F5-06 | Hardening (observabilidade/CI-CD) | ✅ **Parcial** | `/ready` no backend; job de CI do frontend; `frontend/Dockerfile`+nginx; serviço no compose |
+| F5-01 | Escalar detector de cicatriz | ⛔ **Bloqueado (ambiente)** | Exige **GPU/Colab** + dataset ampliado; treino smoke da Fase 2 permanece (DD10) |
+| F5-02 | Áudio + fisioterapia completas | ⛔ **Bloqueado (ambiente)** | Exige amostras com **login/licença** (obtenção manual); módulos degradam sem quebrar (DD10) |
+| F5-03 | Deploy real na Azure | ⛔ **Bloqueado (ambiente)** | Exige **conta/credenciais Azure**; código Azure-ready + passos em [`deploy-azure.md`](deploy-azure.md); fallback local valida a stack |
+
+**Endpoints novos do backend (F5-04):** `GET /casos`, `GET /casos/:id`, `GET /casos/:id/relatorio`, `GET /ready`.
+
+**Como rodar o dashboard:** ver [`frontend/README.md`](../frontend/README.md) — `npm run dev` (proxy ao backend)
+ou `docker compose up` (serviço `frontend` em :8080). Em produção o backend também serve `frontend/dist`.
+
+**Desbloqueio dos itens de ambiente (ação humana/infra):** rodar `scripts.data_prep` + treino em GPU para
+F5-01; obter amostras de áudio/pose para F5-02; provisionar Azure (`deploy-azure.md`) e rodar o smoke
+pós-deploy para F5-03.
+
 ## Resultado esperado (Definition of Done)
 
 - [ ] **Cicatriz escalada**: treino em GPU/Colab com dataset ampliado; `caso_alto` fecha **ALTO** ponta a
