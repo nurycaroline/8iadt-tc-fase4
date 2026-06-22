@@ -2,7 +2,22 @@
 
 Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada): a paciente envia, de casa, **áudio** (relato/consulta), **vídeo** (cicatriz da cesárea e exercícios de fisioterapia), **sinais vitais** (pressão, batimentos, glicemia) e **texto** (laudos/exames). O sistema faz a **fusão multimodal** desses dados para detectar **sinais precoces de risco** e gerar **alertas clínicos em tempo real**, com integração à **nuvem (Azure)**.
 
-> Este repositório começa pela fase de **planejamento**. O plano completo de desenvolvimento, organizado em partes, está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)**.
+> Projeto **implementado de ponta a ponta** (Fases 1–4): dados → modelos → fusão → API → alerta em tempo real → relatório automático, com Docker, testes e CI. Para rodar do zero, vá direto para **[Como rodar a stack](#como-rodar-a-stack)**. O histórico de planejamento por fases está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)** e em [`.specs/`](.specs/).
+
+## Estrutura do repositório
+
+```
+ai-service/   # Motor de IA (Python/FastAPI): modelos por modalidade, fusão, relatório, métricas
+backend/      # Orquestrador (Node/Express): upload, storage, persistência, alerta em tempo real
+docs/         # Documentação: arquitetura, contrato de API, relatório técnico, roteiro do vídeo
+scripts/      # Preparação de dados (Fase 1), demo E2E e utilitários
+data/         # Estrutura de dados (conteúdo ignorado pelo Git — LGPD); só metadados leves versionados
+```
+
+Dependências com **versões fixadas** em [`ai-service/requirements.txt`](ai-service/requirements.txt) (Python) e
+[`backend/package.json`](backend/package.json) (Node). Pesos de modelo **não são versionados** (reprodutíveis
+pelo treino); só **métricas** e gráficos entram no Git — ver [`.gitignore`](.gitignore) e
+[privacidade/LGPD](docs/07-privacidade-e-seguranca.md).
 
 ## A dor que a solução resolve
 No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risco (infecção da cicatriz, pré-eclâmpsia, depressão pós-parto, violência) aparecem aos poucos e ficam **espalhados** em sistemas e pessoas diferentes. Quando alguém cruza tudo, a complicação já aconteceu. Esta solução é o "cérebro" que **junta as modalidades da mesma paciente** e **alerta cedo** a equipe.
@@ -19,6 +34,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 - [Fase 2 — Modelos](docs/02-fase2-modelos.md)
 - [Fase 3 — Fusão e Nuvem](docs/03-fase3-fusao-e-nuvem.md)
 - [Fase 4 — Entregáveis](docs/04-fase4-entregaveis.md)
+- **[Relatório técnico](docs/relatorio-tecnico.md)** (6 seções) · **[Roteiro do vídeo](docs/roteiro-video.md)** (≤15 min) · [Evidências consolidadas](docs/relatorio/)
 - [Casos de uso](docs/casos-de-uso.md) · [Relatórios automáticos](docs/06-relatorios-automaticos.md) · [Privacidade e Segurança (LGPD)](docs/07-privacidade-e-seguranca.md)
 - [Motor de IA (`ai-service/`)](ai-service/README.md) — modelos (Fase 2) + fusão/API/relatório (Fase 3)
 - [Backend orquestrador (`backend/`)](backend/README.md) — Node/Express, upload, storage, alerta em tempo real
@@ -31,7 +47,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 - **Nuvem:** Azure Blob Storage + App Service/Functions
 - **Infra/qualidade:** Docker + docker-compose, testes (pytest/jest), CI (GitHub Actions)
 
-## Como rodar a stack (Fase 3)
+## Como rodar a stack
 
 A stack tem **dois serviços**: o motor de IA (Python/FastAPI) e o orquestrador (Node/Express), que
 expõe o cliente mínimo de demonstração do alerta em tempo real.
@@ -67,9 +83,23 @@ python -m scripts.e2e_demo    # upload local → inferência → JSON de risco �
 > **Fallback local:** com `STORAGE_BACKEND=local` (padrão) tudo roda sem a Azure — garante a demo.
 > O deploy real na Azure está em [docs/deploy-azure.md](docs/deploy-azure.md).
 
-## Entregáveis da fase
-- Repositório Git com código completo
-- Relatório técnico
-- Vídeo de demonstração (até 15 min)
+## Entregáveis da fase (Fase 4)
+- **Repositório Git** com código completo (este repo) — estrutura, deps fixadas, Docker, testes e CI.
+- **Relatório técnico:** [`docs/relatorio-tecnico.md`](docs/relatorio-tecnico.md) (6 seções) — exportável
+  para PDF/HTML via `python -m scripts.exportar_relatorio` (fallback HTML quando faltam libs de PDF).
+- **Vídeo de demonstração (≤ 15 min):** roteiro pronto em [`docs/roteiro-video.md`](docs/roteiro-video.md).
+  - 🎬 **Link do vídeo:** _[a publicar — YouTube/Vimeo "Não listado"; substituir este placeholder pelo link]_
+
+## Créditos / Integrantes
+
+> Preencha os integrantes do grupo antes de submeter (não invente nomes).
+
+| Nome | RM | GitHub |
+| ---- | -- | ------ |
+| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
+| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
+| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
+
+Curso: Pós-Tech IA para Devs (8IADT) — Tech Challenge Fase 4.
 
 > ⚠️ Solução acadêmica de **apoio à decisão clínica** — não substitui avaliação médica. Ver [privacidade e segurança](docs/07-privacidade-e-seguranca.md).

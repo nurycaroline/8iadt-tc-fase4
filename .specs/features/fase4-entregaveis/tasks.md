@@ -2,9 +2,11 @@
 
 **Spec**: [`spec.md`](spec.md)
 **Design**: [`design.md`](design.md)
-**Status**: Planejado (a implementar). Insumos prontos: stack ponta-a-ponta da
-[Fase 3](../fase3-fusao-e-nuvem/) + métricas reais da [Fase 2](../fase2-modelos/)
-(`ai-service/models/*`) + casos de exemplo (`data/casos/*.json`).
+**Status**: **Implementado** (T1–T9). Gate verde (ruff + 96 testes Python; eslint + 11 testes Node).
+Entregáveis do agente prontos (repositório auditado + relatório técnico + roteiro do vídeo); a
+**gravação/publicação do vídeo** e os **nomes dos integrantes** são ação humana (placeholders no README).
+Insumos: stack ponta-a-ponta da [Fase 3](../fase3-fusao-e-nuvem/) + métricas reais da
+[Fase 2](../fase2-modelos/) (`ai-service/models/*`) + casos de exemplo (`data/casos/*.json`).
 
 > Cada tarefa = 1 entregável atômico (um documento / uma capacidade), com `Done when` verificável e um
 > commit. Esta fase **não cria código de produto**: consolida evidências e escreve a documentação de

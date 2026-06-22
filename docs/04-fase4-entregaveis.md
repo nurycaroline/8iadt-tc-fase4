@@ -3,9 +3,15 @@
 > Objetivo: empacotar a solução com **padrão de engenharia de software** e produzir os 3 entregáveis avaliados: **Repositório Git**, **Relatório técnico** e **Vídeo**.
 
 ## Resultado esperado (Definition of Done)
-- [ ] Repositório organizado, com `README.md` e `requirements.txt`/`package.json`.
-- [ ] Relatório técnico completo.
-- [ ] Vídeo de até 15 min publicado (YouTube/Vimeo, público ou não listado).
+- [x] Repositório organizado, com `README.md` e `requirements.txt`/`package.json`. (auditado — T1/T7; gate verde)
+- [x] Relatório técnico completo. ([`docs/relatorio-tecnico.md`](relatorio-tecnico.md), 6 seções — T4; PDF/HTML via [`scripts/exportar_relatorio.py`](../scripts/exportar_relatorio.py) — T5)
+- [ ] Vídeo de até 15 min publicado (YouTube/Vimeo, público ou não listado). — **ação humana**; roteiro pronto em [`docs/roteiro-video.md`](roteiro-video.md) (T6) e placeholder de link no [`README.md`](../README.md) (T7)
+
+> **Estado da Fase 4 (planejamento em [`.specs/features/fase4-entregaveis/`](../.specs/features/fase4-entregaveis/)):**
+> tarefas T1–T9 implementadas. Os 2 entregáveis do agente (repositório auditado + relatório técnico) estão
+> prontos; o 3º (vídeo) depende de gravação/publicação humana, com **roteiro** e **placeholder de link**
+> entregues. Evidências reais consolidadas em [`docs/relatorio/`](relatorio/) (métricas, exemplo de
+> relatório automático, log E2E). Nenhuma métrica foi inventada (`AGENTS.md`).
 
 ---
 
