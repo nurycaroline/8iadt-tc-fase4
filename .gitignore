@@ -34,12 +34,27 @@ venv/
 !/ai-service/models/.gitkeep
 !/ai-service/models/**/metrics.json
 !/ai-service/models/baseline.json
+!/ai-service/models/metricas_fusao.json
 !/ai-service/models/**/*.png
 
 # ── Saídas de treino do Ultralytics (YOLO) ──
 runs/
 runs_cicatriz/
 yolov8*.pt
+
+# ── Node.js (backend orquestrador — Fase 3) ──
+node_modules/
+npm-debug.log*
+backend/uploads/
+
+# ── Fase 3: storage local (fallback), banco SQLite e relatórios gerados ──
+_storage/
+backend/data/
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.db
 
 # ── SO/editor ──
 .DS_Store

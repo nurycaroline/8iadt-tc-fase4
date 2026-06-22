@@ -1,0 +1,33 @@
+# Sobe a stack completa da Fase 3 com um comando: `docker compose up`.
+# Variáveis em .env (copie de .env.example). Os dois serviços compartilham ./data por volume,
+# para o storage local (fallback) funcionar ponta-a-ponta entre Node e Python.
+services:
+  ai-service:
+    build: ./ai-service
+    ports:
+      - "8000:8000"
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./ai-service/models:/app/ai-service/models
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      # Dentro da rede do compose o Python é acessível pelo nome do serviço.
+      AI_SERVICE_URL: http://ai-service:8000
+      STORAGE_DIR: /app/data/_storage
+      DB_PATH: /app/data/_storage/app.sqlite
+    depends_on:
+      ai-service:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
