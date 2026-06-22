@@ -276,16 +276,18 @@ Dados de saúde são **dados sensíveis** pela LGPD (Lei 13.709/2018). Detalhes 
 - **Finalidade** — dados usados só para o monitoramento clínico.
 - **Apoio à decisão, não diagnóstico** — a decisão é sempre humana (disclaimer ético).
 
-### Controles técnicos ([`docs/07`](07-privacidade-e-seguranca.md) §2)
+### Controles técnicos ([`docs/07`](07-privacidade-e-seguranca.md) §2) — implementados na Fase 7
 
-| Camada | Controle |
-| ------ | -------- |
-| Em trânsito | HTTPS/TLS (Node ↔ Python ↔ Azure) |
-| Em repouso | Criptografia server-side do Azure Blob |
-| Segredos | **Azure Key Vault** ou `.env` — **nunca no Git** (`.gitignore` cobre `.env` e credenciais) |
-| Acesso | RBAC no Azure; SAS tokens com expiração |
-| Auditoria | log com `case_id` de quem acessou qual caso |
-| Retenção | política de expiração/limpeza após o uso |
+| Camada | Controle | Estado (Fase 7) |
+| ------ | -------- | --------------- |
+| Em trânsito | HTTPS/TLS (Node ↔ Python ↔ Azure) | TLS opt-in na borda (`frontend/nginx.tls.conf` + `docker-compose.tls.yml`, HSTS); Node↔Python aceita `https://`; fallback HTTP documentado (F7-02) |
+| Em repouso | Criptografia server-side do Azure Blob | Default do Azure Blob; storage local só p/ dados sintéticos da demo |
+| Segredos | **Azure Key Vault** ou `.env` — **nunca no Git** | `.env` no `.gitignore`; carregamento opcional do Key Vault com fallback `.env` (F7-07) |
+| Acesso | Autenticação de serviço + RBAC no Azure; SAS com expiração | Credencial `x-api-key` no backend e no `ai-service` (F7-01); SAS com expiração; RBAC real na Azure = ação humana (F5-03) |
+| Auditoria | log de quem acessou qual caso e quando | Trilha persistida (tabela `auditoria`: usuário/ação/`case_id`/timestamp, sem conteúdo clínico) (F7-03) |
+| Retenção | política de expiração/limpeza após o uso | TTL `RETENTION_DAYS` + rotina `npm run retencao` (F7-04) |
+| Hardening | cabeçalhos de segurança, CORS, validação de upload | `helmet` + CORS por allowlist + security headers no nginx + validação de MIME (F7-06) |
+| Pseudonimização | `case_id` opaco; minimização de PII | `case_id` UUID validado; nome não trafega ao serviço de IA (F7-05) |
 
 ### Dados sintéticos como estratégia de privacidade
 

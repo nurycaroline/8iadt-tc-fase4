@@ -6,6 +6,29 @@
 
 ## Fase atual
 
+**Fase 7 — Privacidade e Segurança (LGPD)** — **implementada** (F7-01..F7-08).
+Spec em [`.specs/features/fase7-privacidade-e-seguranca/`](../features/fase7-privacidade-e-seguranca/spec.md)
+e doc [`docs/10-fase7-privacidade-e-seguranca.md`](../../docs/10-fase7-privacidade-e-seguranca.md). A
+**documentação de LGPD já existia** (disclaimer + §5 do relatório); a Fase 7 fechou a lacuna entre os
+**controles técnicos** do componente [`docs/07`](../../docs/07-privacidade-e-seguranca.md) e o **código**:
+(F7-01) **auth de serviço** — `x-api-key` no backend (`backend/src/middleware/auth.js`) e no `ai-service`
+(`ai-service/app/api/seguranca.py`); opt-in (vazio = demo aberta; `AUTH_REQUIRED=true` força negar — preserva
+DD10); `/health`/`/ready` públicos; (F7-02) **TLS opt-in** na borda (`frontend/nginx.tls.conf` +
+`docker-compose.tls.yml` + `scripts/gerar-cert-dev.sh`, HSTS) + Node↔Python aceita `https://`, fallback HTTP;
+(F7-03) **auditoria de acesso** — tabela `auditoria` (`db/index.js`/`repositorios.js`) registrada em
+`rotas/casos.js` e `rotas/analisar.js` (usuário via `x-user-id`, sem conteúdo clínico); (F7-04) **retenção** —
+`backend/src/servicos/retencao.js` + `scripts/retencao.js` (`npm run retencao`), TTL `RETENTION_DAYS`; (F7-05)
+**pseudonimização** — `backend/src/seguranca/pseudonimizacao.js` (`case_id` UUID validado + `pacienteMinimo`
+remove `primeiro_nome` do payload à IA); (F7-06) **hardening** — `helmet` + `backend/src/middleware/cors.js`
+(allowlist; socket.io idem) + security headers no `nginx` + `fileFilter` de MIME no upload; (F7-07) **Key
+Vault opcional** — `backend/src/seguranca/segredos.js` + `bootstrap.js` (fallback `.env`); (F7-08)
+**conformidade no CI** — `scripts/check_conformidade.py` + job `conformidade`; checklist `docs/07 §6` e §5 do
+relatório atualizados; disclaimer realçado no README. **Defaults da spec aplicados** (escopo confirmado pelo
+pedido "implemente a fase 7"). **Gate verde:** `ruff`+`pytest` (**111 testes** Python; +4), `eslint`+`jest`
+(**32 testes** Node; +14) e `eslint`+`vitest`+`build` do frontend (**7 testes**). **Já satisfeito (não
+recriado):** SAS com expiração, `.env`/`data/` no `.gitignore`, dados sintéticos. **Fora de escopo:**
+RBAC/Private Endpoint reais na Azure (ação humana/infra, ligado ao F5-03) e gravar o vídeo (DD-F4-5).
+
 **Fase 6 — Relatórios Automáticos Especializados** — **implementada** (F6-01..F6-05).
 Spec em [`.specs/features/fase6-relatorios-automaticos/`](../features/fase6-relatorios-automaticos/spec.md) e
 doc [`docs/09-fase6-relatorios-automaticos.md`](../../docs/09-fase6-relatorios-automaticos.md). O **relatório
@@ -184,6 +207,19 @@ público simples) e aparecem como passos opcionais.
       Gate verde (ruff + 107 testes Python; eslint+vitest+build do frontend). Defaults da spec aplicados.
 - [ ] **Confirmar com o grupo** os defaults aplicados na Fase 6 (origem do encaminhamento, anexos no fallback
       local, libs de PDF na imagem, profundidade do preview) — revisáveis se o escopo divergir.
+- [x] Planejar a Fase 7 (Specify em `.specs/features/fase7-privacidade-e-seguranca/` + `docs/10`): 8 requisitos
+      F7-01..F7-08 fechando a lacuna entre os controles do `docs/07` (LGPD) e o código (auth, TLS, auditoria de
+      acesso, retenção, pseudonimização, hardening, Key Vault opcional, conformidade no CI).
+- [x] Implementar a Fase 7 (F7-01..F7-08): auth de serviço (backend + ai-service), TLS opt-in na borda,
+      auditoria de acesso (tabela `auditoria`), retenção (`npm run retencao`), pseudonimização (`case_id` opaco
+      + minimização de PII), hardening (helmet/CORS/headers/upload), Key Vault opcional e conformidade no CI +
+      docs. Gate verde (ruff + 111 testes Python; eslint + 32 testes Node; vitest + 7 frontend). Defaults da
+      spec aplicados.
+- [ ] **Confirmar com o grupo** os defaults aplicados na Fase 7 (auth opt-in via `API_KEY`/`AUTH_REQUIRED`;
+      terminação TLS no nginx; trilha em SQLite; TTL de retenção; minimização de PII removendo `primeiro_nome`
+      do payload à IA; Key Vault opcional) — revisáveis se o escopo divergir.
+- [ ] **Ação humana/infra:** provisionar RBAC/Private Endpoint reais na Azure (F5-03) e gravar o vídeo
+      demonstrando os controles (DD-F4-5).
 
 ## Ideias adiadas
 

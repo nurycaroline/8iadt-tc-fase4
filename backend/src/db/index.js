@@ -41,5 +41,16 @@ function migrar(db) {
       timestamp TEXT NOT NULL,
       FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE
     );
+    -- Trilha de auditoria de acesso (Fase 7 — F7-03): quem/quando/qual caso/ação. Registra apenas
+    -- IDENTIFICADORES (usuário, case_id, ação, recurso) — nunca conteúdo clínico sensível.
+    CREATE TABLE IF NOT EXISTS auditoria (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      usuario TEXT NOT NULL,
+      acao TEXT NOT NULL,
+      recurso TEXT,
+      case_id TEXT,
+      timestamp TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_auditoria_case ON auditoria(case_id);
   `);
 }

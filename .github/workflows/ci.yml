@@ -6,6 +6,18 @@ on:
   pull_request:
 
 jobs:
+  conformidade:
+    name: Conformidade LGPD (privacidade/segurança)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Falha se houver .env/segredos/chaves versionados ou dados reais fora da allowlist (F7-08).
+      - name: Verifica conformidade (sem segredos/dados reais no Git)
+        run: python -m scripts.check_conformidade
+
   python:
     name: Python (ruff + pytest)
     runs-on: ubuntu-latest

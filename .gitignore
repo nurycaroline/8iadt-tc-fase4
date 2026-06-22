@@ -56,5 +56,11 @@ backend/data/
 *.sqlite-shm
 *.db
 
+# ── Fase 7: certificados TLS de desenvolvimento (nunca versionar chaves privadas) ──
+/certs/
+*.pem
+*.key
+*.crt
+
 # ── SO/editor ──
 .DS_Store

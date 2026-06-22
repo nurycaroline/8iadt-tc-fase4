@@ -48,10 +48,29 @@ describe('POST /analisar', () => {
     const payload = inferir.mock.calls[0][0];
     expect(payload.dados_vitais.csv_url).toContain('sinais_vitais');
     expect(payload.texto_clinico).toContain('febre');
+    // Pseudonimização (F7-05): a PII (nome) NÃO é enviada ao serviço de IA.
+    expect(payload.paciente.primeiro_nome).toBeUndefined();
+    expect(payload.paciente.id).toBe(paciente.id);
 
     const casos = repos.casos.porPaciente(paciente.id);
     expect(casos).toHaveLength(1);
     expect(casos[0].risco_detectado).toBe('ALTO');
+  });
+
+  it('rejeita upload com MIME inesperado (F7-06)', async () => {
+    const inferir = jest.fn();
+    const { app, paciente } = appComMock(inferir);
+
+    const resp = await request(app)
+      .post('/analisar')
+      .field('paciente_id', paciente.id)
+      .attach('audio', Buffer.from('%PDF-1.4 fake'), {
+        filename: 'malicioso.pdf',
+        contentType: 'application/pdf',
+      });
+
+    expect(resp.status).toBe(400);
+    expect(inferir).not.toHaveBeenCalled();
   });
 
   it('responde 502 quando o serviço de IA está indisponível', async () => {

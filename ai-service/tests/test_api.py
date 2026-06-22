@@ -50,3 +50,18 @@ def test_inferencia_modalidade_ausente_nao_quebra():
     resp = client.post("/inferencia", json=payload)
     assert resp.status_code == 200
     assert resp.json()["risco_detectado"] == "BAIXO"
+
+
+def test_inferencia_exige_credencial_quando_configurada(monkeypatch):
+    # Fase 7 (F7-01): com AI_SERVICE_API_KEY definida, exige o header X-API-Key.
+    monkeypatch.setenv("AI_SERVICE_API_KEY", "segredo-ia")
+    payload = {"case_id": "abc-123", "paciente": {"id": "p1"}}
+
+    sem_chave = client.post("/inferencia", json=payload)
+    assert sem_chave.status_code == 401
+
+    chave_errada = client.post("/inferencia", json=payload, headers={"X-API-Key": "errada"})
+    assert chave_errada.status_code == 401
+
+    com_chave = client.post("/inferencia", json=payload, headers={"X-API-Key": "segredo-ia"})
+    assert com_chave.status_code == 200

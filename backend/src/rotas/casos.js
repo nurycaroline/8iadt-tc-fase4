@@ -16,8 +16,19 @@ const CONTENT_TYPE_POR_EXT = {
 export function criarRotasCasos(repos) {
   const router = Router();
 
+  // Registra acesso na trilha de auditoria (Fase 7 — F7-03): quem/quando/qual caso/ação.
+  function auditar(req, acao, caseId = null) {
+    repos.auditoria?.registrar({
+      usuario: req.usuario,
+      acao,
+      recurso: req.originalUrl,
+      case_id: caseId,
+    });
+  }
+
   // Lista de casos com o paciente embutido — alimenta a visão geral e o histórico do dashboard.
-  router.get('/casos', (_req, res) => {
+  router.get('/casos', (req, res) => {
+    auditar(req, 'listar_casos');
     return res.json(repos.casos.listar());
   });
 
@@ -25,6 +36,7 @@ export function criarRotasCasos(repos) {
   router.get('/casos/:id', (req, res) => {
     const caso = repos.casos.obterComPaciente(req.params.id);
     if (!caso) return res.status(404).json({ erro: 'caso não encontrado' });
+    auditar(req, 'ler_caso', req.params.id);
     return res.json(caso);
   });
 
@@ -32,6 +44,7 @@ export function criarRotasCasos(repos) {
   router.get('/casos/:id/relatorio', (req, res) => {
     const caso = repos.casos.obter(req.params.id);
     if (!caso) return res.status(404).json({ erro: 'caso não encontrado' });
+    auditar(req, 'ler_relatorio', req.params.id);
 
     const url = caso.relatorio_url;
     if (!url) return res.status(404).json({ erro: 'relatório indisponível para este caso' });
