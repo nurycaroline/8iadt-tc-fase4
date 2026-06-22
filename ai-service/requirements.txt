@@ -42,9 +42,11 @@ httpx>=0.27
 markdown>=3.7
 # Azure Blob Storage (modo nuvem do adaptador de storage; fallback local não precisa)
 azure-storage-blob>=12.23
-# HTML -> PDF do relatório (OPCIONAL): exige libs de sistema; o relatório sempre
-# produz Markdown/HTML e só tenta PDF quando weasyprint está disponível (design DD7).
-# weasyprint>=63.0
+# HTML -> PDF do relatório: o relatório SEMPRE produz Markdown/HTML e só tenta PDF quando o
+# weasyprint + libs de sistema (Pango/cairo/gdk-pixbuf) estão disponíveis (design DD7 / Fase 6 F6-03).
+# A imagem do ai-service instala essas libs (ver Dockerfile); em ambientes sem elas, o import do
+# weasyprint falha e o relatório cai no HTML sem quebrar o pipeline.
+weasyprint>=63.0
 
 # Qualidade
 pytest>=8.3
