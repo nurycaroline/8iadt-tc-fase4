@@ -237,19 +237,20 @@ checklist de segurança do ambiente.
 
 ## Requirement Traceability
 
-| Requirement ID | Story                                                       | Fonte (item aberto)                                   | Phase   | Status  |
-| -------------- | ----------------------------------------------------------- | ----------------------------------------------------- | ------- | ------- |
-| F5-01          | P1: Detector de cicatriz escalado (fecha ALTO)              | STATE todos/blockers; checklist §Escopo               | Specify | Pending |
-| F5-02          | P1: Áudio + fisioterapia completas (métricas reais)         | STATE todos/blockers; checklist §Técnico (DD10)       | Specify | Pending |
-| F5-03          | P1: Deploy real na Azure (com fallback)                     | checklist §Pré-requisitos; STATE decisão pendente     | Specify | Pending |
-| F5-04          | P2: Dashboard React de produção                             | STATE ideias adiadas / out-of-scope F4; `docs/frontend.md` | Specify | Pending |
-| F5-05          | P2: Reforço dos sinais vitais (pré-eclâmpsia)               | STATE ideias adiadas                                  | Specify | Pending |
-| F5-06          | P3: Hardening (observabilidade/CI-CD/segurança)             | `docs/qualidade-testes-ci.md`; `docs/07`              | Specify | Pending |
+| Requirement ID | Story                                                       | Fonte (item aberto)                                   | Phase | Status  |
+| -------------- | ----------------------------------------------------------- | ----------------------------------------------------- | ----- | ------- |
+| F5-01          | P1: Detector de cicatriz escalado (fecha ALTO)              | STATE todos/blockers; checklist §Escopo               | —     | **Bloqueado (ambiente: GPU/Colab + dataset)** |
+| F5-02          | P1: Áudio + fisioterapia completas (métricas reais)         | STATE todos/blockers; checklist §Técnico (DD10)       | —     | **Bloqueado (ambiente: dados c/ licença)** |
+| F5-03          | P1: Deploy real na Azure (com fallback)                     | checklist §Pré-requisitos; STATE decisão pendente     | —     | **Bloqueado (ambiente: conta/credenciais Azure)** |
+| F5-04          | P2: Dashboard React de produção                             | STATE ideias adiadas / out-of-scope F4; `docs/frontend.md` | Execute | **Implementado** |
+| F5-05          | P2: Reforço dos sinais vitais (pré-eclâmpsia)               | STATE ideias adiadas                                  | Execute | **Implementado** |
+| F5-06          | P3: Hardening (observabilidade/CI-CD/segurança)             | `docs/qualidade-testes-ci.md`; `docs/07`              | Execute | **Implementado (parcial)** |
 
 **ID format:** `F5-[NUMBER]` (Fase 5).
-**Status values:** Pending → In Design → In Tasks → Implementing → Verified.
-**Coverage:** 6 requisitos. **Próximo passo:** após confirmação do escopo, rodar **Design** (decisões de
-treino/versionamento de pesos, opção de deploy A/B, arquitetura do frontend) e **Tasks** (quebra atômica).
+**Status values:** Pending → In Design → In Tasks → Implementing → Verified | Bloqueado (ambiente).
+**Coverage:** 6 requisitos — **3 implementados** (F5-04/05/06), **3 bloqueados por ambiente** (F5-01/02/03:
+exigem GPU/Colab, datasets com licença e conta Azure; o código já está pronto/Azure-ready e a degradação
+está documentada — DD10). Detalhe do implementado em [`docs/08-fase5-producao-e-escala.md`](../../../docs/08-fase5-producao-e-escala.md).
 
 ---
 

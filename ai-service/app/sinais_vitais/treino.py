@@ -88,6 +88,39 @@ def treinar(df):
     return modelo, metricas, (list(y_te), list(y_pred))
 
 
+def comparar_com_aumento(df_base, df_extra):
+    """Compara o modelo treinado **só com a base** vs. **base + amostras sintéticas** (F5-05).
+
+    Treina nos dois conjuntos com a mesma configuração (:func:`treinar`) e devolve um dicionário
+    com as métricas antes/depois e o ganho (delta). Computação real e determinística — os números
+    saem de :func:`treinar`, sem qualquer valor inventado.
+    """
+    import pandas as pd
+
+    _, base, _ = treinar(df_base)
+    df_aumentado = pd.concat([df_base, df_extra], ignore_index=True)
+    _, aumentado, _ = treinar(df_aumentado)
+
+    return {
+        "observacao": (
+            "Amostras sintéticas de pré-eclâmpsia (rótulo 'high') adicionadas para reforçar a "
+            "classe de maior risco. Dados sintéticos — nenhum dado real de paciente."
+        ),
+        "n_base": base["n_amostras"],
+        "n_sinteticas": int(len(df_extra)),
+        "n_aumentado": aumentado["n_amostras"],
+        "base": {"acuracia": base["acuracia"], "f1_macro": base["f1_macro"]},
+        "aumentado": {
+            "acuracia": aumentado["acuracia"],
+            "f1_macro": aumentado["f1_macro"],
+        },
+        "delta": {
+            "acuracia": round(aumentado["acuracia"] - base["acuracia"], 4),
+            "f1_macro": round(aumentado["f1_macro"] - base["f1_macro"], 4),
+        },
+    }
+
+
 def main() -> int:
     import joblib
 

@@ -1,0 +1,451 @@
+:root {
+  --bg: #0f172a;
+  --bg-elev: #1e293b;
+  --bg-elev-2: #273449;
+  --borda: #334155;
+  --texto: #e2e8f0;
+  --texto-suave: #94a3b8;
+  --acento: #38bdf8;
+  --verde: #16a34a;
+  --amarelo: #ca8a04;
+  --vermelho: #dc2626;
+  --cinza: #475569;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--texto);
+  line-height: 1.5;
+}
+
+a {
+  color: var(--acento);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--borda);
+  background: var(--bg-elev-2);
+  color: var(--texto);
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.4rem;
+  transition: background 0.15s ease;
+}
+
+button:hover {
+  background: #31415a;
+}
+
+button.primario {
+  background: var(--acento);
+  color: #06283d;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+button.perigo {
+  background: transparent;
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  background: var(--bg);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 0.4rem;
+  padding: 0.45rem 0.6rem;
+  width: 100%;
+}
+
+/* Layout ----------------------------------------------------------------- */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--borda);
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.topbar h1 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.topbar nav {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.topbar nav a {
+  color: var(--texto-suave);
+  text-decoration: none;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.topbar nav a.ativo {
+  color: var(--texto);
+  border-bottom-color: var(--acento);
+}
+
+.conexao {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  white-space: nowrap;
+}
+
+.conexao.online::before {
+  content: '● ';
+  color: var(--verde);
+}
+
+.conexao.offline::before {
+  content: '● ';
+  color: var(--vermelho);
+}
+
+main {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.disclaimer {
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+  text-align: center;
+  padding: 0.85rem;
+  border-top: 1px solid var(--borda);
+}
+
+h2 {
+  margin-top: 0;
+}
+
+.cabecalho-pagina {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Cartões / grades ------------------------------------------------------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--borda);
+  border-radius: 0.6rem;
+  padding: 1rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card:hover {
+  border-color: var(--acento);
+}
+
+.card-titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.card-sub {
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}
+
+/* Tabela ----------------------------------------------------------------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-elev);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--borda);
+}
+
+th {
+  color: var(--texto-suave);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Selos de risco --------------------------------------------------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.risco-baixo {
+  background: rgba(22, 163, 74, 0.18);
+  color: #86efac;
+  border-color: #166534;
+}
+
+.risco-medio {
+  background: rgba(202, 138, 4, 0.18);
+  color: #fde68a;
+  border-color: #854d0e;
+}
+
+.risco-alto {
+  background: rgba(220, 38, 38, 0.2);
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+.risco-indef {
+  background: rgba(71, 85, 105, 0.25);
+  color: var(--texto-suave);
+  border-color: var(--cinza);
+}
+
+/* Contadores ------------------------------------------------------------- */
+.contadores {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.contador {
+  background: var(--bg-elev);
+  border: 1px solid var(--borda);
+  border-radius: 0.6rem;
+  padding: 0.75rem 1.25rem;
+  min-width: 110px;
+}
+
+.contador .numero {
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.contador .rotulo {
+  color: var(--texto-suave);
+  font-size: 0.8rem;
+}
+
+/* Banner de alerta ------------------------------------------------------- */
+.alerta-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid;
+}
+
+.alerta-banner.risco-alto {
+  background: rgba(220, 38, 38, 0.18);
+  border-color: var(--vermelho);
+}
+
+.alerta-banner.risco-medio {
+  background: rgba(202, 138, 4, 0.16);
+  border-color: var(--amarelo);
+}
+
+.alerta-banner-texto {
+  flex: 1;
+}
+
+.alerta-banner-fechar {
+  border: none;
+  background: transparent;
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0 0.3rem;
+}
+
+/* Detalhe do caso -------------------------------------------------------- */
+.paineis {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.painel {
+  background: var(--bg-elev);
+  border: 1px solid var(--borda);
+  border-radius: 0.6rem;
+  padding: 1rem;
+}
+
+.painel h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.painel-fusao {
+  grid-column: 1 / -1;
+  border-width: 2px;
+}
+
+.painel-fusao.risco-alto {
+  border-color: var(--vermelho);
+}
+
+.painel-fusao.risco-medio {
+  border-color: var(--amarelo);
+}
+
+.painel-fusao.risco-baixo {
+  border-color: var(--verde);
+}
+
+.gauge {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.2rem 0;
+}
+
+.kv span:first-child {
+  color: var(--texto-suave);
+}
+
+/* Estados ---------------------------------------------------------------- */
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  color: var(--texto-suave);
+}
+
+.estado-erro {
+  color: #fca5a5;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.vazio {
+  color: var(--texto-suave);
+  padding: 1.5rem 0;
+}
+
+.spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--borda);
+  border-top-color: var(--acento);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Formulário ------------------------------------------------------------- */
+.form {
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.campo label {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox input {
+  width: auto;
+}
+
+.acoes {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.aviso {
+  color: #fca5a5;
+  font-size: 0.85rem;
+}
+
+.dica {
+  color: var(--texto-suave);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 720px) {
+  .paineis {
+    grid-template-columns: 1fr;
+  }
+}

@@ -30,6 +30,27 @@ function paraCaso(row) {
   };
 }
 
+// Caso + paciente embutido (consumido pelo dashboard: visão geral, histórico e detalhe).
+function paraCasoComPaciente(row) {
+  if (!row) return null;
+  const caso = paraCaso(row);
+  caso.paciente = {
+    id: row.paciente_id,
+    primeiro_nome: row.paciente_nome,
+    idade: row.paciente_idade,
+    gestante: Boolean(row.paciente_gestante),
+    idade_gestacional_semanas: row.paciente_idade_gestacional,
+  };
+  return caso;
+}
+
+const SELECT_CASO_COM_PACIENTE = `
+  SELECT c.*, p.primeiro_nome AS paciente_nome, p.idade AS paciente_idade,
+         p.gestante AS paciente_gestante,
+         p.idade_gestacional_semanas AS paciente_idade_gestacional
+  FROM casos c
+  JOIN pacientes p ON p.id = c.paciente_id`;
+
 export function criarRepositorios(db) {
   const pacientes = {
     criar({ primeiro_nome, idade = null, gestante = false, idade_gestacional_semanas = null }) {
@@ -85,6 +106,17 @@ export function criarRepositorios(db) {
     },
     obter(id) {
       return paraCaso(db.prepare('SELECT * FROM casos WHERE id = ?').get(id));
+    },
+    obterComPaciente(id) {
+      return paraCasoComPaciente(
+        db.prepare(`${SELECT_CASO_COM_PACIENTE} WHERE c.id = ?`).get(id),
+      );
+    },
+    listar() {
+      return db
+        .prepare(`${SELECT_CASO_COM_PACIENTE} ORDER BY c.timestamp DESC`)
+        .all()
+        .map(paraCasoComPaciente);
     },
     porPaciente(pacienteId) {
       return db
