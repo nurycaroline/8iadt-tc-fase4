@@ -6,11 +6,13 @@ import { Server } from 'socket.io';
 import { createApp } from './app.js';
 import { config } from './config.js';
 import { logger } from './logger.js';
+import { criarEmissorAlerta } from './realtime/alertas.js';
 
-export function criarServidor() {
+export function criarServidor(deps = {}) {
   const server = http.createServer();
   const io = new Server(server, { cors: { origin: '*' } });
-  const app = createApp({ io });
+  const emitirAlerta = deps.emitirAlerta || criarEmissorAlerta(io);
+  const app = createApp({ ...deps, io, emitirAlerta });
   server.on('request', app);
   return { server, io, app };
 }
