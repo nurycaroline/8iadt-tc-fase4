@@ -28,27 +28,30 @@
 
 ## Estado da implementação
 
-> Esta fase está em **planejamento (Specify)**. A implementação só começa **após a confirmação do escopo** e
-> as fases de **Design** → **Tasks** (skill `tlc-spec-driven`). Nada de código foi alterado ainda.
+> **Implementada.** Escopo confirmado pelo pedido "implemente a fase 6"; decisões resolvidas com os defaults
+> propostos (ver [spec §Decisões a confirmar](../.specs/features/fase6-relatorios-automaticos/spec.md#decisões-a-confirmar-com-o-grupo)).
+> **Gate verde:** `ruff`+`pytest` (**107 testes** Python; +5 da Fase 6), `eslint`+`vitest`+`build` do frontend
+> (**7 testes**). PDF do relatório **validado neste ambiente** (weasyprint gerou PDF real); fallback HTML
+> preservado (S16/DD7).
 
-| Req | Item | Estado |
-|-----|------|--------|
-| F6-01 | Relatório especializado por tipo de risco (§1/§4) | ⏳ **Planejado** (viável neste ambiente — lógica pura) |
-| F6-02 | Anexos com links reais dos artefatos (§3/§5) | ⏳ **Planejado** (viável — usa URLs do contrato) |
-| F6-03 | PDF garantido no ambiente (fallback HTML) | ⏳ **Planejado** (libs no `Dockerfile`; fallback S16/DD7) |
-| F6-04 | Pré-visualização do relatório no dashboard (§5) | ⏳ **Planejado** (incremento de UX sobre o download) |
-| F6-05 | Testes do template especializado + evidências | ⏳ **Planejado** (qualidade/rastreabilidade S23) |
+| Req | Item | Estado | Evidência |
+|-----|------|--------|-----------|
+| F6-01 | Relatório especializado por tipo de risco (§1/§4) | ✅ **Implementado** | `app/relatorio.py:ENCAMINHAMENTO_GATILHO` + `_secao_recomendacao` |
+| F6-02 | Anexos com links reais dos artefatos (§3/§5) | ✅ **Implementado** | `app/relatorio.py:_secao_anexos`/`_artefatos_da_requisicao` |
+| F6-03 | PDF garantido no ambiente (fallback HTML) | ✅ **Implementado** | `ai-service/requirements.txt` + `ai-service/Dockerfile` (Pango/cairo) |
+| F6-04 | Pré-visualização do relatório no dashboard (§5) | ✅ **Implementado** | `frontend/src/components/RelatorioModal.tsx` + `DetalheCaso.tsx` |
+| F6-05 | Testes do template especializado + evidências | ✅ **Implementado** | `tests/test_relatorio.py` + `scripts/gerar_evidencias.py` (exemplo regerado) |
 
 ## Resultado esperado (Definition of Done)
 
-- [ ] **Relatório especializado**: a seção "Recomendação / encaminhamento" reflete **cada gatilho** acionado
+- [x] **Relatório especializado**: a seção "Recomendação / encaminhamento" reflete **cada gatilho** acionado
       (infecção puerperal, pré-eclâmpsia, desconforto psicológico, violência), conforme `docs/06 §4` — F6-01.
-- [ ] **Anexos com links** reais dos artefatos do caso (frame/imagem, gráfico/CSV, áudio/transcrição, texto),
+- [x] **Anexos com links** reais dos artefatos do caso (frame/imagem, gráfico/CSV, áudio/transcrição, texto),
       omitindo modalidades ausentes (DD10) — F6-02.
-- [ ] **PDF gerado** no ambiente conteinerizado, com **fallback HTML** intacto e Content-Type correto — F6-03.
-- [ ] **Pré-visualização** do relatório no dashboard, com disclaimer e acessibilidade — F6-04.
-- [ ] **Testes** do template especializado/anexos verdes e **exemplo/exportação** regenerados (S23) — F6-05.
-- [ ] **Gate verde** preservado (`ruff`+`pytest` / `eslint`+`jest`+`vitest`) e `docker compose up`
+- [x] **PDF gerado** no ambiente conteinerizado, com **fallback HTML** intacto e Content-Type correto — F6-03.
+- [x] **Pré-visualização** do relatório no dashboard, com disclaimer e acessibilidade — F6-04.
+- [x] **Testes** do template especializado/anexos verdes e **exemplo/exportação** regenerados (S23) — F6-05.
+- [x] **Gate verde** preservado (`ruff`+`pytest` / `eslint`+`jest`+`vitest`) e `docker compose up`
       reprodutível, **sem regressão** das Fases 2–5 e **sem reabrir** o contrato de API.
 
 ---

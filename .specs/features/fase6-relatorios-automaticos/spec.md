@@ -1,19 +1,18 @@
 # Fase 6 — Relatórios Automáticos Especializados — Especificação
 
-> **Status: RASCUNHO / planejamento.** Documento gerado a partir do requisito
+> **Status: IMPLEMENTADA.** Especificação gerada a partir do requisito
 > [`docs/06-relatorios-automaticos.md`](../../../docs/06-relatorios-automaticos.md) (componente próprio
-> citado no PDF do Tech Challenge), comparado ao que **já está implementado** em
+> citado no PDF do Tech Challenge) e **implementada** sobre o relatório que já existia em
 > [`ai-service/app/relatorio.py`](../../../ai-service/app/relatorio.py), seguindo a skill
-> [`tlc-spec-driven`](../../../.cursor/skills/tlc-spec-driven/SKILL.md) (fase **Specify**).
+> [`tlc-spec-driven`](../../../.cursor/skills/tlc-spec-driven/SKILL.md). Detalhe do entregue em
+> [`docs/09-fase6-relatorios-automaticos.md`](../../../docs/09-fase6-relatorios-automaticos.md).
 >
-> ⚠️ **Decisão de escopo a confirmar (`AGENTS.md` — Princípio 1, em caso de dúvida perguntar):** o
-> relatório automático **já existe** desde a Fase 3 (gerado pelo pipeline) e ganhou botão de download no
-> dashboard da Fase 5. **Não existia uma "Fase 6" definida** no plano. Esta especificação propõe a Fase 6
-> como **"Relatórios Automáticos Especializados"**: pegar o relatório **genérico** atual (um único template,
-> recomendação só por nível de risco, anexos sem links reais) e elevá-lo ao que o `docs/06` descreve —
-> **conteúdo especializado por tipo de risco** (§1/§4) e **anexos com links reais** (§2/§3/§5). **Todo
-> requisito abaixo rastreia uma lacuna real entre o `docs/06` e o código — nenhum foi inventado.** Antes de
-> avançar para Design/Tasks, **confirmar com o grupo** a seção [Decisões a confirmar](#decisões-a-confirmar-com-o-grupo).
+> ✅ **Escopo confirmado pelo pedido "implemente a fase 6".** O relatório automático **já existia** desde a
+> Fase 3 (gerado pelo pipeline) e tinha download no dashboard (Fase 5); a Fase 6 elevou o relatório
+> **genérico** ao que o `docs/06` descreve — **conteúdo especializado por tipo de risco** (§1/§4) e **anexos
+> com links reais** (§2/§3/§5). **Todo requisito rastreia uma lacuna real entre o `docs/06` e o código —
+> nenhum foi inventado.** As [Decisões a confirmar](#decisões-a-confirmar-com-o-grupo) foram resolvidas com
+> os **defaults propostos** (registrados nessa seção), no mesmo espírito da Fase 5.
 
 ## Problem Statement
 
@@ -228,38 +227,43 @@ exemplo atualizado.
 
 | Requirement ID | Story | Fonte (lacuna real) | Phase | Status |
 | --- | --- | --- | --- | --- |
-| F6-01 | P1: Relatório especializado por tipo de risco | `docs/06 §1/§4` vs. `relatorio.py` (recomendação só por nível) | — | Pending |
-| F6-02 | P1: Anexos com links reais dos artefatos | `docs/06 §3/§5` vs. `_secao_anexos` (só nomes) | — | Pending |
-| F6-03 | P2: PDF garantido no ambiente (fallback HTML) | `docs/06 §5` vs. PDF best-effort (S16/DD7) | — | Pending |
-| F6-04 | P2: Pré-visualização do relatório no dashboard | `docs/06 §5` "exibir no dashboard" vs. só download | — | Pending |
-| F6-05 | P3: Testes + evidências atualizadas | qualidade/rastreabilidade (S23) | — | Pending |
+| F6-01 | P1: Relatório especializado por tipo de risco | `docs/06 §1/§4` vs. `relatorio.py` (recomendação só por nível) | Execute | **Implementado** |
+| F6-02 | P1: Anexos com links reais dos artefatos | `docs/06 §3/§5` vs. `_secao_anexos` (só nomes) | Execute | **Implementado** |
+| F6-03 | P2: PDF garantido no ambiente (fallback HTML) | `docs/06 §5` vs. PDF best-effort (S16/DD7) | Execute | **Implementado** |
+| F6-04 | P2: Pré-visualização do relatório no dashboard | `docs/06 §5` "exibir no dashboard" vs. só download | Execute | **Implementado** |
+| F6-05 | P3: Testes + evidências atualizadas | qualidade/rastreabilidade (S23) | Execute | **Implementado** |
 
 **ID format:** `F6-[NUMBER]` (Fase 6).
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified | Bloqueado (ambiente).
-**Coverage:** 5 requisitos. F6-01/02/05 são **viáveis neste ambiente** (lógica pura + UI + testes); F6-03
-depende de libs de sistema na imagem (controlável no `Dockerfile`); o **frame de alerta real** permanece
-ligado ao detector escalado (F5-01, bloqueado por ambiente) e está **fora de escopo** (ver tabela).
+**Coverage:** 5 requisitos — **5 implementados**. F6-01/02 em [`app/relatorio.py`](../../../ai-service/app/relatorio.py)
+(encaminhamento por gatilho + anexos com links), F6-03 em [`requirements.txt`](../../../ai-service/requirements.txt)
++ [`Dockerfile`](../../../ai-service/Dockerfile) (PDF validado neste ambiente; fallback HTML preservado),
+F6-04 em [`frontend/src/components/RelatorioModal.tsx`](../../../frontend/src/components/RelatorioModal.tsx)
++ [`DetalheCaso.tsx`](../../../frontend/src/pages/DetalheCaso.tsx), F6-05 em
+[`ai-service/tests/test_relatorio.py`](../../../ai-service/tests/test_relatorio.py) +
+[`scripts/gerar_evidencias.py`](../../../scripts/gerar_evidencias.py). O **frame de alerta real** (recorte da
+detecção da cicatriz) permanece ligado ao detector escalado (F5-01, bloqueado por ambiente) e está **fora de
+escopo** (ver tabela) — os anexos referenciam o vídeo/imagem de origem.
 
 ---
 
 ## Decisões a confirmar com o grupo
 
-> Conforme `AGENTS.md` (Princípio 1 — não presumir). Estas escolhas mudam o esforço e devem ser confirmadas
-> **antes** do Design.
+> Conforme `AGENTS.md` (Princípio 1 — não presumir). Como o pedido foi **"implemente a fase 6"**, estas
+> escolhas foram resolvidas com os **defaults propostos** (✅ aplicados) — revisáveis pelo grupo.
 
-1. **Esta é a "Fase 6" pretendida?** A proposta é **especializar e enriquecer o relatório existente**
-   (conteúdo por tipo + anexos com links + PDF garantido + preview). Se "Fase 6" se referir a **outro Tech
-   Challenge da pós (8IADT)** com enunciado próprio, forneça o **PDF/requisitos** para reescrever esta spec.
-2. **Origem do encaminhamento especializado:** mapear **gatilho → texto** dentro do relatório
-   (`app/relatorio.py`) **ou** expor o texto a partir da fusão (`app/fusao.py`)? (Proposta: mapa no relatório,
-   reusando `gatilhos`, para não inflar a fusão.)
-3. **Anexos no fallback local:** referenciar **caminho/identificador local** do artefato ou só exibir a
-   modalidade quando não houver URL pública (Azure SAS)? (Proposta: link quando houver URL http(s); senão,
-   identificador do artefato.)
-4. **PDF na imagem:** instalar as libs do `weasyprint` no `Dockerfile` (aumenta a imagem) **ou** manter PDF
-   só como passo opcional documentado? (Proposta: instalar no `ai-service` e manter o fallback.)
-5. **Profundidade do preview:** **modal/inline** na tela de detalhe **ou** apenas abrir o relatório em nova
-   aba (como hoje)? (Proposta: preview inline + manter o download.)
+1. **Esta é a "Fase 6" pretendida?** ✅ **Sim** (confirmado pelo pedido). A entrega **especializou e enriqueceu
+   o relatório existente** (conteúdo por tipo + anexos com links + PDF garantido + preview). Se "Fase 6"
+   significar **outro Tech Challenge 8IADT** com enunciado próprio, forneça o **PDF/requisitos** para
+   reescrever a spec.
+2. **Origem do encaminhamento especializado:** ✅ **mapa `gatilho → texto` no relatório** (`app/relatorio.py:
+   ENCAMINHAMENTO_GATILHO`), reusando os `gatilhos` da fusão — sem inflar `app/fusao.py`.
+3. **Anexos no fallback local:** ✅ **link navegável** quando há URL http(s); **identificador** (caminho em
+   backticks) quando o artefato é local (`_linha_anexo`).
+4. **PDF na imagem:** ✅ **libs do `weasyprint` instaladas** no `Dockerfile` do `ai-service` (PDF validado
+   neste ambiente) mantendo o **fallback HTML** (S16/DD7).
+5. **Profundidade do preview:** ✅ **preview inline (modal acessível)** na tela de detalhe **+** download +
+   "abrir em nova aba".
 
 ---
 
