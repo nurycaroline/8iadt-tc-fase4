@@ -6,6 +6,20 @@
 
 ## Fase atual
 
+**Fase 5 — Produção, Escala e Robustez** — **planejamento (Specify, RASCUNHO)**.
+Spec em [`.specs/features/fase5-producao-e-escala/`](../features/fase5-producao-e-escala/spec.md) e doc
+companheiro em [`docs/08-fase5-producao-e-escala.md`](../../docs/08-fase5-producao-e-escala.md). As Fases
+1–4 já entregam o Tech Challenge atual; **não havia "Fase 5"** definida — a proposta consolida os itens em
+**aberto** do [checklist](../../docs/05-checklist-entrega.md) e dos `todos`/`ideias adiadas` abaixo:
+(F5-01) escalar o detector de **cicatriz** (GPU/Colab) p/ o `caso_alto` fechar **ALTO** sem degradação;
+(F5-02) completar **áudio + fisioterapia** com métricas reais (remover DD10 onde houver dados);
+(F5-03) **deploy real na Azure** validado por smoke (mantendo fallback local); (F5-04) **dashboard React**
+de produção (substitui o cliente mínimo); (F5-05) reforçar **sinais vitais** com pré-eclâmpsia sintética;
+(F5-06) **hardening** (observabilidade/CI-CD/segurança). **Escopo a confirmar com o grupo** (ver
+"Decisões a confirmar" na spec) — incluindo se "Fase 5" se refere a **outro desafio (8IADT)** com PDF
+próprio. **Vídeo + integrantes** permanecem **ação humana** (não são desenvolvimento desta fase).
+**Próximo passo:** confirmar escopo → **Design** → **Tasks** → Execute.
+
 **Fase 4 — Empacotamento e Entregáveis** — **implementada** (T1–T9).
 Plano em [`.specs/features/fase4-entregaveis/`](../features/fase4-entregaveis/): 14 requisitos
 (F4E-01..F4E-14) e 9 tarefas (T1–T9). Fase de **documentação/empacotamento** (não cria código de produto):
@@ -134,6 +148,12 @@ público simples) e aparecem como passos opcionais.
       Gate verde (ruff + 96 testes Python; eslint + 11 testes Node).
 - [ ] **Ação humana (grupo):** gravar e publicar o **vídeo** (≤15 min, "Não listado") e colar o link no
       README — o agente entrega o roteiro (`docs/roteiro-video.md`) e o placeholder.
+- [x] Planejar a Fase 5 (Specify, RASCUNHO em `.specs/features/fase5-producao-e-escala/` + `docs/08`):
+      6 requisitos F5-01..F5-06 consolidando os itens em aberto do checklist/STATE.
+- [ ] **Confirmar o escopo da Fase 5 com o grupo** (ver "Decisões a confirmar" na spec): é Produção/Escala
+      ou outro desafio 8IADT? Whisper vs. Azure Speech; Git LFS vs. métricas; deploy A/B; SQLite vs. Postgres;
+      profundidade do dashboard.
+- [ ] Após confirmação: **Design** (decisões técnicas) → **Tasks** (quebra atômica) → Execute da Fase 5.
 
 ## Ideias adiadas
 
