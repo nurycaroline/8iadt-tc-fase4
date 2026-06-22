@@ -34,6 +34,7 @@ venv/
 !/ai-service/models/.gitkeep
 !/ai-service/models/**/metrics.json
 !/ai-service/models/baseline.json
+!/ai-service/models/metricas_fusao.json
 !/ai-service/models/**/*.png
 
 # ── Saídas de treino do Ultralytics (YOLO) ──
