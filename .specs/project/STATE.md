@@ -6,6 +6,18 @@
 
 ## Fase atual
 
+**Fase 3 — Fusão Multimodal e Integração em Nuvem** — **planejada** (a implementar).
+Plano em [`.specs/features/fase3-fusao-e-nuvem/`](../features/fase3-fusao-e-nuvem/) (spec → design → tasks):
+17 requisitos (F3F-01..F3F-17) e 18 tarefas (T1–T18). Núcleo de valor = **motor de fusão**
+(`ai-service/app/fusao.py`, regras explícitas do contrato §4 + Tarefa 3.1) + **pipeline** (contrato §1→§2),
+exposto por **FastAPI** (`POST /inferencia`); **backend Node/Express** orquestra upload→storage→IA→banco→
+**alerta em tempo real** (socket.io); **relatório automático** (Markdown→HTML/PDF) e **métrica do ganho da
+fusão** (3.1b). Storage com adaptador **Azure Blob | local** (fallback p/ a demo). Reaproveita as
+inferências da Fase 2 (`detectar/avaliar/prever/inferir/analisar`), `schemas.py`, `limiares.py`,
+`baseline.metricas_modalidade`. Gate de fim de fase: pipeline ponta-a-ponta + métricas da fusão
+(T17 deploy Azure pode usar fallback local). Dashboard React completo está **fora de escopo** (cliente
+mínimo demonstra o alerta).
+
 **Fase 2 — Desenvolvimento dos Modelos Individuais** — **implementada** (T1–T14).
 Plano em [`.specs/features/fase2-modelos/`](../features/fase2-modelos/) (spec → design → tasks).
 Código em `ai-service/app/` (um módulo por modalidade) + testes em `ai-service/tests/`. Cada
@@ -44,6 +56,14 @@ público simples) e aparecem como passos opcionais.
 | S9  | Sinais vitais = Random Forest (principal); Isolation Forest opcional | [F2 design DD6](../features/fase2-modelos/design.md)           |
 | S10 | Áudio/Texto = regras/palavras-chave (sentimento Azure opcional)     | [F2 design DD7](../features/fase2-modelos/design.md)           |
 | S11 | Testes do `ai-service/` integrados ao `pyproject` da raiz           | [F2 design DD11](../features/fase2-modelos/design.md)          |
+| S12 | Fusão = **motor de regras puro** (`app/fusao.py`), não end-to-end   | [F3 design DD1](../features/fase3-fusao-e-nuvem/design.md)     |
+| S13 | **Pipeline único** (contrato §1→§2) consumido por FastAPI + testes  | [F3 design DD3](../features/fase3-fusao-e-nuvem/design.md)     |
+| S14 | Backend **Node** orquestra; Python só IA (FastAPI)                  | [F3 design DD5](../features/fase3-fusao-e-nuvem/design.md)     |
+| S15 | Tempo real via **socket.io** (WebSocket); SSE como alternativa      | [F3 design DD6](../features/fase3-fusao-e-nuvem/design.md)     |
+| S16 | Relatório sempre **Markdown/HTML**; PDF opcional (weasyprint)       | [F3 design DD7](../features/fase3-fusao-e-nuvem/design.md)     |
+| S17 | Storage com adaptador **Azure Blob \| local** (env); fallback p/ demo | [F3 design DD8](../features/fase3-fusao-e-nuvem/design.md)   |
+| S18 | Persistência **SQLite** (`better-sqlite3`); Postgres/Cosmos opcional | [F3 design DD9](../features/fase3-fusao-e-nuvem/design.md)    |
+| S19 | **Cliente mínimo** (HTML+socket.io); dashboard React = feature à parte | [F3 design DD10](../features/fase3-fusao-e-nuvem/design.md) |
 
 ## Blockers / dependências externas
 
@@ -64,7 +84,11 @@ público simples) e aparecem como passos opcionais.
 - [ ] **Escalar o detector de cicatriz** (mais dados/épocas em GPU/Colab) — smoke atual não detecta
       acima do limiar de confiança.
 - [ ] Obter amostras de **áudio** e **fisioterapia** (manual) e rodar o baseline completo dessas modalidades.
-- [ ] Iniciar o planejamento da Fase 3 (motor de fusão + API FastAPI/Node + nuvem Azure).
+- [x] Planejar a Fase 3 (spec → design → tasks em `.specs/features/fase3-fusao-e-nuvem/`).
+- [ ] Implementar a Fase 3 seguindo `tasks.md` (T1–T18). Começar pela **Fase A** (núcleo de fusão:
+      T1→T2→T3), depois Fase B (Node, em paralelo via mock) e Fase C (nuvem/Docker/CI/E2E).
+- [ ] Decisão pendente do grupo: **deploy real na Azure** vs. fallback local para a gravação da demo (T17).
+- [ ] Decisão pendente do grupo: runtime/versões finais (Node LTS, libs) a fixar no `package.json` (T1).
 
 ## Ideias adiadas
 
