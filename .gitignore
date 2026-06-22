@@ -41,5 +41,16 @@ runs/
 runs_cicatriz/
 yolov8*.pt
 
+# ── Node.js (backend orquestrador — Fase 3) ──
+node_modules/
+npm-debug.log*
+backend/uploads/
+
+# ── Fase 3: storage local (fallback), banco SQLite e relatórios gerados ──
+/data/_storage/
+*.sqlite
+*.sqlite3
+*.db
+
 # ── SO/editor ──
 .DS_Store
