@@ -31,3 +31,11 @@ services:
         condition: service_healthy
     volumes:
       - ./data:/app/data
+
+  # Dashboard de produção (Fase 5): build estático servido por nginx, com proxy ao backend.
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
