@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-br"><head><meta charset="utf-8"><title>Relatório de monitoramento multimodal</title></head><body><h1>Relatório Técnico — IA Multimodal para Saúde da Mulher (Tech Challenge Fase 4)</h1>
+<blockquote>
+<p><strong>Curso:</strong> Pós-Tech IA para Devs (8IADT) · <strong>Entregável:</strong> Relatório técnico (Tarefa 4.2 de
+<a href="04-fase4-entregaveis.md"><code>docs/04-fase4-entregaveis.md</code></a>).
+<strong>Princípio deste documento:</strong> toda métrica/afirmação técnica é <strong>rastreável a um artefato do
+repositório</strong> (arquivos de métrica, código, <code>docs/</code>, <code>.specs/</code>). Nenhum número foi fabricado
+(princípio "nunca inventar" do <a href="../AGENTS.md"><code>AGENTS.md</code></a>). Onde o ambiente degrada, a limitação é
+<strong>documentada honestamente</strong>.</p>
+<p>⚠️ <strong>Disclaimer ético.</strong> Esta é uma solução <strong>acadêmica de apoio à decisão clínica</strong>. Não realiza
+diagnóstico nem substitui a avaliação de profissionais de saúde. Não deve ser usada em ambiente real
+sem validação clínica e regulatória adequada. Ver <a href="07-privacidade-e-seguranca.md">privacidade e segurança (LGPD)</a>.</p>
+</blockquote>
+<h2>Sumário</h2>
+<ol>
+<li><a href="#1-fluxo-multimodal-e-arquitetura">Fluxo multimodal e arquitetura</a></li>
+<li><a href="#2-modelos-por-modalidade-e-justificativas">Modelos por modalidade e justificativas</a></li>
+<li><a href="#3-lógica-de-fusão-e-métrica-do-ganho">Lógica de fusão e métrica do ganho</a></li>
+<li><a href="#4-resultados-e-exemplos-de-anomalias">Resultados e exemplos de anomalias</a></li>
+<li><a href="#5-privacidade-e-segurança-lgpd">Privacidade e segurança (LGPD)</a></li>
+<li><a href="#6-exemplo-de-relatório-automático">Exemplo de relatório automático</a></li>
+</ol>
+<hr />
+<h2>1. Fluxo multimodal e arquitetura</h2>
+<h3>Contexto clínico</h3>
+<p>No <strong>pós-parto</strong> (e gestação avançada) a mãe vai para casa e o acompanhamento enfraquece. Sinais de risco
+— infecção da cicatriz da cesárea, pré-eclâmpsia, depressão pós-parto, violência doméstica — aparecem aos
+poucos e ficam <strong>espalhados</strong> em modalidades e sistemas diferentes. A solução é o "cérebro" que <strong>junta as
+modalidades da mesma paciente</strong> e <strong>alerta cedo</strong> a equipe. As <strong>4 modalidades</strong> monitoradas:</p>
+<table>
+<thead>
+<tr>
+<th>Modalidade</th>
+<th>O que a paciente envia</th>
+<th>Risco que ajuda a detectar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vídeo</strong></td>
+<td>foto/vídeo da cicatriz da cesárea e exercícios de fisioterapia</td>
+<td>infecção da ferida; recuperação motora</td>
+</tr>
+<tr>
+<td><strong>Sinais vitais</strong></td>
+<td>PA, frequência cardíaca, glicemia (CSV)</td>
+<td>pré-eclâmpsia / risco hipertensivo</td>
+</tr>
+<tr>
+<td><strong>Áudio</strong></td>
+<td>relato/consulta em áudio</td>
+<td>depressão pós-parto, ansiedade, violência</td>
+</tr>
+<tr>
+<td><strong>Texto</strong></td>
+<td>laudos/exames/evolução clínica</td>
+<td>complicações relatadas, febre/dor</td>
+</tr>
+</tbody>
+</table>
+<h3>Arquitetura (microserviços) e fluxo de dados</h3>
+<p>A solução usa <strong>dois serviços</strong> (decisão de arquitetura em <a href="arquitetura.md"><code>docs/arquitetura.md</code></a>): um
+<strong>orquestrador Node.js + Express</strong> e um <strong>motor de IA Python + FastAPI</strong>, integrados a <strong>storage</strong> (Azure
+Blob ou local). O diagrama completo está em
+<a href="relatorio/diagrama-arquitetura.md"><code>docs/relatorio/diagrama-arquitetura.md</code></a>:</p>
+<pre><code class="language-mermaid">flowchart TD
+    P[&quot;Paciente / app&lt;br/&gt;áudio · vídeo · sinais vitais · texto&quot;] --&gt;|upload HTTPS| N
+
+    subgraph ORQ[&quot;Backend orquestrador — Node.js + Express&quot;]
+        N[&quot;POST /analisar&lt;br/&gt;(upload + validação)&quot;]
+        DB[(&quot;SQLite&lt;br/&gt;Paciente / Caso&quot;)]
+        RT[&quot;Alerta em tempo real&lt;br/&gt;socket.io&quot;]
+    end
+
+    subgraph STO[&quot;Armazenamento (adaptador)&quot;]
+        AZ[&quot;Azure Blob Storage&quot;]
+        LOC[&quot;Storage local&lt;br/&gt;(fallback da demo)&quot;]
+    end
+
+    subgraph IA[&quot;Motor de IA — Python + FastAPI&quot;]
+        API[&quot;POST /inferencia&lt;br/&gt;(pipeline)&quot;]
+        MODS[&quot;Modelos por modalidade&lt;br/&gt;cicatriz · fisioterapia · sinais vitais · áudio · texto&quot;]
+        FUS{{&quot;Motor de fusão&lt;br/&gt;(regras explícitas)&quot;}}
+        REL[&quot;Relatório automático&lt;br/&gt;Markdown → HTML/PDF&quot;]
+    end
+
+    N --&gt;|salva artefatos| STO
+    N --&gt;|HTTP POST /inferencia| API
+    API --&gt; MODS --&gt; FUS
+    FUS --&gt; REL
+    FUS --&gt;|JSON de risco&lt;br/&gt;contrato §2| N
+    REL --&gt;|relatorio_url| STO
+    N --&gt;|persiste| DB
+    N --&gt;|risco MEDIO/ALTO| RT
+    RT --&gt;|WebSocket| D[&quot;Dashboard / cliente&lt;br/&gt;(alerta em tempo real)&quot;]
+</code></pre>
+<p><strong>Etapas:</strong> (1) upload no Node; (2) artefatos no storage (Azure/local); (3) <code>POST /inferencia</code> no Python;
+(4) modelos por modalidade; (5) fusão decide o risco; (6) relatório automático; (7) JSON de risco devolvido
+e persistido em SQLite; (8) alerta em tempo real (socket.io) quando o risco é <code>MEDIO</code>/<code>ALTO</code>.</p>
+<p><strong>Por que microserviços</strong> (<a href="arquitetura.md"><code>docs/arquitetura.md</code></a> §2): o ecossistema de visão
+computacional (YOLO, OpenCV, PyTorch) é maduro em Python; o Node concentra orquestração, banco e tempo
+real; é possível escalar só o serviço de IA; e a falha de IA fica isolada no log do Python (<code>case_id</code>
+rastreável em todos os logs).</p>
+<p><strong>Contrato Node ↔ Python</strong> (<a href="contrato-api.md"><code>docs/contrato-api.md</code></a>): a requisição (<code>POST /inferencia</code>)
+leva <code>case_id</code>, <code>paciente</code> e as URLs das modalidades; a resposta é o <strong>JSON de risco padronizado</strong>
+(<code>risco_detectado</code>, <code>evidencias</code>, <code>mensagem_alerta</code>, <code>relatorio_url</code>). Implementação em
+<a href="../ai-service/app/api/main.py"><code>ai-service/app/api/main.py</code></a> e <a href="../ai-service/app/pipeline.py"><code>ai-service/app/pipeline.py</code></a>.</p>
+<hr />
+<h2>2. Modelos por modalidade e justificativas</h2>
+<p>Cada modalidade expõe uma inferência com <strong>saída padronizada</strong> (dict do contrato §3) — decisão
+<a href="../.specs/features/fase2-modelos/design.md">F2-DD3</a>. Código em <a href="../ai-service/app/"><code>ai-service/app/</code></a>
+(um módulo por modalidade), limiares centralizados em <a href="../ai-service/app/limiares.py"><code>app/limiares.py</code></a>.</p>
+<table>
+<thead>
+<tr>
+<th>Modalidade</th>
+<th>Modelo / técnica</th>
+<th>Justificativa da escolha</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cicatriz (vídeo)</strong></td>
+<td><strong>YOLOv8</strong> (<code>ultralytics</code>, <code>yolov8n</code>) — detecção de objeto; export ONNX opcional</td>
+<td>Ecossistema de visão maduro e pronto para fine-tuning de detecção de ferida; <code>yolov8n</code> (nano) viabiliza treino rápido no mini-dataset (<a href="../.specs/features/fase2-modelos/design.md">F2-DD9</a>)</td>
+</tr>
+<tr>
+<td><strong>Fisioterapia (vídeo)</strong></td>
+<td><strong>YOLOv8-pose</strong> (<code>yolov8n-pose</code>) — keypoints + geometria pura em <a href="../ai-service/app/fisioterapia/angulos.py"><code>app/fisioterapia/angulos.py</code></a></td>
+<td>Mesmo ecossistema (<code>ultralytics</code>) cobre pose; ângulos/amplitude são regras puras, <strong>explicáveis e testáveis</strong></td>
+</tr>
+<tr>
+<td><strong>Sinais vitais</strong></td>
+<td><strong>Random Forest</strong> (<code>scikit-learn</code>) — principal; <strong>Isolation Forest</strong> opcional (anomalia)</td>
+<td>Dados <strong>tabulares</strong> rotulados (<code>RiskLevel</code>) pedem modelo supervisionado robusto e explicável; Isolation Forest como complemento não supervisionado (<a href="../.specs/features/fase2-modelos/design.md">F2-DD6</a>)</td>
+</tr>
+<tr>
+<td><strong>Áudio</strong></td>
+<td><strong>Transcrição</strong> (Whisper local; Azure Speech opcional via env) + <strong>classificação por palavras-chave</strong></td>
+<td>Determinístico, testável <strong>offline</strong> e suficiente para o desafio; backend de transcrição trocável por variável de ambiente (<a href="../.specs/features/fase2-modelos/design.md">F2-DD7</a>)</td>
+</tr>
+<tr>
+<td><strong>Texto/NLP</strong></td>
+<td><strong>Regras / palavras-chave</strong> (<a href="../ai-service/app/texto/nlp.py"><code>app/texto/nlp.py</code></a>); sentimento Azure opcional</td>
+<td>Explicável, sem dependência de treino, suficiente para mapear febre/dor/proteinúria → achados clínicos (<a href="../.specs/features/fase2-modelos/design.md">F2-DD7</a>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Por que YOLOv8/YOLOv8-pose:</strong> maturidade do ecossistema (<code>ultralytics</code>), detecção e pose no mesmo
+framework, fine-tuning simples a partir do <code>data.yaml</code> da Fase 1, e export ONNX para portabilidade.
+<strong>Por que Random Forest:</strong> os sinais vitais são <strong>dados tabulares</strong> com rótulo de risco — um classificador
+de árvore oferece bom desempenho com explicabilidade (importância de variáveis) e baixo custo de treino.
+<strong>Por que regras em áudio/texto:</strong> garantem <strong>reprodutibilidade offline</strong> e rastreabilidade do gatilho, o
+que importa num sistema de apoio à decisão clínica.</p>
+<blockquote>
+<p><strong>Degradação graciosa (<a href="../.specs/features/fase2-modelos/design.md">F2-DD10</a>):</strong> quando faltam pesos
+(YOLO) ou amostras (áudio), a modalidade retorna valor <strong>neutro/ausente</strong> sem quebrar o pipeline — a
+fusão decide com o que tem. Comprovado no log E2E deste ambiente (§4).</p>
+</blockquote>
+<hr />
+<h2>3. Lógica de fusão e métrica do ganho</h2>
+<h3>Motor de regras explícito</h3>
+<p>A fusão é um <strong>motor de regras determinístico</strong> (não end-to-end): a IA das modalidades produz
+<strong>evidências</strong>; a regra de negócio <strong>decide e explica</strong> o alerta. Implementação em
+<a href="../ai-service/app/fusao.py"><code>ai-service/app/fusao.py</code></a> (<code>avaliar_fusao</code>), decisão
+<a href="../.specs/features/fase3-fusao-e-nuvem/design.md">F3-DD1</a>. Saída: <code>risco_detectado</code>
+(<code>BAIXO</code>/<code>MEDIO</code>/<code>ALTO</code>), <code>mensagem_alerta</code> explicável e <code>gatilhos[]</code> (rastreabilidade para o relatório).</p>
+<p><strong>Matriz base</strong> (cicatriz × sinais vitais), do <a href="contrato-api.md">contrato §4</a>:</p>
+<table>
+<thead>
+<tr>
+<th>Vídeo (cicatriz)</th>
+<th>Sinais vitais</th>
+<th>Risco</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sinal de infecção</td>
+<td>de risco</td>
+<td><strong>ALTO</strong></td>
+</tr>
+<tr>
+<td>sinal de infecção</td>
+<td>normal</td>
+<td><strong>MEDIO</strong></td>
+</tr>
+<tr>
+<td>ok / nenhum</td>
+<td>de risco</td>
+<td><strong>MEDIO</strong></td>
+</tr>
+<tr>
+<td>ok / nenhum</td>
+<td>normal</td>
+<td><strong>BAIXO</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regras de elevação</strong> (texto/áudio como contexto), de <a href="../ai-service/app/fusao.py"><code>app/fusao.py</code></a>:</p>
+<ul>
+<li>cicatriz com infecção <strong>+</strong> (texto de febre/dor <strong>ou</strong> áudio de fadiga forte) → <code>infeccao_puerperal</code> (<strong>ALTO</strong>);</li>
+<li>vitais de risco <strong>+</strong> texto de complicação, <strong>ou</strong> <code>pre_eclampsia</code> explícita → <code>pre_eclampsia</code> (<strong>ALTO</strong>);</li>
+<li>áudio de <strong>violência</strong> (confiança suficiente) → <code>violencia</code> (<strong>ALTO</strong>), aciona protocolo mesmo isolado;</li>
+<li>áudio de <strong>depressão pós-parto/ansiedade</strong> → <code>desconforto_psicologico</code> (≥ <strong>MEDIO</strong>);</li>
+<li><strong>contexto isolado</strong> (só texto/áudio fraco) tem teto <strong>MEDIO</strong> — exceto violência;</li>
+<li>fisioterapia alterada é <strong>contexto adicional</strong>, nunca eleva o risco sozinha.</li>
+</ul>
+<p>O risco final é o <strong>maior</strong> nível acionado e a mensagem concatena os gatilhos — alerta <strong>explicável</strong>.</p>
+<h3>Métrica do ganho da fusão (vs. modalidade única)</h3>
+<p>Comparação sobre um conjunto sintético rotulado de <strong>6 casos</strong> (3 críticos que exigem corroboração + 3
+quase-alertas/normais isolados), gerada por
+<a href="../ai-service/app/metricas_fusao.py"><code>ai-service/app/metricas_fusao.py</code></a> e salva em
+<a href="../ai-service/models/metricas_fusao.json"><code>ai-service/models/metricas_fusao.json</code></a> (tabela legível em
+<a href="relatorio/metricas-fusao.md"><code>docs/relatorio/metricas-fusao.md</code></a>). <strong>Modalidade única</strong> alerta diante de
+qualquer sinal isolado; <strong>fusão</strong> só eleva ao vermelho (<code>ALTO</code>) com corroboração.</p>
+<table>
+<thead>
+<tr>
+<th>Cenário (n = 6)</th>
+<th>Precisão</th>
+<th>Recall</th>
+<th>Taxa de FP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Só vídeo</td>
+<td>0,50</td>
+<td>0,3333</td>
+<td>0,3333</td>
+</tr>
+<tr>
+<td>Só sinais vitais</td>
+<td>1,00</td>
+<td>0,6667</td>
+<td>0,00</td>
+</tr>
+<tr>
+<td>Só áudio/texto</td>
+<td>0,6667</td>
+<td>0,6667</td>
+<td>0,3333</td>
+</tr>
+<tr>
+<td><strong>Fusão multimodal</strong></td>
+<td><strong>1,00</strong></td>
+<td><strong>1,00</strong></td>
+<td><strong>0,00</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conclusão:</strong> a fusão atinge <strong>recall 1,0</strong> (não perde nenhum caso crítico) com <strong>taxa de falsos positivos
+0,0</strong>, superando todas as modalidades isoladas (que perdem casos — recall ≤ 0,67 — ou geram FP até 0,33). O
+ganho vem de <strong>exigir corroboração</strong> entre modalidades antes do alerta vermelho. Esses são números <strong>reais</strong>
+do artefato versionado, não estimados.</p>
+<hr />
+<h2>4. Resultados e exemplos de anomalias</h2>
+<blockquote>
+<p>Métricas reais já geradas nas Fases 2–3, versionadas em <code>ai-service/models/</code>. Limitações documentadas
+honestamente abaixo (DD-F4-6).</p>
+</blockquote>
+<h3>4.1 Sinais vitais — Random Forest</h3>
+<p>Fonte: <a href="../ai-service/models/sinais_vitais/metrics.json"><code>ai-service/models/sinais_vitais/metrics.json</code></a>
+(dataset UCI <em>Maternal Health Risk</em>, <strong>451 amostras</strong>: 338 treino / 113 validação).</p>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Acurácia (validação)</td>
+<td><strong>0,646</strong></td>
+</tr>
+<tr>
+<td>F1 macro</td>
+<td><strong>0,624</strong></td>
+</tr>
+<tr>
+<td>Classe <code>high</code> — precisão / recall / F1</td>
+<td>0,84 / 0,75 / 0,79</td>
+</tr>
+<tr>
+<td>Classe <code>low</code> — F1</td>
+<td>0,69</td>
+</tr>
+<tr>
+<td>Classe <code>mid</code> — F1</td>
+<td>0,38</td>
+</tr>
+</tbody>
+</table>
+<p>Matriz de confusão versionada em
+<a href="../ai-service/models/sinais_vitais/matriz_confusao.png"><code>ai-service/models/sinais_vitais/matriz_confusao.png</code></a>.
+A classe <strong><code>high</code> (alto risco)</strong> — a mais relevante clinicamente — tem o melhor desempenho (F1 0,79); a
+classe <strong><code>mid</code></strong> é a mais fraca (F1 0,38), limitação esperada num dataset pequeno com fronteira ambígua
+entre risco baixo e médio.</p>
+<h3>4.2 Cicatriz — YOLOv8n (smoke)</h3>
+<p>Fonte: <a href="../ai-service/models/cicatriz/metrics.json"><code>ai-service/models/cicatriz/metrics.json</code></a> (mini-dataset
+AZH Wound, <strong>40 épocas</strong>, treino <em>smoke</em>).</p>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mAP@50 (geral)</td>
+<td><strong>0,929</strong></td>
+</tr>
+<tr>
+<td>mAP@50 <code>ferida_ok</code></td>
+<td>0,995</td>
+</tr>
+<tr>
+<td>mAP@50 <code>ferida_alerta</code></td>
+<td>0,951</td>
+</tr>
+<tr>
+<td>Recall</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>Precisão</td>
+<td><strong>0,0038</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Limitação honesta (smoke):</strong> a <strong>precisão muito baixa (0,0038)</strong> indica excesso de falsos positivos —
+o detector foi treinado como <em>smoke</em> num mini-dataset (poucas imagens/épocas) só para validar o pipeline
+ponta a ponta. O mAP alto reflete o conjunto reduzido. <strong>Precisa escalar</strong> (mais dados/épocas em GPU/Colab)
+para detecções confiáveis acima do limiar — item registrado em <a href="../.specs/project/STATE.md"><code>.specs/project/STATE.md</code></a>.
+Os <strong>pesos não são versionados</strong> (<a href="../.specs/features/fase2-modelos/design.md">F2-DD4</a>); neste ambiente
+sem os pesos a cicatriz <strong>degrada</strong> (evento <code>nenhum</code>) — ver §4.5.</p>
+</blockquote>
+<h3>4.3 Texto/NLP e baseline por modalidade</h3>
+<p>Fonte: <a href="../ai-service/models/baseline.json"><code>ai-service/models/baseline.json</code></a> (detecção binária de caso
+crítico por modalidade):</p>
+<table>
+<thead>
+<tr>
+<th>Modalidade</th>
+<th>n</th>
+<th>Precisão</th>
+<th>Recall</th>
+<th>Taxa de FP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Texto/NLP</td>
+<td>5</td>
+<td>1,00</td>
+<td>1,00</td>
+<td>0,00</td>
+</tr>
+<tr>
+<td>Sinais vitais (binário crítico)</td>
+<td>451</td>
+<td>0,594</td>
+<td>0,929</td>
+<td>0,209</td>
+</tr>
+</tbody>
+</table>
+<p>O <strong>texto/NLP</strong> acerta 5/5 nos rótulos de referência. O baseline binário de sinais vitais prioriza
+<strong>recall (0,929)</strong> — perde poucos casos críticos — ao custo de mais falsos positivos isolados, exatamente o
+comportamento que a <strong>fusão corrige</strong> (§3).</p>
+<h3>4.4 Modalidades dependentes de dados manuais</h3>
+<p><strong>Áudio</strong> e <strong>fisioterapia (pose)</strong> dependem de amostras de <strong>obtenção manual</strong> (sem download público
+simples — ver <a href="../.specs/project/STATE.md"><code>.specs/project/STATE.md</code></a>). Os módulos existem e foram testados
+em funções puras (classificação/geometria), mas a inferência completa <strong>degrada</strong> sem dados/pesos
+(<a href="../.specs/features/fase2-modelos/design.md">F2-DD10</a>) — sem números fabricados aqui.</p>
+<h3>4.5 Exemplo de anomalia detectada (E2E) — caso de alto risco</h3>
+<p>Execução real de <a href="../scripts/e2e_demo.py"><code>scripts/e2e_demo.py</code></a> sobre
+<a href="../data/casos/caso_alto.json"><code>data/casos/caso_alto.json</code></a>, log capturado em
+<a href="relatorio/e2e-log.txt"><code>docs/relatorio/e2e-log.txt</code></a>:</p>
+<ul>
+<li><strong>Neste ambiente (sem pesos YOLO/ASR):</strong> cicatriz e áudio <strong>degradam</strong>; a fusão decide <strong><code>MEDIO</code></strong> com
+  <code>sinais_vitais_risco</code> (PA 150/95) + <code>texto_infeccao</code> ("febre e dor na cicatriz") e <strong>emite o alerta em
+  tempo real</strong> (<code>MEDIO</code> aciona o socket.io).</li>
+<li><strong>Cenário de referência (com pesos treinados):</strong> o mesmo caso corroborado escala para <strong><code>ALTO</code></strong> com o
+  gatilho <code>infeccao_puerperal</code> (suspeita de <strong>infecção puerperal</strong>) — ver o bloco "Cenário de referência
+  ALTO" no log e o relatório da §6.</li>
+</ul>
+<p>Trecho do log (com <code>case_id</code> rastreável):</p>
+<pre><code class="language-text">{&quot;logger&quot;:&quot;pipeline:caso-alto&quot;,&quot;case_id&quot;:&quot;caso-alto&quot;,&quot;msg&quot;:&quot;Fusão concluída: risco=MEDIO gatilhos=sinais_vitais_risco,texto_infeccao&quot;}
+{&quot;logger&quot;:&quot;e2e_demo&quot;,&quot;msg&quot;:&quot;Alerta emitido (MEDIO) para o caso caso-alto&quot;}
+=== Cenário de referência ALTO (cicatriz com pesos treinados) ===
+  risco: ALTO | gatilhos: infeccao_puerperal, sinais_vitais_risco
+</code></pre>
+<hr />
+<h2>5. Privacidade e segurança (LGPD)</h2>
+<p>Dados de saúde são <strong>dados sensíveis</strong> pela LGPD (Lei 13.709/2018). Detalhes em
+<a href="07-privacidade-e-seguranca.md"><code>docs/07-privacidade-e-seguranca.md</code></a>.</p>
+<h3>Princípios adotados</h3>
+<ul>
+<li><strong>Minimização</strong> — coletar/usar apenas o necessário; o objeto <code>paciente</code> é o <strong>contexto mínimo</strong>
+  (primeiro nome, idade, gestante) — ver <a href="contrato-api.md">contrato §1</a>.</li>
+<li><strong>Pseudonimização</strong> — identificador opaco <code>case_id</code>; sem nome completo/CPF/prontuário no processamento.</li>
+<li><strong>Finalidade</strong> — dados usados só para o monitoramento clínico.</li>
+<li><strong>Apoio à decisão, não diagnóstico</strong> — a decisão é sempre humana (disclaimer ético).</li>
+</ul>
+<h3>Controles técnicos (<a href="07-privacidade-e-seguranca.md"><code>docs/07</code></a> §2)</h3>
+<table>
+<thead>
+<tr>
+<th>Camada</th>
+<th>Controle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Em trânsito</td>
+<td>HTTPS/TLS (Node ↔ Python ↔ Azure)</td>
+</tr>
+<tr>
+<td>Em repouso</td>
+<td>Criptografia server-side do Azure Blob</td>
+</tr>
+<tr>
+<td>Segredos</td>
+<td><strong>Azure Key Vault</strong> ou <code>.env</code> — <strong>nunca no Git</strong> (<code>.gitignore</code> cobre <code>.env</code> e credenciais)</td>
+</tr>
+<tr>
+<td>Acesso</td>
+<td>RBAC no Azure; SAS tokens com expiração</td>
+</tr>
+<tr>
+<td>Auditoria</td>
+<td>log com <code>case_id</code> de quem acessou qual caso</td>
+</tr>
+<tr>
+<td>Retenção</td>
+<td>política de expiração/limpeza após o uso</td>
+</tr>
+</tbody>
+</table>
+<h3>Dados sintéticos como estratégia de privacidade</h3>
+<p>O repositório usa <strong>apenas dados sintéticos/abertos</strong> (caso de exemplo com paciente fictícia, sinais vitais
+e textos gerados) — isso <strong>viabiliza a demonstração da fusão e elimina o risco de expor paciente real</strong>. O
+<a href="../.gitignore"><code>.gitignore</code></a> ignora <code>data/</code> (só metadados leves versionados) e os <strong>pesos de modelo</strong> (não
+dados clínicos), versionando apenas <strong>métricas</strong>.</p>
+<blockquote>
+<p>⚠️ <strong>Disclaimer ético:</strong> solução acadêmica de <strong>apoio à decisão clínica</strong>; não realiza diagnóstico nem
+substitui avaliação médica; não deve ser usada em ambiente real sem validação clínica e regulatória.</p>
+</blockquote>
+<h3>Integração com a nuvem (Azure) e fallback</h3>
+<p>O storage usa um <strong>adaptador Azure Blob | local</strong> (<a href="../.specs/features/fase3-fusao-e-nuvem/design.md">F3-DD8</a>):
+em produção, artefatos vão para o Azure Blob com TLS, criptografia e SAS; na demo, <code>STORAGE_BACKEND=local</code>
+roda <strong>sem credencial</strong> (fallback que garante a reprodutibilidade). O deploy real está documentado em
+<a href="deploy-azure.md"><code>docs/deploy-azure.md</code></a> — pode usar o fallback local sem bloquear a avaliação.</p>
+<hr />
+<h2>6. Exemplo de relatório automático</h2>
+<p>Cada caso analisado gera um <strong>relatório clínico estruturado</strong> (requisito do PDF; template em
+<a href="06-relatorios-automaticos.md"><code>docs/06-relatorios-automaticos.md</code></a>), derivado do JSON de fusão por
+<a href="../ai-service/app/relatorio.py"><code>ai-service/app/relatorio.py</code></a> (Markdown → HTML → PDF com <strong>fallback</strong>,
+<a href="../.specs/features/fase3-fusao-e-nuvem/design.md">F3-DD7</a>).</p>
+<p>O exemplo abaixo foi <strong>gerado por código</strong> (não escrito à mão) por
+<a href="../scripts/gerar_evidencias.py"><code>scripts/gerar_evidencias.py</code></a> sobre o
+<a href="../data/casos/caso_alto.json"><code>caso_alto</code></a>, no <strong>cenário de referência ALTO</strong> (cicatriz com pesos
+treinados). Artefato completo em
+<a href="relatorio/exemplo-relatorio-automatico.md"><code>docs/relatorio/exemplo-relatorio-automatico.md</code></a>
+(+ <a href="relatorio/exemplo-relatorio-automatico.html"><code>.html</code></a>):</p>
+<pre><code class="language-text">RELATÓRIO DE MONITORAMENTO MULTIMODAL — Caso caso-alto
+Paciente: Maria, 31 anos
+Data/hora: 2026-06-10T21:15:00Z
+Nível de risco: ALTO
+
+1. Resumo executivo
+   Sinal de infecção na cicatriz associado a febre/dor ou sinais vitais de risco — suspeita de
+   infecção puerperal. Sinais vitais alterados (PA/condição de risco) — monitorar a paciente.
+
+2. Evidências por modalidade
+   - Vídeo (cicatriz): sinal_infeccao (confiança 0.88)
+   - Sinais vitais: hipertensao (valor 150/95)
+   - Texto/laudo: sinal_infeccao — &quot;Queixa de febre (38,5°C) e dor na cicatriz&quot;
+
+3. Classificação e gatilhos acionados
+   - Infecção puerperal (cicatriz + febre/dor ou vitais de risco)
+   - Sinais vitais alterados
+
+4. Recomendação / encaminhamento
+   Acionar a equipe imediatamente e priorizar avaliação médica.
+
+AVISO: Documento de apoio à decisão clínica gerado automaticamente.
+Não substitui a avaliação de profissionais de saúde.
+</code></pre>
+<hr />
+<h2>Rastreabilidade (artefatos citados)</h2>
+<table>
+<thead>
+<tr>
+<th>Afirmação / métrica</th>
+<th>Artefato de origem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arquitetura e fluxo</td>
+<td><a href="arquitetura.md"><code>docs/arquitetura.md</code></a>, <a href="relatorio/diagrama-arquitetura.md"><code>docs/relatorio/diagrama-arquitetura.md</code></a></td>
+</tr>
+<tr>
+<td>Contrato Node ↔ Python</td>
+<td><a href="contrato-api.md"><code>docs/contrato-api.md</code></a></td>
+</tr>
+<tr>
+<td>Lógica de fusão</td>
+<td><a href="../ai-service/app/fusao.py"><code>ai-service/app/fusao.py</code></a></td>
+</tr>
+<tr>
+<td>Ganho da fusão</td>
+<td><a href="../ai-service/models/metricas_fusao.json"><code>ai-service/models/metricas_fusao.json</code></a></td>
+</tr>
+<tr>
+<td>Sinais vitais (RF)</td>
+<td><a href="../ai-service/models/sinais_vitais/metrics.json"><code>ai-service/models/sinais_vitais/metrics.json</code></a> + <code>matriz_confusao.png</code></td>
+</tr>
+<tr>
+<td>Cicatriz (YOLOv8)</td>
+<td><a href="../ai-service/models/cicatriz/metrics.json"><code>ai-service/models/cicatriz/metrics.json</code></a></td>
+</tr>
+<tr>
+<td>Baseline por modalidade</td>
+<td><a href="../ai-service/models/baseline.json"><code>ai-service/models/baseline.json</code></a></td>
+</tr>
+<tr>
+<td>Log E2E</td>
+<td><a href="relatorio/e2e-log.txt"><code>docs/relatorio/e2e-log.txt</code></a></td>
+</tr>
+<tr>
+<td>Relatório automático</td>
+<td><a href="../ai-service/app/relatorio.py"><code>ai-service/app/relatorio.py</code></a>, <a href="relatorio/exemplo-relatorio-automatico.md"><code>docs/relatorio/exemplo-relatorio-automatico.md</code></a></td>
+</tr>
+<tr>
+<td>Privacidade/LGPD</td>
+<td><a href="07-privacidade-e-seguranca.md"><code>docs/07-privacidade-e-seguranca.md</code></a></td>
+</tr>
+<tr>
+<td>Decisões de design</td>
+<td><a href="../.specs/features/"><code>.specs/features/</code></a>, <a href="../.specs/project/STATE.md"><code>.specs/project/STATE.md</code></a></td>
+</tr>
+</tbody>
+</table></body></html>
