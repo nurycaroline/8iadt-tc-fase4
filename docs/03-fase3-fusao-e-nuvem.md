@@ -3,14 +3,14 @@
 > Objetivo (o **diferencial** do desafio): combinar as saídas dos modelos num **motor de regras** e disponibilizar tudo como serviço na **nuvem**.
 
 ## Resultado esperado (Definition of Done)
-- [ ] Motor de fusão retornando o **JSON de risco padronizado**.
-- [ ] **Métrica do ganho da fusão** vs. modalidade única documentada.
-- [ ] **Alerta em tempo real** chegando ao dashboard (WebSocket/SSE).
-- [ ] **Relatório automático** gerado por caso (ver [doc dedicado](06-relatorios-automaticos.md)).
-- [ ] API Python (FastAPI) com endpoint de inferência.
-- [ ] API Node.js orquestrando upload, Azure Blob e chamada ao Python.
-- [ ] Deploy na Azure (App Service / Functions / Container).
-- [ ] Pipeline ponta-a-ponta funcionando.
+- [x] Motor de fusão retornando o **JSON de risco padronizado** (`ai-service/app/fusao.py` + `pipeline.py`).
+- [x] **Métrica do ganho da fusão** vs. modalidade única documentada (`models/metricas_fusao.json`).
+- [x] **Alerta em tempo real** chegando ao cliente (socket.io — `backend/src/realtime/alertas.js`).
+- [x] **Relatório automático** gerado por caso (`ai-service/app/relatorio.py`; ver [doc dedicado](06-relatorios-automaticos.md)).
+- [x] API Python (FastAPI) com endpoint de inferência (`POST /inferencia` + `/health`).
+- [x] API Node.js orquestrando upload, Azure Blob/local e chamada ao Python (`POST /analisar`).
+- [~] Deploy na Azure (App Service / Functions / Container) — documentado em [deploy-azure.md](deploy-azure.md); **fallback local** garante a demo.
+- [x] Pipeline ponta-a-ponta funcionando (`scripts/e2e_demo.py` + `docker compose up`).
 
 ---
 

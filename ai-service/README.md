@@ -1,11 +1,14 @@
-# ai-service — Motor de IA (Fase 2)
+# ai-service — Motor de IA (Fases 2 e 3)
 
-Serviço de IA com **um módulo por modalidade**. Cada módulo treina/avalia o modelo isoladamente e
-expõe uma função de inferência que devolve o **dicionário de evidência padronizado** do
-[contrato de API §3](../docs/contrato-api.md), pronto para o **motor de fusão da Fase 3**.
+Serviço de IA com **um módulo por modalidade** (Fase 2) + **motor de fusão, pipeline, API FastAPI,
+relatório automático e métrica do ganho da fusão** (Fase 3). Cada modalidade expõe uma inferência que
+devolve o **dicionário de evidência padronizado** do [contrato de API §3](../docs/contrato-api.md); a
+fusão cruza essas evidências e produz o **JSON de risco** do [contrato §2](../docs/contrato-api.md).
 
-> Planejamento: [`.specs/features/fase2-modelos/`](../.specs/features/fase2-modelos/)
-> (spec → design → tasks). A API FastAPI, a fusão e o deploy na Azure são da **Fase 3**.
+> Planejamento: [`.specs/features/fase2-modelos/`](../.specs/features/fase2-modelos/) e
+> [`.specs/features/fase3-fusao-e-nuvem/`](../.specs/features/fase3-fusao-e-nuvem/) (spec → design →
+> tasks). O backend orquestrador (Node) fica em [`../backend`](../backend); o deploy na Azure em
+> [`../docs/deploy-azure.md`](../docs/deploy-azure.md).
 
 ## Instalação
 
@@ -33,9 +36,16 @@ ai-service/
 │   ├── fisioterapia/      # YOLOv8-pose + ângulos/amplitude
 │   ├── audio/             # transcrição (Whisper) + classificação
 │   ├── texto/             # NLP por regras/palavras-chave
-│   └── baseline.py        # baseline por modalidade única (Tarefa 2.6)
-├── models/                # pesos (ignorados) + métricas/baseline (versionados)
-└── tests/                 # pytest (funções puras)
+│   ├── baseline.py        # baseline por modalidade única (Tarefa 2.6)
+│   ├── fusao.py           # motor de fusão (regras explícitas — Fase 3, Tarefa 3.1)
+│   ├── pipeline.py        # contrato §1 → inferências → fusão → §2 (Fase 3)
+│   ├── relatorio.py       # relatório clínico automático Markdown→HTML/PDF (Fase 3)
+│   ├── metricas_fusao.py  # ganho da fusão vs modalidade única (Fase 3, Tarefa 3.1b)
+│   ├── storage.py         # adaptador de storage local (fallback)
+│   ├── storage_azure.py   # adaptador Azure Blob (modo nuvem, SAS)
+│   └── api/               # FastAPI: POST /inferencia + GET /health (Fase 3, Tarefa 3.2)
+├── models/                # pesos (ignorados) + métricas/baseline/fusão (versionados)
+└── tests/                 # pytest (funções puras + API via TestClient)
 ```
 
 ## Como treinar / inferir (rodar a partir de `ai-service/`)
@@ -76,6 +86,27 @@ ai-service/
 - Cicatriz: `mAP@0.5`, precisão, recall e `mAP_por_classe`.
 - Baseline por modalidade única: `models/baseline.json` (precisão, recall, taxa de falsos positivos)
   — base de comparação para o ganho da fusão na Fase 3 (Tarefa 3.1b).
+
+## Fase 3 — fusão, API, relatório e métricas (rodar a partir de `ai-service/`)
+
+| Capacidade | Como rodar | Saída |
+| ---------- | ---------- | ----- |
+| Motor de fusão | `app.fusao.avaliar_fusao(evidencias)` | `{risco_detectado, mensagem_alerta, gatilhos}` |
+| Pipeline | `app.pipeline.processar(requisicao)` | JSON de risco (contrato §2) |
+| API FastAPI | `uvicorn app.api.main:app --port 8000` | `POST /inferencia`, `GET /health` |
+| Relatório | `app.relatorio.gerar_e_salvar(...)` | Markdown→HTML/PDF salvo no storage |
+| Métrica da fusão | `python -m app.metricas_fusao` | `models/metricas_fusao.json` |
+
+**Regras do motor de fusão** (contrato §4 + [docs/03](../docs/03-fase3-fusao-e-nuvem.md)): a matriz base
+cruza cicatriz × sinais vitais; texto/áudio entram como **contexto** que pode elevar a prioridade
+(infecção puerperal, pré-eclâmpsia, violência → `ALTO`; depressão/ansiedade → ≥ `MEDIO`). Contexto
+isolado (texto/áudio fraco) tem **teto `MEDIO`**. A saída lista os **gatilhos** acionados
+(rastreabilidade do relatório).
+
+**Ganho da fusão** (`models/metricas_fusao.json`): compara `só-vídeo`, `só-vitais`, `só-áudio/texto` e
+`fusão` — a fusão **reduz falsos positivos** e **aumenta o recall** dos casos críticos (Tarefa 3.1b).
+
+**Demo ponta-a-ponta:** `python -m scripts.e2e_demo` (upload local → inferência → JSON → alerta).
 
 ## Testes e lint (gate)
 

@@ -6,17 +6,26 @@
 
 ## Fase atual
 
-**Fase 3 — Fusão Multimodal e Integração em Nuvem** — **planejada** (a implementar).
+**Fase 3 — Fusão Multimodal e Integração em Nuvem** — **implementada** (T1–T18).
 Plano em [`.specs/features/fase3-fusao-e-nuvem/`](../features/fase3-fusao-e-nuvem/) (spec → design → tasks):
 17 requisitos (F3F-01..F3F-17) e 18 tarefas (T1–T18). Núcleo de valor = **motor de fusão**
-(`ai-service/app/fusao.py`, regras explícitas do contrato §4 + Tarefa 3.1) + **pipeline** (contrato §1→§2),
-exposto por **FastAPI** (`POST /inferencia`); **backend Node/Express** orquestra upload→storage→IA→banco→
-**alerta em tempo real** (socket.io); **relatório automático** (Markdown→HTML/PDF) e **métrica do ganho da
-fusão** (3.1b). Storage com adaptador **Azure Blob | local** (fallback p/ a demo). Reaproveita as
-inferências da Fase 2 (`detectar/avaliar/prever/inferir/analisar`), `schemas.py`, `limiares.py`,
-`baseline.metricas_modalidade`. Gate de fim de fase: pipeline ponta-a-ponta + métricas da fusão
-(T17 deploy Azure pode usar fallback local). Dashboard React completo está **fora de escopo** (cliente
-mínimo demonstra o alerta).
+(`ai-service/app/fusao.py`, regras explícitas do contrato §4 + Tarefa 3.1) + **pipeline**
+(`app/pipeline.py`, contrato §1→§2), exposto por **FastAPI** (`app/api/main.py`: `POST /inferencia` +
+`/health`); **backend Node/Express** (`backend/`) orquestra upload→storage→IA→banco→**alerta em tempo
+real** (socket.io) e gere pacientes (CRUD); **relatório automático** (`app/relatorio.py`,
+Markdown→HTML/PDF com fallback) e **métrica do ganho da fusão** (`app/metricas_fusao.py` →
+`models/metricas_fusao.json`: fusão recall 1.0 / FP 0.0 vs. modalidades isoladas). Storage com adaptador
+**Azure Blob | local** (`app/storage*.py`, `backend/src/storage/`; fallback p/ a demo). Cliente mínimo
+em `backend/public/index.html`. Reproduz com `docker compose up`; **CI** em `.github/workflows/ci.yml`
+(ruff+pytest / eslint+jest); E2E em `scripts/e2e_demo.py`. Gate verde:
+`ruff check scripts ai-service` + `pytest -q` (**96 testes** Python) e `npm run lint`/`npm test`
+(**11 testes** Node). Reaproveita as inferências da Fase 2 (`detectar/avaliar/prever/inferir/analisar`),
+`schemas.py`, `limiares.py`, `baseline.metricas_modalidade`. Deploy real na Azure documentado em
+`docs/deploy-azure.md` (pode usar fallback local — não bloqueia o gate). Dashboard React completo
+permanece **fora de escopo** (cliente mínimo demonstra o alerta).
+Observações do ambiente: sem pesos do YOLO (cicatriz/fisioterapia) e sem ASR de áudio, essas
+modalidades **degradam** (evidência omitida/`nenhum`, DD10); a fusão ainda decide com vitais+texto. Com
+os pesos treinados, o `caso_alto` escala para `ALTO` (infecção puerperal) — ver `scripts/e2e_demo.py`.
 
 **Fase 2 — Desenvolvimento dos Modelos Individuais** — **implementada** (T1–T14).
 Plano em [`.specs/features/fase2-modelos/`](../features/fase2-modelos/) (spec → design → tasks).
@@ -85,10 +94,14 @@ público simples) e aparecem como passos opcionais.
       acima do limiar de confiança.
 - [ ] Obter amostras de **áudio** e **fisioterapia** (manual) e rodar o baseline completo dessas modalidades.
 - [x] Planejar a Fase 3 (spec → design → tasks em `.specs/features/fase3-fusao-e-nuvem/`).
-- [ ] Implementar a Fase 3 seguindo `tasks.md` (T1–T18). Começar pela **Fase A** (núcleo de fusão:
-      T1→T2→T3), depois Fase B (Node, em paralelo via mock) e Fase C (nuvem/Docker/CI/E2E).
+- [x] Implementar a Fase 3 seguindo `tasks.md` (T1–T18): fusão, pipeline, FastAPI, relatório, métricas,
+      backend Node (CRUD + `/analisar` + alerta socket.io), storage Azure/local, Docker/compose, CI e E2E.
+      Gate verde (ruff + 96 testes Python; eslint + 11 testes Node).
 - [ ] Decisão pendente do grupo: **deploy real na Azure** vs. fallback local para a gravação da demo (T17).
-- [ ] Decisão pendente do grupo: runtime/versões finais (Node LTS, libs) a fixar no `package.json` (T1).
+- [x] Runtime/versões fixadas no `backend/package.json` (Node 22 LTS, última estável das libs) e nas
+      deps Python adicionadas em `ai-service/requirements.txt`.
+- [ ] **Escalar o detector de cicatriz** (GPU/Colab) para o `caso_alto` fechar `ALTO` ponta-a-ponta sem
+      mock (hoje degrada e a fusão decide com vitais+texto).
 
 ## Ideias adiadas
 
