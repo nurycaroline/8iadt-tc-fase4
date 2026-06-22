@@ -4,6 +4,8 @@ Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (
 
 > Projeto **implementado de ponta a ponta** (Fases 1–4): dados → modelos → fusão → API → alerta em tempo real → relatório automático, com Docker, testes e CI. Para rodar do zero, vá direto para **[Como rodar a stack](#como-rodar-a-stack)**. O histórico de planejamento por fases está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)** e em [`.specs/`](.specs/).
 
+> ⚠️ **Disclaimer ético.** Esta é uma solução **acadêmica de apoio à decisão clínica**. **Não realiza diagnóstico** nem substitui a avaliação de profissionais de saúde, e **não deve ser usada em ambiente real** sem validação clínica e regulatória adequada. Dados de saúde são **sensíveis** pela LGPD — o repositório usa **apenas dados sintéticos** e os controles de privacidade/segurança estão descritos em [privacidade e segurança (LGPD)](docs/07-privacidade-e-seguranca.md).
+
 ## Estrutura do repositório
 
 ```
@@ -37,6 +39,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 - [Fase 4 — Entregáveis](docs/04-fase4-entregaveis.md)
 - [Fase 5 — Produção, Escala e Robustez](docs/08-fase5-producao-e-escala.md) _(dashboard, reforço de vitais, hardening)_
 - **[Relatório técnico](docs/relatorio-tecnico.md)** (6 seções) · **[Roteiro do vídeo](docs/roteiro-video.md)** (≤15 min) · [Evidências consolidadas](docs/relatorio/)
+- [Fase 6 — Relatórios Automáticos](docs/09-fase6-relatorios-automaticos.md) · [Fase 7 — Privacidade e Segurança (LGPD)](docs/10-fase7-privacidade-e-seguranca.md) _(auth, TLS, auditoria, retenção, hardening)_
 - [Casos de uso](docs/casos-de-uso.md) · [Relatórios automáticos](docs/06-relatorios-automaticos.md) · [Privacidade e Segurança (LGPD)](docs/07-privacidade-e-seguranca.md)
 - [Motor de IA (`ai-service/`)](ai-service/README.md) — modelos (Fase 2) + fusão/API/relatório (Fase 3)
 - [Backend orquestrador (`backend/`)](backend/README.md) — Node/Express, upload, storage, alerta em tempo real
@@ -92,6 +95,25 @@ python -m scripts.e2e_demo    # upload local → inferência → JSON de risco �
 
 > **Fallback local:** com `STORAGE_BACKEND=local` (padrão) tudo roda sem a Azure — garante a demo.
 > O deploy real na Azure está em [docs/deploy-azure.md](docs/deploy-azure.md).
+
+### Privacidade e segurança (Fase 7 — LGPD)
+
+Os controles de privacidade/segurança ([`docs/07`](docs/07-privacidade-e-seguranca.md)) são **opt-in por
+variável de ambiente**, preservando a demo local sem credenciais:
+
+- **Autenticação (F7-01):** defina `API_KEY` para exigir o header `x-api-key` nas rotas de dados, e
+  `AI_SERVICE_API_KEY` para proteger o `ai-service`. Sem essas variáveis, a demo segue aberta (`/health` e
+  `/ready` são sempre públicos).
+- **TLS na borda (F7-02):** `./scripts/gerar-cert-dev.sh` e
+  `docker compose -f docker-compose.yml -f docker-compose.tls.yml up` (HTTPS em `:8443`, HSTS).
+- **Auditoria (F7-03):** acessos a casos/relatórios e análises ficam na tabela `auditoria` (quem/quando/qual
+  caso). Identidade do chamador via header `x-user-id`.
+- **Retenção (F7-04):** defina `RETENTION_DAYS` e rode `npm run retencao` (no `backend/`) — remove casos e
+  artefatos expirados; `0` (padrão) desabilita.
+- **Segredos (F7-07):** defina `AZURE_KEY_VAULT_URL` para carregar segredos do Azure Key Vault (fallback
+  `.env`).
+
+Todas as variáveis estão documentadas em [`.env.example`](.env.example).
 
 ## Entregáveis da fase (Fase 4)
 - **Repositório Git** com código completo (este repo) — estrutura, deps fixadas, Docker, testes e CI.

@@ -6,24 +6,28 @@
 
 ## Fase atual
 
-**Fase 7 — Privacidade e Segurança (LGPD)** — **planejamento (Specify)** (F7-01..F7-08).
+**Fase 7 — Privacidade e Segurança (LGPD)** — **implementada** (F7-01..F7-08).
 Spec em [`.specs/features/fase7-privacidade-e-seguranca/`](../features/fase7-privacidade-e-seguranca/spec.md)
 e doc [`docs/10-fase7-privacidade-e-seguranca.md`](../../docs/10-fase7-privacidade-e-seguranca.md). A
-**documentação de LGPD já existe** (disclaimer no README/relatório + seção §5 do
-[`relatorio-tecnico.md`](../../docs/relatorio-tecnico.md)); a Fase 7 fecha a lacuna entre os **controles
-técnicos** do componente [`docs/07`](../../docs/07-privacidade-e-seguranca.md) e o **código**, identificada por
-auditoria: (F7-01) **autenticação/restrição de acesso** — `POST /inferencia` do `ai-service` e rotas Express
-hoje **sem auth**; (F7-02) **TLS em trânsito** — stack hoje em HTTP puro (Node↔Python, `nginx :80`); (F7-03)
-**auditoria de acesso** (quem/quando/qual caso) — hoje só log de **processamento** (`pino-http` com `case_id`),
-sem identidade nem trilha persistida; (F7-04) **retenção/expiração** — só `DELETE` manual, sem TTL/job; (F7-05)
-**pseudonimização** — `case_id` legível aceito em `/analisar` e `primeiro_nome` (PII) trafega ao `ai-service`
-sem ser usado na decisão; (F7-06) **hardening HTTP** — sem `helmet`, `socket.io` CORS `*`, sem security
-headers no `nginx`, upload sem filtro de MIME; (F7-07) **Key Vault opcional** (P3 — `.env` já satisfaz "Key
-Vault **ou** `.env`"); (F7-08) **conformidade no CI** + sincronizar checklist `docs/07 §6`/§5 do relatório
-(hoje aspiracional). **Já satisfeito (não recriado):** SAS com expiração, `.env`/`data/` no `.gitignore`,
-disclaimer ético e dados sintéticos. **Pedido = "planeje o desenvolvimento"** → entregue **Specify** + doc
-macro; **Design**/**Tasks** após confirmar o escopo (`AGENTS.md` — defaults propostos na spec). **Fora de
-escopo:** RBAC/Private Endpoint reais na Azure (ação humana/infra, ligado ao F5-03) e gravar o vídeo (DD-F4-5).
+**documentação de LGPD já existia** (disclaimer + §5 do relatório); a Fase 7 fechou a lacuna entre os
+**controles técnicos** do componente [`docs/07`](../../docs/07-privacidade-e-seguranca.md) e o **código**:
+(F7-01) **auth de serviço** — `x-api-key` no backend (`backend/src/middleware/auth.js`) e no `ai-service`
+(`ai-service/app/api/seguranca.py`); opt-in (vazio = demo aberta; `AUTH_REQUIRED=true` força negar — preserva
+DD10); `/health`/`/ready` públicos; (F7-02) **TLS opt-in** na borda (`frontend/nginx.tls.conf` +
+`docker-compose.tls.yml` + `scripts/gerar-cert-dev.sh`, HSTS) + Node↔Python aceita `https://`, fallback HTTP;
+(F7-03) **auditoria de acesso** — tabela `auditoria` (`db/index.js`/`repositorios.js`) registrada em
+`rotas/casos.js` e `rotas/analisar.js` (usuário via `x-user-id`, sem conteúdo clínico); (F7-04) **retenção** —
+`backend/src/servicos/retencao.js` + `scripts/retencao.js` (`npm run retencao`), TTL `RETENTION_DAYS`; (F7-05)
+**pseudonimização** — `backend/src/seguranca/pseudonimizacao.js` (`case_id` UUID validado + `pacienteMinimo`
+remove `primeiro_nome` do payload à IA); (F7-06) **hardening** — `helmet` + `backend/src/middleware/cors.js`
+(allowlist; socket.io idem) + security headers no `nginx` + `fileFilter` de MIME no upload; (F7-07) **Key
+Vault opcional** — `backend/src/seguranca/segredos.js` + `bootstrap.js` (fallback `.env`); (F7-08)
+**conformidade no CI** — `scripts/check_conformidade.py` + job `conformidade`; checklist `docs/07 §6` e §5 do
+relatório atualizados; disclaimer realçado no README. **Defaults da spec aplicados** (escopo confirmado pelo
+pedido "implemente a fase 7"). **Gate verde:** `ruff`+`pytest` (**111 testes** Python; +4), `eslint`+`jest`
+(**32 testes** Node; +14) e `eslint`+`vitest`+`build` do frontend (**7 testes**). **Já satisfeito (não
+recriado):** SAS com expiração, `.env`/`data/` no `.gitignore`, dados sintéticos. **Fora de escopo:**
+RBAC/Private Endpoint reais na Azure (ação humana/infra, ligado ao F5-03) e gravar o vídeo (DD-F4-5).
 
 **Fase 6 — Relatórios Automáticos Especializados** — **implementada** (F6-01..F6-05).
 Spec em [`.specs/features/fase6-relatorios-automaticos/`](../features/fase6-relatorios-automaticos/spec.md) e
@@ -206,11 +210,16 @@ público simples) e aparecem como passos opcionais.
 - [x] Planejar a Fase 7 (Specify em `.specs/features/fase7-privacidade-e-seguranca/` + `docs/10`): 8 requisitos
       F7-01..F7-08 fechando a lacuna entre os controles do `docs/07` (LGPD) e o código (auth, TLS, auditoria de
       acesso, retenção, pseudonimização, hardening, Key Vault opcional, conformidade no CI).
-- [ ] **Confirmar o escopo da Fase 7 com o grupo** (ver "Decisões a confirmar" na spec): é Privacidade/LGPD ou
-      outro desafio 8IADT? Modelo de auth (API key vs JWT); terminação TLS (nginx vs ingress); trilha de
-      auditoria (SQLite vs append-only); TTL de retenção; minimização de PII; Key Vault agora vs documentado.
-- [ ] Após confirmação: **Design** (decisões técnicas + impacto por componente) → **Tasks** (quebra atômica) →
-      Execute da Fase 7.
+- [x] Implementar a Fase 7 (F7-01..F7-08): auth de serviço (backend + ai-service), TLS opt-in na borda,
+      auditoria de acesso (tabela `auditoria`), retenção (`npm run retencao`), pseudonimização (`case_id` opaco
+      + minimização de PII), hardening (helmet/CORS/headers/upload), Key Vault opcional e conformidade no CI +
+      docs. Gate verde (ruff + 111 testes Python; eslint + 32 testes Node; vitest + 7 frontend). Defaults da
+      spec aplicados.
+- [ ] **Confirmar com o grupo** os defaults aplicados na Fase 7 (auth opt-in via `API_KEY`/`AUTH_REQUIRED`;
+      terminação TLS no nginx; trilha em SQLite; TTL de retenção; minimização de PII removendo `primeiro_nome`
+      do payload à IA; Key Vault opcional) — revisáveis se o escopo divergir.
+- [ ] **Ação humana/infra:** provisionar RBAC/Private Endpoint reais na Azure (F5-03) e gravar o vídeo
+      demonstrando os controles (DD-F4-5).
 
 ## Ideias adiadas
 
