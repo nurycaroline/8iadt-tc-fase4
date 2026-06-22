@@ -6,6 +6,25 @@
 
 ## Fase atual
 
+**Fase 7 — Privacidade e Segurança (LGPD)** — **planejamento (Specify)** (F7-01..F7-08).
+Spec em [`.specs/features/fase7-privacidade-e-seguranca/`](../features/fase7-privacidade-e-seguranca/spec.md)
+e doc [`docs/10-fase7-privacidade-e-seguranca.md`](../../docs/10-fase7-privacidade-e-seguranca.md). A
+**documentação de LGPD já existe** (disclaimer no README/relatório + seção §5 do
+[`relatorio-tecnico.md`](../../docs/relatorio-tecnico.md)); a Fase 7 fecha a lacuna entre os **controles
+técnicos** do componente [`docs/07`](../../docs/07-privacidade-e-seguranca.md) e o **código**, identificada por
+auditoria: (F7-01) **autenticação/restrição de acesso** — `POST /inferencia` do `ai-service` e rotas Express
+hoje **sem auth**; (F7-02) **TLS em trânsito** — stack hoje em HTTP puro (Node↔Python, `nginx :80`); (F7-03)
+**auditoria de acesso** (quem/quando/qual caso) — hoje só log de **processamento** (`pino-http` com `case_id`),
+sem identidade nem trilha persistida; (F7-04) **retenção/expiração** — só `DELETE` manual, sem TTL/job; (F7-05)
+**pseudonimização** — `case_id` legível aceito em `/analisar` e `primeiro_nome` (PII) trafega ao `ai-service`
+sem ser usado na decisão; (F7-06) **hardening HTTP** — sem `helmet`, `socket.io` CORS `*`, sem security
+headers no `nginx`, upload sem filtro de MIME; (F7-07) **Key Vault opcional** (P3 — `.env` já satisfaz "Key
+Vault **ou** `.env`"); (F7-08) **conformidade no CI** + sincronizar checklist `docs/07 §6`/§5 do relatório
+(hoje aspiracional). **Já satisfeito (não recriado):** SAS com expiração, `.env`/`data/` no `.gitignore`,
+disclaimer ético e dados sintéticos. **Pedido = "planeje o desenvolvimento"** → entregue **Specify** + doc
+macro; **Design**/**Tasks** após confirmar o escopo (`AGENTS.md` — defaults propostos na spec). **Fora de
+escopo:** RBAC/Private Endpoint reais na Azure (ação humana/infra, ligado ao F5-03) e gravar o vídeo (DD-F4-5).
+
 **Fase 6 — Relatórios Automáticos Especializados** — **implementada** (F6-01..F6-05).
 Spec em [`.specs/features/fase6-relatorios-automaticos/`](../features/fase6-relatorios-automaticos/spec.md) e
 doc [`docs/09-fase6-relatorios-automaticos.md`](../../docs/09-fase6-relatorios-automaticos.md). O **relatório
@@ -184,6 +203,14 @@ público simples) e aparecem como passos opcionais.
       Gate verde (ruff + 107 testes Python; eslint+vitest+build do frontend). Defaults da spec aplicados.
 - [ ] **Confirmar com o grupo** os defaults aplicados na Fase 6 (origem do encaminhamento, anexos no fallback
       local, libs de PDF na imagem, profundidade do preview) — revisáveis se o escopo divergir.
+- [x] Planejar a Fase 7 (Specify em `.specs/features/fase7-privacidade-e-seguranca/` + `docs/10`): 8 requisitos
+      F7-01..F7-08 fechando a lacuna entre os controles do `docs/07` (LGPD) e o código (auth, TLS, auditoria de
+      acesso, retenção, pseudonimização, hardening, Key Vault opcional, conformidade no CI).
+- [ ] **Confirmar o escopo da Fase 7 com o grupo** (ver "Decisões a confirmar" na spec): é Privacidade/LGPD ou
+      outro desafio 8IADT? Modelo de auth (API key vs JWT); terminação TLS (nginx vs ingress); trilha de
+      auditoria (SQLite vs append-only); TTL de retenção; minimização de PII; Key Vault agora vs documentado.
+- [ ] Após confirmação: **Design** (decisões técnicas + impacto por componente) → **Tasks** (quebra atômica) →
+      Execute da Fase 7.
 
 ## Ideias adiadas
 

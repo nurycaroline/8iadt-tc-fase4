@@ -23,6 +23,7 @@ Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisõ
 | Fase 4 | [`docs/04-fase4-entregaveis.md`](docs/04-fase4-entregaveis.md) | Repositório, relatório técnico e vídeo |
 | Fase 5 _(rascunho)_ | [`docs/08-fase5-producao-e-escala.md`](docs/08-fase5-producao-e-escala.md) | Produção, escala e robustez (fecha itens em aberto) |
 | Fase 6 | [`docs/09-fase6-relatorios-automaticos.md`](docs/09-fase6-relatorios-automaticos.md) | Relatórios automáticos especializados (conteúdo por tipo + anexos com links) — **implementada** |
+| Fase 7 _(planejamento)_ | [`docs/10-fase7-privacidade-e-seguranca.md`](docs/10-fase7-privacidade-e-seguranca.md) | Privacidade e segurança (LGPD): fecha a lacuna entre os controles do `docs/07` e o código — **planejada** |
 | Componente | [`docs/casos-de-uso.md`](docs/casos-de-uso.md) | Casos de uso (diagramas Mermaid) |
 | Componente | [`docs/06-relatorios-automaticos.md`](docs/06-relatorios-automaticos.md) | Relatórios clínicos automáticos (requisito do PDF) |
 | Componente | [`docs/07-privacidade-e-seguranca.md`](docs/07-privacidade-e-seguranca.md) | Privacidade, segurança e LGPD |
@@ -108,6 +109,7 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 | **4 — Entregáveis** | Repo, relatório e vídeo | Tudo pronto para submissão |
 | **5 — Produção/Escala** _(rascunho)_ | Escalar modelos, completar áudio/pose, deploy Azure real, dashboard React | Solução de **demo-grade** elevada a **produção** (itens em aberto fechados) |
 | **6 — Relatórios Automáticos** | Especializar o relatório por tipo de risco, anexos com links reais, PDF garantido e preview no dashboard | Relatório do `docs/06` cumprido por completo (especializado + anexos navegáveis) — **implementada** |
+| **7 — Privacidade/Segurança** _(planejamento)_ | Fechar a lacuna entre os controles de LGPD do `docs/07` e o código (auth, TLS, auditoria de acesso, retenção, pseudonimização, hardening) | Controles do `docs/07` implementados; §5 do relatório deixa de ser aspiracional — **planejada** |
 
 > **Princípio guia:** comece com um **mini-dataset** (5 amostras por modalidade) e faça o pipeline rodar ponta-a-ponta. "Se rodar com 5, roda com 500." Só depois escale.
 
@@ -121,6 +123,15 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 > especializado por tipo de risco**, **anexos com links reais**, **PDF garantido** (com fallback HTML) e
 > **pré-visualização no dashboard**. Detalhes em
 > [`docs/09-fase6-relatorios-automaticos.md`](docs/09-fase6-relatorios-automaticos.md).
+
+> **Sobre a Fase 7:** **planejamento (Specify)**. A **documentação de LGPD já existe** (disclaimer + seção §5
+> do relatório técnico); a Fase 7 fecha a lacuna entre os **controles técnicos** do componente
+> [`docs/07-privacidade-e-seguranca.md`](docs/07-privacidade-e-seguranca.md) e o **código** —
+> **autenticação/restrição de acesso**, **TLS em trânsito**, **auditoria de acesso**, **retenção/expiração**,
+> **pseudonimização** (`case_id` opaco + minimização de PII) e **hardening HTTP**. **Design** e **Tasks** vêm
+> após a confirmação do escopo. Detalhes em
+> [`docs/10-fase7-privacidade-e-seguranca.md`](docs/10-fase7-privacidade-e-seguranca.md) e na spec em
+> [`.specs/features/fase7-privacidade-e-seguranca/`](.specs/features/fase7-privacidade-e-seguranca/spec.md).
 
 ---
 
