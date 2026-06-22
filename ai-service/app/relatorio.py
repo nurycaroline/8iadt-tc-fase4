@@ -59,6 +59,16 @@ DISCLAIMER = (
     "Não substitui a avaliação de profissionais de saúde."
 )
 
+# Rótulo dos artefatos para a seção de anexos (docs/06 §3/§5): "links Blob: frame, gráfico, áudio".
+# A ordem segue as modalidades; a chave casa com o objeto de requisição do contrato (§1).
+ROTULO_ARTEFATO = {
+    "video_cicatriz_url": "Vídeo/imagem da cicatriz (frame de alerta)",
+    "video_fisioterapia_url": "Vídeo da fisioterapia",
+    "csv_url": "Sinais vitais (CSV/gráfico)",
+    "audio_url": "Áudio da consulta/relato",
+    "texto_clinico": "Texto/laudo clínico",
+}
+
 
 def _cabecalho_paciente(paciente: dict[str, Any]) -> str:
     nome = paciente.get("primeiro_nome", "—")
@@ -102,6 +112,7 @@ def gerar_markdown(
     paciente: dict[str, Any],
     fusao: dict[str, Any],
     evidencias: dict[str, Any],
+    artefatos: dict[str, str] | None = None,
     timestamp: str | None = None,
 ) -> str:
     """Monta o relatório em Markdown (função pura) seguindo o template de docs/06 §3."""
@@ -144,7 +155,7 @@ def gerar_markdown(
             "",
             "## 5. Anexos",
             "",
-            _secao_anexos(evidencias),
+            _secao_anexos(evidencias, artefatos),
             "",
             "---",
             "",
@@ -174,12 +185,56 @@ def _secao_recomendacao(risco: str, gatilhos: list[str]) -> str:
     return "\n".join(linhas)
 
 
-def _secao_anexos(evidencias: dict[str, Any]) -> str:
-    # As URLs dos artefatos pertencem ao payload de requisição; aqui referenciamos as modalidades.
+def _parece_url(valor: Any) -> bool:
+    return isinstance(valor, str) and valor.startswith(("http://", "https://"))
+
+
+def _linha_anexo(rotulo: str, valor: str) -> str:
+    """Referência navegável a um artefato (link http(s); caminho/identificador, caso contrário)."""
+    if _parece_url(valor):
+        return f"- {rotulo}: [{valor}]({valor})"
+    return f"- {rotulo}: `{valor}`"
+
+
+def _secao_anexos(
+    evidencias: dict[str, Any], artefatos: dict[str, str] | None = None
+) -> str:
+    """Seção 5: links reais dos artefatos do caso (docs/06 §3/§5), omitindo modalidades ausentes.
+
+    Com ``artefatos`` (URLs/caminhos do objeto de requisição do contrato), referencia o frame da
+    cicatriz, o gráfico/CSV dos sinais vitais, o áudio/transcrição e o texto/laudo. Sem ele, mantém
+    o comportamento legado (lista os nomes das modalidades avaliadas).
+    """
+    if artefatos:
+        linhas = [
+            _linha_anexo(rotulo, artefatos[chave])
+            for chave, rotulo in ROTULO_ARTEFATO.items()
+            if artefatos.get(chave)
+        ]
+        audio = evidencias.get("audio") or {}
+        transcricao = audio.get("transcricao") or audio.get("trecho")
+        if transcricao:
+            linhas.append(f"  - Transcrição/trecho do áudio: “{transcricao}”")
+        return "\n".join(linhas) if linhas else "- Sem anexos."
+
     presentes = [m for m in evidencias]
     if not presentes:
         return "- Sem anexos."
     return "\n".join(f"- {m}" for m in presentes)
+
+
+def _artefatos_da_requisicao(requisicao: dict[str, Any]) -> dict[str, str]:
+    """Extrai as URLs/caminhos dos artefatos do objeto de requisição (contrato §1) p/ os anexos."""
+    artefatos: dict[str, str] = {}
+    for chave in ("video_cicatriz_url", "video_fisioterapia_url", "audio_url"):
+        if requisicao.get(chave):
+            artefatos[chave] = requisicao[chave]
+    dados_vitais = requisicao.get("dados_vitais") or {}
+    if dados_vitais.get("csv_url"):
+        artefatos["csv_url"] = dados_vitais["csv_url"]
+    if requisicao.get("texto_clinico"):
+        artefatos["texto_clinico"] = requisicao["texto_clinico"]
+    return artefatos
 
 
 def _markdown_para_html(md: str) -> str:
@@ -240,5 +295,6 @@ def gerar_e_salvar(
         paciente=requisicao.get("paciente", {}),
         fusao=fusao,
         evidencias=evidencias,
+        artefatos=_artefatos_da_requisicao(requisicao),
     )
     return salvar_relatorio(md, case_id, storage=storage)
