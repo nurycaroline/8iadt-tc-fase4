@@ -48,9 +48,12 @@ npm-debug.log*
 backend/uploads/
 
 # ── Fase 3: storage local (fallback), banco SQLite e relatórios gerados ──
-/data/_storage/
+_storage/
+backend/data/
 *.sqlite
 *.sqlite3
+*.sqlite-wal
+*.sqlite-shm
 *.db
 
 # ── SO/editor ──
