@@ -60,7 +60,7 @@ def main() -> int:
     destino.mkdir(parents=True, exist_ok=True)
     (destino / "exemplo-relatorio-automatico.md").write_text(md, encoding="utf-8")
     (destino / "exemplo-relatorio-automatico.html").write_text(html, encoding="utf-8")
-    print(f"Exemplo de relatório automático gerado em {destino}/exemplo-relatorio-automatico.(md|html)")
+    print(f"Exemplo de relatório automático gerado em {destino} (.md e .html)")
     return 0
 
 
