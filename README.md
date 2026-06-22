@@ -2,7 +2,22 @@
 
 Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada): a paciente envia, de casa, **áudio** (relato/consulta), **vídeo** (cicatriz da cesárea e exercícios de fisioterapia), **sinais vitais** (pressão, batimentos, glicemia) e **texto** (laudos/exames). O sistema faz a **fusão multimodal** desses dados para detectar **sinais precoces de risco** e gerar **alertas clínicos em tempo real**, com integração à **nuvem (Azure)**.
 
-> Este repositório começa pela fase de **planejamento**. O plano completo de desenvolvimento, organizado em partes, está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)**.
+> Projeto **implementado de ponta a ponta** (Fases 1–4): dados → modelos → fusão → API → alerta em tempo real → relatório automático, com Docker, testes e CI. Para rodar do zero, vá direto para **[Como rodar a stack](#como-rodar-a-stack)**. O histórico de planejamento por fases está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)** e em [`.specs/`](.specs/).
+
+## Estrutura do repositório
+
+```
+ai-service/   # Motor de IA (Python/FastAPI): modelos por modalidade, fusão, relatório, métricas
+backend/      # Orquestrador (Node/Express): upload, storage, persistência, alerta em tempo real
+docs/         # Documentação: arquitetura, contrato de API, relatório técnico, roteiro do vídeo
+scripts/      # Preparação de dados (Fase 1), demo E2E e utilitários
+data/         # Estrutura de dados (conteúdo ignorado pelo Git — LGPD); só metadados leves versionados
+```
+
+Dependências com **versões fixadas** em [`ai-service/requirements.txt`](ai-service/requirements.txt) (Python) e
+[`backend/package.json`](backend/package.json) (Node). Pesos de modelo **não são versionados** (reprodutíveis
+pelo treino); só **métricas** e gráficos entram no Git — ver [`.gitignore`](.gitignore) e
+[privacidade/LGPD](docs/07-privacidade-e-seguranca.md).
 
 ## A dor que a solução resolve
 No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risco (infecção da cicatriz, pré-eclâmpsia, depressão pós-parto, violência) aparecem aos poucos e ficam **espalhados** em sistemas e pessoas diferentes. Quando alguém cruza tudo, a complicação já aconteceu. Esta solução é o "cérebro" que **junta as modalidades da mesma paciente** e **alerta cedo** a equipe.
@@ -31,7 +46,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 - **Nuvem:** Azure Blob Storage + App Service/Functions
 - **Infra/qualidade:** Docker + docker-compose, testes (pytest/jest), CI (GitHub Actions)
 
-## Como rodar a stack (Fase 3)
+## Como rodar a stack
 
 A stack tem **dois serviços**: o motor de IA (Python/FastAPI) e o orquestrador (Node/Express), que
 expõe o cliente mínimo de demonstração do alerta em tempo real.
