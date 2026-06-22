@@ -26,7 +26,11 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "ai-service"))
 
 from app.fusao import avaliar_fusao  # noqa: E402
-from app.relatorio import _markdown_para_html, gerar_markdown  # noqa: E402
+from app.relatorio import (  # noqa: E402
+    _artefatos_da_requisicao,
+    _markdown_para_html,
+    gerar_markdown,
+)
 
 # Timestamp fixo para um artefato versionado determinístico (re-rodar não gera diff espúrio).
 TIMESTAMP_REFERENCIA = "2026-06-10T21:15:00Z"
@@ -49,6 +53,7 @@ def gerar_exemplo_relatorio() -> tuple[str, str]:
         paciente=caso["paciente"],
         fusao=fusao,
         evidencias=EVIDENCIAS_REFERENCIA,
+        artefatos=_artefatos_da_requisicao(caso),
         timestamp=TIMESTAMP_REFERENCIA,
     )
     return md, _markdown_para_html(md)

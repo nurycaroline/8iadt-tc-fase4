@@ -444,6 +444,69 @@ tbody tr:last-child td {
   font-size: 0.82rem;
 }
 
+/* Relatório: ações + modal de pré-visualização (Fase 6) ------------------ */
+.relatorio-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--bg-elev);
+  border: 1px solid var(--borda);
+  border-radius: 0.7rem;
+  width: min(900px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--borda);
+}
+
+.modal-cabecalho h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.modal-acoes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.modal-corpo {
+  flex: 1;
+  width: 100%;
+  min-height: 60vh;
+  border: 0;
+  background: #fff;
+}
+
+.modal-rodape {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--borda);
+}
+
 @media (max-width: 720px) {
   .paineis {
     grid-template-columns: 1fr;

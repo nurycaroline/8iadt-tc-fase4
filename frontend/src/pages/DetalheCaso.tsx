@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { api } from '../api'
 import { Carregando, Erro } from '../components/Estado'
+import { RelatorioModal } from '../components/RelatorioModal'
 import { RiscoBadge } from '../components/RiscoBadge'
 import { mensagemErro } from '../erros'
 import { infoRisco } from '../risco'
@@ -19,6 +21,7 @@ function Linha({ rotulo, valor }: { rotulo: string; valor?: string | number | nu
 // Tela principal (docs/frontend.md §3.5): painéis por modalidade + painel de fusão.
 export function DetalheCaso() {
   const { id } = useParams<{ id: string }>()
+  const [previewAberto, setPreviewAberto] = useState(false)
   const {
     data: caso,
     isPending,
@@ -97,13 +100,28 @@ export function DetalheCaso() {
             <RiscoBadge risco={caso.risco_detectado} />
           </div>
           <p>{caso.resultado_json?.mensagem_alerta ?? 'Sem mensagem de alerta.'}</p>
-          {caso.relatorio_url && (
-            <a href={api.relatorioUrl(caso.id)} target="_blank" rel="noreferrer">
-              <button className="primario">Ver/baixar relatório</button>
-            </a>
+          {caso.relatorio_url ? (
+            <div className="relatorio-acoes">
+              <button
+                type="button"
+                className="primario"
+                onClick={() => setPreviewAberto(true)}
+              >
+                Pré-visualizar relatório
+              </button>
+              <a href={api.relatorioUrl(caso.id)} target="_blank" rel="noreferrer">
+                <button type="button">Baixar relatório</button>
+              </a>
+            </div>
+          ) : (
+            <p className="card-sub">Relatório indisponível para este caso.</p>
           )}
         </div>
       </div>
+
+      {previewAberto && caso.relatorio_url && (
+        <RelatorioModal url={api.relatorioUrl(caso.id)} onFechar={() => setPreviewAberto(false)} />
+      )}
     </section>
   )
 }

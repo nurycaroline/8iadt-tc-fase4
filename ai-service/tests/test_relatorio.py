@@ -50,6 +50,90 @@ def test_markdown_reflete_o_gatilho():
     assert "sinal_infeccao" in md
 
 
+def test_recomendacao_especializada_por_gatilho():
+    # docs/06 §4: cada gatilho clínico tem encaminhamento próprio.
+    md = relatorio.gerar_markdown(
+        case_id="c-mix",
+        paciente=PACIENTE,
+        fusao={
+            "risco_detectado": "ALTO",
+            "mensagem_alerta": "Vários sinais.",
+            "gatilhos": ["infeccao_puerperal", "violencia", "desconforto_psicologico"],
+        },
+        evidencias=EVIDENCIAS,
+    )
+    assert "Ação geral (risco ALTO)" in md
+    assert "Encaminhamentos específicos" in md
+    assert "infecção da cesárea" in md
+    assert "protocolo de proteção" in md
+    assert "apoio psicológico" in md
+
+
+def test_recomendacao_cai_no_nivel_sem_gatilho_especializado():
+    # Sem gatilho especializado, mantém só a ação geral por nível (sem regressão).
+    md = relatorio.gerar_markdown(
+        case_id="c-baixo",
+        paciente=PACIENTE,
+        fusao={"risco_detectado": "BAIXO", "mensagem_alerta": "", "gatilhos": []},
+        evidencias={},
+    )
+    assert "Ação geral (risco BAIXO)" in md
+    assert "Encaminhamentos específicos" not in md
+
+
+def test_anexos_com_links_reais():
+    # docs/06 §3/§5: anexos referenciam os artefatos do caso (link http(s) ou identificador).
+    artefatos = {
+        "video_cicatriz_url": "https://conta.blob.core.windows.net/videos/cic01.jpg",
+        "csv_url": "data/sinais_vitais/case01.csv",
+        "audio_url": "https://conta.blob.core.windows.net/audios/a01.wav",
+    }
+    md = relatorio.gerar_markdown(
+        case_id="c-anexos",
+        paciente=PACIENTE,
+        fusao=FUSAO_ALTO,
+        evidencias=EVIDENCIAS,
+        artefatos=artefatos,
+    )
+    # Link navegável para artefato em URL http(s).
+    assert "[https://conta.blob.core.windows.net/videos/cic01.jpg]" in md
+    # Caminho local vira identificador (sem link), não modalidade ausente.
+    assert "`data/sinais_vitais/case01.csv`" in md
+    # Modalidade sem artefato é omitida.
+    assert "Vídeo da fisioterapia" not in md
+
+
+def test_anexos_sem_artefatos_mantem_legado():
+    md = relatorio.gerar_markdown(
+        case_id="c-legado", paciente=PACIENTE, fusao=FUSAO_ALTO, evidencias=EVIDENCIAS
+    )
+    # Sem artefatos, mantém o comportamento legado (lista nomes de modalidade).
+    assert "- video_cicatriz" in md
+
+
+def test_gerar_e_salvar_extrai_artefatos(monkeypatch):
+    monkeypatch.setattr(relatorio, "_tentar_pdf", lambda html: None)
+    capturado = {}
+
+    class StorageFake:
+        def salvar(self, conteudo, nome, *, tipo="application/octet-stream"):
+            capturado["conteudo"] = conteudo
+            return f"memory://{nome}"
+
+    requisicao = {
+        "case_id": "c-req",
+        "paciente": PACIENTE,
+        "video_cicatriz_url": "https://x/cic.jpg",
+        "dados_vitais": {"csv_url": "https://x/v.csv"},
+    }
+    relatorio.gerar_e_salvar(
+        requisicao=requisicao, fusao=FUSAO_ALTO, evidencias=EVIDENCIAS, storage=StorageFake()
+    )
+    html = capturado["conteudo"].decode("utf-8")
+    assert "https://x/cic.jpg" in html
+    assert "https://x/v.csv" in html
+
+
 def test_salvar_relatorio_fallback_sem_pdf(tmp_path, monkeypatch):
     # Sem weasyprint disponível, o relatório é salvo em HTML (fallback garantido).
     monkeypatch.setattr(relatorio, "_tentar_pdf", lambda html: None)

@@ -6,6 +6,24 @@
 
 ## Fase atual
 
+**Fase 6 — Relatórios Automáticos Especializados** — **implementada** (F6-01..F6-05).
+Spec em [`.specs/features/fase6-relatorios-automaticos/`](../features/fase6-relatorios-automaticos/spec.md) e
+doc [`docs/09-fase6-relatorios-automaticos.md`](../../docs/09-fase6-relatorios-automaticos.md). O **relatório
+automático já existia** (Fase 3 — `ai-service/app/relatorio.py`; download no dashboard na Fase 5); a Fase 6
+fechou a lacuna entre o requisito [`docs/06`](../../docs/06-relatorios-automaticos.md) e o código: (F6-01)
+**encaminhamento especializado por gatilho** (`ENCAMINHAMENTO_GATILHO` + `_secao_recomendacao`, reusando
+`app/fusao.gatilhos`) com fallback por nível; (F6-02) **anexos com links reais** dos artefatos
+(`_secao_anexos`/`_artefatos_da_requisicao` — link http(s) ou identificador local; omite ausentes — DD10);
+(F6-03) **PDF garantido** habilitando `weasyprint` em `requirements.txt` + libs Pango/cairo no
+`ai-service/Dockerfile` (**PDF validado neste ambiente**; fallback HTML preservado — S16/DD7); (F6-04)
+**pré-visualização** no dashboard (`frontend/src/components/RelatorioModal.tsx` — modal acessível com iframe +
+download + "abrir em nova aba"); (F6-05) **testes** novos em `tests/test_relatorio.py` e **exemplo regerado**
+por `scripts/gerar_evidencias.py` (S23). Decisões resolvidas com os defaults propostos (escopo confirmado pelo
+pedido "implemente a fase 6"). **Gate verde:** `ruff`+`pytest` (**107 testes** Python; +5) e
+`eslint`+`vitest`+`build` do frontend (**7 testes**). **Fora de escopo:** gerar o **frame de alerta real** da
+cicatriz (depende do detector escalado — F5-01, bloqueado por ambiente; os anexos referenciam o vídeo/imagem de
+origem) e gravar o **vídeo**.
+
 **Fase 5 — Produção, Escala e Robustez** — **parcialmente implementada**.
 Spec/tasks em [`.specs/features/fase5-producao-e-escala/`](../features/fase5-producao-e-escala/spec.md) e
 doc [`docs/08-fase5-producao-e-escala.md`](../../docs/08-fase5-producao-e-escala.md). As Fases 1–4 já
@@ -159,6 +177,13 @@ público simples) e aparecem como passos opcionais.
       ou outro desafio 8IADT? Whisper vs. Azure Speech; Git LFS vs. métricas; deploy A/B; SQLite vs. Postgres;
       profundidade do dashboard.
 - [ ] Após confirmação: **Design** (decisões técnicas) → **Tasks** (quebra atômica) → Execute da Fase 5.
+- [x] Planejar a Fase 6 (Specify em `.specs/features/fase6-relatorios-automaticos/` + `docs/09`):
+      5 requisitos F6-01..F6-05 fechando a lacuna entre `docs/06` (relatórios especializados) e o código.
+- [x] Implementar a Fase 6 (F6-01..F6-05): encaminhamento especializado por gatilho, anexos com links reais,
+      PDF garantido (libs no Dockerfile + fallback HTML), pré-visualização no dashboard e testes/evidências.
+      Gate verde (ruff + 107 testes Python; eslint+vitest+build do frontend). Defaults da spec aplicados.
+- [ ] **Confirmar com o grupo** os defaults aplicados na Fase 6 (origem do encaminhamento, anexos no fallback
+      local, libs de PDF na imagem, profundidade do preview) — revisáveis se o escopo divergir.
 
 ## Ideias adiadas
 

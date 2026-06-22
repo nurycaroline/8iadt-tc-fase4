@@ -2,6 +2,8 @@
 
 > Requisito explícito do PDF ("Relatórios automáticos especializados"). Cada caso analisado deve gerar um **relatório clínico estruturado**, derivado do JSON de fusão, pronto para a equipe médica.
 
+> ✅ **Implementado** em [`ai-service/app/relatorio.py`](../ai-service/app/relatorio.py) (gerado pelo pipeline da Fase 3) e **especializado na Fase 6**: encaminhamento por tipo de risco (§4), anexos com links reais dos artefatos (§5), PDF com fallback HTML (§5) e pré-visualização no dashboard. Detalhes em [`docs/09-fase6-relatorios-automaticos.md`](09-fase6-relatorios-automaticos.md).
+
 ## 1. Por que é um componente próprio
 O enunciado lista relatórios automáticos como entrega técnica, com 4 tipos de conteúdo:
 - Desvios em procedimentos/acompanhamento obstétrico;

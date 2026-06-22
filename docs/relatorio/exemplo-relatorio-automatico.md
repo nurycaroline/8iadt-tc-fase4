@@ -21,13 +21,17 @@ Sinal de infecção na cicatriz associado a febre/dor ou sinais vitais de risco 
 
 ## 4. Recomendação / encaminhamento
 
-Acionar a equipe imediatamente e priorizar avaliação médica.
+**Ação geral (risco ALTO):** Acionar a equipe imediatamente e priorizar avaliação médica.
+
+**Encaminhamentos específicos:**
+- Risco de infecção da cesárea — reavaliar a ferida operatória e acionar avaliação médica para conduta (curativo/antibioticoterapia) com prioridade.
 
 ## 5. Anexos
 
-- video_cicatriz
-- sinais_vitais
-- texto
+- Vídeo/imagem da cicatriz (frame de alerta): `data/video_cicatriz/images/ferida_alerta_01.jpg`
+- Sinais vitais (CSV/gráfico): `data/sinais_vitais/maternal_amostras.csv`
+- Áudio da consulta/relato: `data/audio/relato_depressao.wav`
+- Texto/laudo clínico: `data/texto_clinico/evolucao_02.txt`
 
 ---
 

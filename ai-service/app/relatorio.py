@@ -33,10 +33,41 @@ GATILHO_LABEL = {
 
 NIVEL_DISPLAY = {"ALTO": "ALTO", "MEDIO": "MÉDIO", "BAIXO": "BAIXO"}
 
+# Encaminhamento especializado por tipo de risco (docs/06 §4): cada gatilho clínico mapeia para o
+# conteúdo-chave/conduta do PDF. Reusa os gatilhos de ``app.fusao`` (rastreabilidade), sem duplicar
+# a decisão de risco — sem gatilho especializado, cai na recomendação por nível.
+ENCAMINHAMENTO_GATILHO = {
+    "infeccao_puerperal": (
+        "Risco de infecção da cesárea — reavaliar a ferida operatória e acionar avaliação médica "
+        "para conduta (curativo/antibioticoterapia) com prioridade."
+    ),
+    "pre_eclampsia": (
+        "Risco hipertensivo / pré-eclâmpsia — monitorar a pressão arterial e sinais de alarme; "
+        "encaminhar para avaliação obstétrica urgente."
+    ),
+    "violencia": (
+        "Protocolo de proteção à mulher — acionar a rede de apoio e os canais de proteção "
+        "conforme o protocolo institucional."
+    ),
+    "desconforto_psicologico": (
+        "Encaminhamento para avaliação/apoio psicológico (depressão pós-parto/ansiedade)."
+    ),
+}
+
 DISCLAIMER = (
     "AVISO: Documento de apoio à decisão clínica gerado automaticamente. "
     "Não substitui a avaliação de profissionais de saúde."
 )
+
+# Rótulo dos artefatos para a seção de anexos (docs/06 §3/§5): "links Blob: frame, gráfico, áudio".
+# A ordem segue as modalidades; a chave casa com o objeto de requisição do contrato (§1).
+ROTULO_ARTEFATO = {
+    "video_cicatriz_url": "Vídeo/imagem da cicatriz (frame de alerta)",
+    "video_fisioterapia_url": "Vídeo da fisioterapia",
+    "csv_url": "Sinais vitais (CSV/gráfico)",
+    "audio_url": "Áudio da consulta/relato",
+    "texto_clinico": "Texto/laudo clínico",
+}
 
 
 def _cabecalho_paciente(paciente: dict[str, Any]) -> str:
@@ -81,6 +112,7 @@ def gerar_markdown(
     paciente: dict[str, Any],
     fusao: dict[str, Any],
     evidencias: dict[str, Any],
+    artefatos: dict[str, str] | None = None,
     timestamp: str | None = None,
 ) -> str:
     """Monta o relatório em Markdown (função pura) seguindo o template de docs/06 §3."""
@@ -119,11 +151,11 @@ def gerar_markdown(
             "",
             "## 4. Recomendação / encaminhamento",
             "",
-            RECOMENDACAO.get(risco, RECOMENDACAO["BAIXO"]),
+            _secao_recomendacao(risco, gatilhos),
             "",
             "## 5. Anexos",
             "",
-            _secao_anexos(evidencias),
+            _secao_anexos(evidencias, artefatos),
             "",
             "---",
             "",
@@ -133,12 +165,76 @@ def gerar_markdown(
     )
 
 
-def _secao_anexos(evidencias: dict[str, Any]) -> str:
-    # As URLs dos artefatos pertencem ao payload de requisição; aqui referenciamos as modalidades.
+def _secao_recomendacao(risco: str, gatilhos: list[str]) -> str:
+    """Monta a seção 4: **ação geral por nível** + **encaminhamentos especializados** (docs/06 §4).
+
+    Cada gatilho clínico acionado contribui com seu encaminhamento próprio (infecção puerperal,
+    pré-eclâmpsia, violência, desconforto psicológico). Quando nenhum gatilho especializado é
+    acionado, fica apenas a ação geral por nível (compatibilidade — sem regressão).
+    """
+    nivel = NIVEL_DISPLAY.get(risco, risco)
+    linhas = [f"**Ação geral (risco {nivel}):** {RECOMENDACAO.get(risco, RECOMENDACAO['BAIXO'])}"]
+
+    especificos = [
+        ENCAMINHAMENTO_GATILHO[g] for g in gatilhos if g in ENCAMINHAMENTO_GATILHO
+    ]
+    if especificos:
+        linhas.append("")
+        linhas.append("**Encaminhamentos específicos:**")
+        linhas.extend(f"- {texto}" for texto in especificos)
+    return "\n".join(linhas)
+
+
+def _parece_url(valor: Any) -> bool:
+    return isinstance(valor, str) and valor.startswith(("http://", "https://"))
+
+
+def _linha_anexo(rotulo: str, valor: str) -> str:
+    """Referência navegável a um artefato (link http(s); caminho/identificador, caso contrário)."""
+    if _parece_url(valor):
+        return f"- {rotulo}: [{valor}]({valor})"
+    return f"- {rotulo}: `{valor}`"
+
+
+def _secao_anexos(
+    evidencias: dict[str, Any], artefatos: dict[str, str] | None = None
+) -> str:
+    """Seção 5: links reais dos artefatos do caso (docs/06 §3/§5), omitindo modalidades ausentes.
+
+    Com ``artefatos`` (URLs/caminhos do objeto de requisição do contrato), referencia o frame da
+    cicatriz, o gráfico/CSV dos sinais vitais, o áudio/transcrição e o texto/laudo. Sem ele, mantém
+    o comportamento legado (lista os nomes das modalidades avaliadas).
+    """
+    if artefatos:
+        linhas = [
+            _linha_anexo(rotulo, artefatos[chave])
+            for chave, rotulo in ROTULO_ARTEFATO.items()
+            if artefatos.get(chave)
+        ]
+        audio = evidencias.get("audio") or {}
+        transcricao = audio.get("transcricao") or audio.get("trecho")
+        if transcricao:
+            linhas.append(f"  - Transcrição/trecho do áudio: “{transcricao}”")
+        return "\n".join(linhas) if linhas else "- Sem anexos."
+
     presentes = [m for m in evidencias]
     if not presentes:
         return "- Sem anexos."
     return "\n".join(f"- {m}" for m in presentes)
+
+
+def _artefatos_da_requisicao(requisicao: dict[str, Any]) -> dict[str, str]:
+    """Extrai as URLs/caminhos dos artefatos do objeto de requisição (contrato §1) p/ os anexos."""
+    artefatos: dict[str, str] = {}
+    for chave in ("video_cicatriz_url", "video_fisioterapia_url", "audio_url"):
+        if requisicao.get(chave):
+            artefatos[chave] = requisicao[chave]
+    dados_vitais = requisicao.get("dados_vitais") or {}
+    if dados_vitais.get("csv_url"):
+        artefatos["csv_url"] = dados_vitais["csv_url"]
+    if requisicao.get("texto_clinico"):
+        artefatos["texto_clinico"] = requisicao["texto_clinico"]
+    return artefatos
 
 
 def _markdown_para_html(md: str) -> str:
@@ -199,5 +295,6 @@ def gerar_e_salvar(
         paciente=requisicao.get("paciente", {}),
         fusao=fusao,
         evidencias=evidencias,
+        artefatos=_artefatos_da_requisicao(requisicao),
     )
     return salvar_relatorio(md, case_id, storage=storage)
