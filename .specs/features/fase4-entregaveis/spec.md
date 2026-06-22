@@ -265,24 +265,25 @@ condizente com a arquitetura descrita.
 
 | Requirement ID | Story                                                       | Phase | Status  |
 | -------------- | ----------------------------------------------------------- | ----- | ------- |
-| F4E-01         | P1: Repositório Git finalizado e auditado (4.1)             | Tasks | Pending |
-| F4E-02         | P1: Evidências consolidadas (métricas/anomalias/exemplo)    | Tasks | Pending |
-| F4E-03         | P2: Diagrama de arquitetura / fluxo multimodal              | Tasks | Pending |
-| F4E-04         | P1: Relatório — fluxo multimodal + diagrama                 | Tasks | Pending |
-| F4E-05         | P1: Relatório — modelos por modalidade + justificativas     | Tasks | Pending |
-| F4E-06         | P1: Relatório — lógica de fusão + métrica do ganho          | Tasks | Pending |
-| F4E-07         | P1: Relatório — resultados e exemplos de anomalias          | Tasks | Pending |
-| F4E-08         | P1: Relatório — privacidade e segurança (LGPD)              | Tasks | Pending |
-| F4E-09         | P1: Relatório — exemplo de relatório automático             | Tasks | Pending |
-| F4E-10         | P2: Exportação do relatório para PDF (com fallback)         | Tasks | Pending |
-| F4E-11         | P1: Roteiro de vídeo (8 pontos) + instruções de publicação  | Tasks | Pending |
-| F4E-12         | P1: Link do vídeo + créditos/integrantes no README          | Tasks | Pending |
-| F4E-13         | P3: Checklist final + gate de qualidade verde               | Tasks | Pending |
-| F4E-14         | P3: STATE + docs/04 atualizados (fechamento da fase)        | Tasks | Pending |
+| F4E-01         | P1: Repositório Git finalizado e auditado (4.1)             | Done  | Verified |
+| F4E-02         | P1: Evidências consolidadas (métricas/anomalias/exemplo)    | Done  | Verified |
+| F4E-03         | P2: Diagrama de arquitetura / fluxo multimodal              | Done  | Verified |
+| F4E-04         | P1: Relatório — fluxo multimodal + diagrama                 | Done  | Verified |
+| F4E-05         | P1: Relatório — modelos por modalidade + justificativas     | Done  | Verified |
+| F4E-06         | P1: Relatório — lógica de fusão + métrica do ganho          | Done  | Verified |
+| F4E-07         | P1: Relatório — resultados e exemplos de anomalias          | Done  | Verified |
+| F4E-08         | P1: Relatório — privacidade e segurança (LGPD)              | Done  | Verified |
+| F4E-09         | P1: Relatório — exemplo de relatório automático             | Done  | Verified |
+| F4E-10         | P2: Exportação do relatório para PDF (com fallback)         | Done  | Verified |
+| F4E-11         | P1: Roteiro de vídeo (8 pontos) + instruções de publicação  | Done  | Verified |
+| F4E-12         | P1: Link do vídeo + créditos/integrantes no README          | Done  | Verified |
+| F4E-13         | P3: Checklist final + gate de qualidade verde               | Done  | Verified |
+| F4E-14         | P3: STATE + docs/04 atualizados (fechamento da fase)        | Done  | Verified |
 
 **ID format:** `F4E-[NUMBER]` (Fase 4 Entregáveis).
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified.
-**Coverage:** 14 requisitos, todos a serem mapeados para tarefas em `tasks.md`.
+**Coverage:** 14 requisitos, todos mapeados para tarefas (T1–T9) e **verificados** (implementação concluída;
+vídeo entregue como roteiro + placeholder de link — ação humana).
 
 ---
 
