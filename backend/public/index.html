@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Monitoramento Multimodal — Alertas em tempo real</title>
+    <style>
+      :root { --verde: #16a34a; --amarelo: #ca8a04; --vermelho: #dc2626; --cinza: #475569; }
+      * { box-sizing: border-box; }
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        margin: 0; background: #0f172a; color: #e2e8f0;
+      }
+      header { padding: 1rem 1.5rem; background: #1e293b; border-bottom: 1px solid #334155; }
+      header h1 { font-size: 1.1rem; margin: 0; }
+      header small { color: #94a3b8; }
+      #status { font-size: .8rem; color: #94a3b8; margin-top: .25rem; }
+      #status.online::before { content: "● "; color: var(--verde); }
+      #status.offline::before { content: "● "; color: var(--vermelho); }
+      main { padding: 1.5rem; max-width: 760px; margin: 0 auto; }
+      #banner {
+        display: none; padding: 1rem 1.25rem; border-radius: .5rem; margin-bottom: 1.25rem;
+        font-weight: 600; color: #fff;
+      }
+      #banner.ALTO { display: block; background: var(--vermelho); }
+      #banner.MEDIO { display: block; background: var(--amarelo); }
+      .alerta {
+        border-left: 6px solid var(--cinza); background: #1e293b; padding: .85rem 1rem;
+        border-radius: .4rem; margin-bottom: .75rem;
+      }
+      .alerta.ALTO { border-left-color: var(--vermelho); }
+      .alerta.MEDIO { border-left-color: var(--amarelo); }
+      .alerta.BAIXO { border-left-color: var(--verde); }
+      .badge {
+        display: inline-block; padding: .1rem .5rem; border-radius: 999px; font-size: .75rem;
+        font-weight: 700; color: #fff;
+      }
+      .badge.ALTO { background: var(--vermelho); }
+      .badge.MEDIO { background: var(--amarelo); }
+      .badge.BAIXO { background: var(--verde); }
+      .alerta time { color: #94a3b8; font-size: .75rem; }
+      .vazio { color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Monitoramento Multimodal — Saúde da Mulher</h1>
+      <small>Cliente mínimo de demonstração do alerta em tempo real (Fase 3)</small>
+      <div id="status" class="offline">conectando…</div>
+    </header>
+    <main>
+      <div id="banner"></div>
+      <h2>Alertas recebidos</h2>
+      <div id="lista"><p class="vazio">Aguardando alertas da fusão multimodal…</p></div>
+    </main>
+
+    <!-- socket.io-client é servido automaticamente pelo backend em /socket.io/socket.io.js -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const status = document.getElementById('status');
+      const banner = document.getElementById('banner');
+      const lista = document.getElementById('lista');
+
+      socket.on('connect', () => {
+        status.textContent = 'conectado — pronto para receber alertas';
+        status.className = 'online';
+      });
+      socket.on('disconnect', () => {
+        status.textContent = 'desconectado';
+        status.className = 'offline';
+      });
+
+      socket.on('alerta', (a) => {
+        const vazio = lista.querySelector('.vazio');
+        if (vazio) vazio.remove();
+
+        // Destaque visual por nível de risco (verde/amarelo/vermelho — docs/frontend §4).
+        banner.className = a.risco_detectado;
+        const nome = a.paciente?.primeiro_nome || 'Paciente';
+        banner.textContent =
+          a.risco_detectado === 'ALTO'
+            ? `🔴 ALERTA: ${nome} — ${a.mensagem_alerta}`
+            : `🟡 Atenção: ${nome} — ${a.mensagem_alerta}`;
+
+        const item = document.createElement('div');
+        item.className = 'alerta ' + a.risco_detectado;
+        item.innerHTML =
+          `<span class="badge ${a.risco_detectado}">${a.risco_detectado}</span> ` +
+          `<strong>${nome}</strong> — ${a.mensagem_alerta}` +
+          (a.relatorio_url ? ` · <a href="${a.relatorio_url}" target="_blank">relatório</a>` : '') +
+          `<br /><time>${a.timestamp || ''} · caso ${a.case_id || '-'}</time>`;
+        lista.prepend(item);
+      });
+    </script>
+  </body>
+</html>

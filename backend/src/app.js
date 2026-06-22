@@ -1,4 +1,7 @@
 // Fábrica do app Express (testável). server.js adiciona http + socket.io e sobe o listen.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import express from 'express';
 import pinoHttp from 'pino-http';
 
@@ -42,6 +45,10 @@ export function createApp(deps = {}) {
   app.get('/health', (_req, res) => res.json({ status: 'ok' }));
   app.use('/', criarRotasPacientes(repos, storage));
   app.use('/', criarRotasAnalisar({ repos, storage, inferir, emitirAlerta }));
+
+  // Cliente mínimo de demonstração do alerta (servido em /).
+  const publicDir = path.resolve(fileURLToPath(new URL('../public', import.meta.url)));
+  app.use(express.static(publicDir));
 
   return app;
 }

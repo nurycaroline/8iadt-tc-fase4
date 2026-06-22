@@ -9,11 +9,17 @@ import { logger } from './logger.js';
 import { criarEmissorAlerta } from './realtime/alertas.js';
 
 export function criarServidor(deps = {}) {
-  const server = http.createServer();
+  // Indireção do emissor quebra a dependência circular app↔io (o app é criado antes do io).
+  let emissor = deps.emitirAlerta || (() => {});
+  const app = createApp({ ...deps, emitirAlerta: (resultado) => emissor(resultado) });
+
+  // http.createServer(app) registra o app como handler base; o socket.io é anexado depois e
+  // delega ao app as requisições que não são do seu próprio caminho (/socket.io/...).
+  const server = http.createServer(app);
   const io = new Server(server, { cors: { origin: '*' } });
-  const emitirAlerta = deps.emitirAlerta || criarEmissorAlerta(io);
-  const app = createApp({ ...deps, io, emitirAlerta });
-  server.on('request', app);
+  if (!deps.emitirAlerta) emissor = criarEmissorAlerta(io);
+  app.set('io', io);
+
   return { server, io, app };
 }
 
