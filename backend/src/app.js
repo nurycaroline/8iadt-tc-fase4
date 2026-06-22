@@ -4,11 +4,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import express from 'express';
+import helmet from 'helmet';
 import pinoHttp from 'pino-http';
 
+import { config } from './config.js';
 import { abrirBanco } from './db/index.js';
 import { criarRepositorios } from './db/repositorios.js';
 import { logger } from './logger.js';
+import { criarAutenticacao } from './middleware/auth.js';
+import { criarCors } from './middleware/cors.js';
 import { criarRotasAnalisar } from './rotas/analisar.js';
 import { criarRotasPacientes } from './rotas/pacientes.js';
 import { criarRotasCasos } from './rotas/casos.js';
@@ -37,6 +41,11 @@ export function createApp(deps = {}) {
   const emitirAlerta = deps.emitirAlerta || null;
 
   const app = express();
+  // Hardening HTTP (Fase 7 — F7-06): cabeçalhos de segurança + CORS por allowlist.
+  // CSP é desabilitada aqui (a SPA + preview do relatório usam conteúdo same-origin/inline) e
+  // tratada na borda (nginx) em produção; os demais headers do helmet permanecem ativos.
+  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(criarCors(deps.corsOrigins));
   app.use(express.json({ limit: '2mb' }));
   app.use(logHttp());
 
@@ -45,6 +54,7 @@ export function createApp(deps = {}) {
   app.set('storage', storage);
 
   // Liveness simples (/health) + readiness (/ready) com checagem de dependências (Fase 5 — F5-06).
+  // Probes são PÚBLICOS (antes da autenticação) e não expõem dados sensíveis.
   app.get('/health', (_req, res) => res.json({ status: 'ok' }));
   app.get('/ready', (_req, res) => {
     try {
@@ -54,6 +64,16 @@ export function createApp(deps = {}) {
       return res.status(503).json({ status: 'unready', erro: String(err) });
     }
   });
+
+  // Autenticação por credencial de serviço (F7-01) — protege as rotas de dados a seguir.
+  const apiKey = deps.apiKey !== undefined ? deps.apiKey : config.apiKey;
+  if (!apiKey && !config.authRequired && config.isProduction) {
+    logger.warn(
+      'AVISO DE SEGURANÇA: rodando em produção sem API_KEY — rotas de dados estão abertas. ' +
+        'Configure API_KEY (e, opcionalmente, AUTH_REQUIRED=true) para exigir credencial. (F7-01)',
+    );
+  }
+  app.use(criarAutenticacao({ apiKey, authRequired: config.authRequired }));
 
   app.use('/', criarRotasPacientes(repos, storage));
   app.use('/', criarRotasAnalisar({ repos, storage, inferir, emitirAlerta }));

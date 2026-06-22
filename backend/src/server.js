@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import { createApp } from './app.js';
 import { config } from './config.js';
 import { logger } from './logger.js';
+import { origensSocket } from './middleware/cors.js';
 import { criarEmissorAlerta } from './realtime/alertas.js';
 
 export function criarServidor(deps = {}) {
@@ -16,7 +17,8 @@ export function criarServidor(deps = {}) {
   // http.createServer(app) registra o app como handler base; o socket.io é anexado depois e
   // delega ao app as requisições que não são do seu próprio caminho (/socket.io/...).
   const server = http.createServer(app);
-  const io = new Server(server, { cors: { origin: '*' } });
+  // CORS do socket.io por allowlist (Fase 7 — F7-06): '*' só em dev sem allowlist explícita.
+  const io = new Server(server, { cors: { origin: origensSocket() } });
   if (!deps.emitirAlerta) emissor = criarEmissorAlerta(io);
   app.set('io', io);
 

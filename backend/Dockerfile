@@ -16,4 +16,5 @@ RUN npm ci --omit=dev
 COPY . .
 
 EXPOSE 3000
-CMD ["node", "src/server.js"]
+# Entrypoint que pré-carrega segredos do Key Vault (Fase 7 — F7-07) e sobe o servidor.
+CMD ["node", "src/bootstrap.js"]

@@ -11,9 +11,10 @@ Servir localmente::
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 
 from app.api.modelos import RequisicaoInferencia, RespostaRisco
+from app.api.seguranca import verificar_api_key
 from app.common import get_logger
 from app.pipeline import processar
 
@@ -32,7 +33,7 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post("/inferencia", response_model=RespostaRisco)
+@app.post("/inferencia", response_model=RespostaRisco, dependencies=[Depends(verificar_api_key)])
 def inferencia(requisicao: RequisicaoInferencia) -> dict:
     """Roda o pipeline multimodal e devolve o JSON de risco padronizado."""
     payload = requisicao.model_dump(exclude_none=True)

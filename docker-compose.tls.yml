@@ -1,0 +1,19 @@
+# Override opt-in para TLS na borda (Fase 7 — F7-02). Uso:
+#   ./scripts/gerar-cert-dev.sh                       # gera certs/ autoassinados (dev)
+#   docker compose -f docker-compose.yml -f docker-compose.tls.yml up
+#
+# Em produção, troque os certs autoassinados pelo certificado gerenciado da nuvem/ingress.
+services:
+  frontend:
+    ports:
+      - "8443:443"
+      - "8080:80"
+    volumes:
+      # Configuração TLS do nginx + certificados (somente leitura).
+      - ./frontend/nginx.tls.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+
+  backend:
+    environment:
+      # Atrás de TLS, o cliente fala HTTPS com a borda; defina a allowlist de CORS conforme o domínio.
+      CORS_ORIGINS: ${CORS_ORIGINS:-}

@@ -124,7 +124,32 @@ export function criarRepositorios(db) {
         .all(pacienteId)
         .map(paraCaso);
     },
+    // Casos cujo timestamp é anterior ao limite (retenção — Fase 7 F7-04).
+    anterioresA(limiteIso) {
+      return db
+        .prepare('SELECT * FROM casos WHERE timestamp < ? ORDER BY timestamp ASC')
+        .all(limiteIso)
+        .map(paraCaso);
+    },
+    remover(id) {
+      return db.prepare('DELETE FROM casos WHERE id = ?').run(id).changes;
+    },
   };
 
-  return { pacientes, casos };
+  // Trilha de auditoria de acesso (Fase 7 — F7-03). Só identificadores; sem conteúdo clínico.
+  const auditoria = {
+    registrar({ usuario, acao, recurso = null, case_id = null }) {
+      db.prepare(
+        `INSERT INTO auditoria (usuario, acao, recurso, case_id, timestamp)
+         VALUES (?, ?, ?, ?, ?)`,
+      ).run(usuario || 'anonimo', acao, recurso, case_id, new Date().toISOString());
+    },
+    listar(limite = 100) {
+      return db
+        .prepare('SELECT * FROM auditoria ORDER BY id DESC LIMIT ?')
+        .all(limite);
+    },
+  };
+
+  return { pacientes, casos, auditoria };
 }
