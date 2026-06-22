@@ -6,17 +6,24 @@
 
 ## Fase atual
 
-**Fase 4 — Empacotamento e Entregáveis** — **planejada** (spec → design → tasks).
+**Fase 4 — Empacotamento e Entregáveis** — **implementada** (T1–T9).
 Plano em [`.specs/features/fase4-entregaveis/`](../features/fase4-entregaveis/): 14 requisitos
 (F4E-01..F4E-14) e 9 tarefas (T1–T9). Fase de **documentação/empacotamento** (não cria código de produto):
-audita o **repositório** (4.1), consolida **evidências reais** (métricas da Fase 2,
-`models/metricas_fusao.json`, exemplo de relatório automático via `app/relatorio.py`, log do
-`scripts/e2e_demo.py`), escreve o **relatório técnico** (`docs/relatorio-tecnico.md`, 6 seções do PDF) com
-exportação para PDF (fallback HTML/Markdown), e o **roteiro do vídeo** (`docs/roteiro-video.md`, 8 pontos,
-≤15 min). Decisões DD-F4-1..DD-F4-8 (relatório em Markdown+PDF fallback; diagramas Mermaid inline;
-**reusar artefatos reais, nunca inventar**; **vídeo = roteiro + placeholder de link**, pois gravação/
-publicação é **ação humana**; limitações documentadas honestamente; gate verde como critério de
-fechamento). **A implementar** (a partir de `tasks.md`).
+auditou o **repositório** (4.1 — README reenquadrado como projeto completo, estrutura/deps/`.gitignore`/
+disclaimer confirmados), consolidou **evidências reais** em `docs/relatorio/` (tabela legível de
+`models/metricas_fusao.json`, **exemplo de relatório automático** gerado por `scripts/gerar_evidencias.py`
+reusando `app/relatorio.py` sobre `caso_alto`, e **log E2E** real do `scripts/e2e_demo.py` com `case_id`),
+escreveu o **relatório técnico** (`docs/relatorio-tecnico.md`, 6 seções do PDF, cada métrica rastreável ao
+artefato de origem) com **diagrama Mermaid inline** (`docs/relatorio/diagrama-arquitetura.md`) e
+**exportação** via `scripts/exportar_relatorio.py` (PDF com fallback HTML — gerou `docs/relatorio-tecnico.html`
+neste ambiente, sem `weasyprint`), e o **roteiro do vídeo** (`docs/roteiro-video.md`, 8 pontos, ~14 min). O
+README ganhou **créditos/integrantes** (placeholders) e **placeholder do link do vídeo**; o checklist
+(`docs/05`) foi revisado item a item. Decisões DD-F4-1..DD-F4-8 aplicadas. **Gate verde** num ambiente
+limpo: `ruff check scripts ai-service` + `pytest` (**96 testes** Python) e `npm run lint`/`npm test`
+(**11 testes** Node). Observações do ambiente: sem pesos YOLO/ASR a cicatriz/áudio degradam (DD10) e a
+fusão do `caso_alto` fecha **MEDIO** (vitais+texto); o cenário de referência com pesos treinados escala
+para **ALTO** (infecção puerperal) — ambos no relatório/log. **Pendência humana:** gravar/publicar o
+**vídeo** ("Não listado") e colar o link no README; preencher os integrantes.
 
 **Fase 3 — Fusão Multimodal e Integração em Nuvem** — **implementada** (T1–T18).
 Plano em [`.specs/features/fase3-fusao-e-nuvem/`](../features/fase3-fusao-e-nuvem/) (spec → design → tasks):
@@ -85,6 +92,12 @@ público simples) e aparecem como passos opcionais.
 | S17 | Storage com adaptador **Azure Blob \| local** (env); fallback p/ demo | [F3 design DD8](../features/fase3-fusao-e-nuvem/design.md)   |
 | S18 | Persistência **SQLite** (`better-sqlite3`); Postgres/Cosmos opcional | [F3 design DD9](../features/fase3-fusao-e-nuvem/design.md)    |
 | S19 | **Cliente mínimo** (HTML+socket.io); dashboard React = feature à parte | [F3 design DD10](../features/fase3-fusao-e-nuvem/design.md) |
+| S20 | Relatório em `docs/relatorio-tecnico.md` (Markdown); PDF como exportação | [F4 design DD-F4-1](../features/fase4-entregaveis/design.md) |
+| S21 | Exportação de PDF com **fallback HTML/Markdown** (libs de PDF opcionais) | [F4 design DD-F4-2](../features/fase4-entregaveis/design.md) |
+| S22 | Diagramas **Mermaid inline** (`mermaid-studio` não instalada)             | [F4 design DD-F4-3](../features/fase4-entregaveis/design.md) |
+| S23 | **Reusar artefatos reais** (métricas/exemplo/log); nunca inventar números | [F4 design DD-F4-4](../features/fase4-entregaveis/design.md) |
+| S24 | **Vídeo = roteiro + placeholder de link**; gravação/publicação é humana   | [F4 design DD-F4-5](../features/fase4-entregaveis/design.md) |
+| S25 | Limitações documentadas honestamente (smoke da cicatriz; degradação)      | [F4 design DD-F4-6](../features/fase4-entregaveis/design.md) |
 
 ## Blockers / dependências externas
 
@@ -116,8 +129,9 @@ público simples) e aparecem como passos opcionais.
       mock (hoje degrada e a fusão decide com vitais+texto).
 - [x] Planejar a Fase 4 (spec → design → tasks em `.specs/features/fase4-entregaveis/`): repositório,
       relatório técnico e vídeo (14 requisitos F4E-01..F4E-14, 9 tarefas T1–T9).
-- [ ] Implementar a Fase 4 seguindo `tasks.md` (T1–T9): auditoria do repo, evidências, relatório técnico
-      (+PDF), roteiro do vídeo, README (créditos/link), checklist + gate, STATE/docs/04.
+- [x] Implementar a Fase 4 seguindo `tasks.md` (T1–T9): auditoria do repo, evidências, relatório técnico
+      (+PDF/HTML fallback), roteiro do vídeo, README (créditos/link), checklist + gate, STATE/docs/04.
+      Gate verde (ruff + 96 testes Python; eslint + 11 testes Node).
 - [ ] **Ação humana (grupo):** gravar e publicar o **vídeo** (≤15 min, "Não listado") e colar o link no
       README — o agente entrega o roteiro (`docs/roteiro-video.md`) e o placeholder.
 
@@ -128,4 +142,9 @@ público simples) e aparecem como passos opcionais.
 
 ## Lições
 
-- (a preencher durante a execução)
+- Na Fase 4, as libs pesadas de IA (torch/ultralytics/whisper/cv2) são importadas **lazy** dentro das
+  funções; o gate (`ruff`+`pytest` / `eslint`+`jest`) roda com um **conjunto enxuto** de deps
+  (fastapi, pydantic, scikit-learn, pandas, markdown, pytest, ruff) — útil para validar em ambiente limpo.
+- Exportação para PDF (`weasyprint`) exige **libs de sistema**; sem elas o fallback HTML mantém a entrega
+  (DD-F4-2). Os diagramas Mermaid não renderizam no HTML simples — o Markdown é a fonte de verdade.
+- Tarefas leves (validação, atualização de STATE, checklist) rodam bem com modelos mais rápidos/baratos.
