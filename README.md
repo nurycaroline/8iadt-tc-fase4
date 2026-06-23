@@ -2,7 +2,7 @@
 
 Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada): a paciente envia, de casa, **áudio** (relato/consulta), **vídeo** (cicatriz da cesárea e exercícios de fisioterapia), **sinais vitais** (pressão, batimentos, glicemia) e **texto** (laudos/exames). O sistema faz a **fusão multimodal** desses dados para detectar **sinais precoces de risco** e gerar **alertas clínicos em tempo real**, com integração à **nuvem (Azure)**.
 
-> Projeto **implementado de ponta a ponta** (Fases 1–4): dados → modelos → fusão → API → alerta em tempo real → relatório automático, com Docker, testes e CI. Para rodar do zero, vá direto para **[Como rodar a stack](#como-rodar-a-stack)**. O histórico de planejamento por fases está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)** e em [`.specs/`](.specs/).
+> Projeto **implementado de ponta a ponta** (Fases 1–7): dados → modelos → fusão → API → alerta em tempo real → relatório automático → privacidade/segurança (LGPD), com Docker, testes e CI. Para rodar do zero, veja **[Como rodar a stack](#como-rodar-a-stack)** (resumo) ou o guia detalhado **[`docs/como-executar.md`](docs/como-executar.md)**. Para validar a entrega, siga o **[plano de teste manual](docs/plano-de-teste-manual.md)**. O histórico de planejamento por fases está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)** e em [`.specs/`](.specs/).
 
 > ⚠️ **Disclaimer ético.** Esta é uma solução **acadêmica de apoio à decisão clínica**. **Não realiza diagnóstico** nem substitui a avaliação de profissionais de saúde, e **não deve ser usada em ambiente real** sem validação clínica e regulatória adequada. Dados de saúde são **sensíveis** pela LGPD — o repositório usa **apenas dados sintéticos** e os controles de privacidade/segurança estão descritos em [privacidade e segurança (LGPD)](docs/07-privacidade-e-seguranca.md).
 
@@ -31,6 +31,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 3. Comece a Fase 1 pelo mini-dataset: [`docs/01-fase1-dados.md`](docs/01-fase1-dados.md).
 
 ## Documentação
+- **[Como executar o projeto](docs/como-executar.md)** (guia detalhado: Docker, local, dados, testes, LGPD) · **[Plano de teste manual](docs/plano-de-teste-manual.md)** (validação das Fases 1–7)
 - [Plano de desenvolvimento (índice)](PLANO_DE_DESENVOLVIMENTO.md)
 - [Visão geral e escopo](docs/00-visao-geral-e-escopo.md)
 - [Fase 1 — Dados](docs/01-fase1-dados.md)
@@ -44,7 +45,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 - [Motor de IA (`ai-service/`)](ai-service/README.md) — modelos (Fase 2) + fusão/API/relatório (Fase 3)
 - [Backend orquestrador (`backend/`)](backend/README.md) — Node/Express, upload, storage, alerta em tempo real
 - [Arquitetura](docs/arquitetura.md) · [Front-end (dashboard)](docs/frontend.md) · [Contrato de API](docs/contrato-api.md) · [Datasets](docs/datasets.md)
-- [Deploy na Azure](docs/deploy-azure.md) · [Qualidade: Docker, testes e CI](docs/qualidade-testes-ci.md) · [Cronograma por dependências](docs/cronograma-dependencias.md) · [Glossário](docs/glossario.md) · [Checklist](docs/05-checklist-entrega.md)
+- [Deploy na Azure](docs/deploy-azure.md) · [Qualidade: Docker, testes e CI](docs/qualidade-testes-ci.md) · [Plano de teste manual](docs/plano-de-teste-manual.md) · [Cronograma por dependências](docs/cronograma-dependencias.md) · [Glossário](docs/glossario.md) · [Checklist](docs/05-checklist-entrega.md)
 
 ## Stack prevista
 - **Backend/orquestrador:** Node.js + Express (alerta em tempo real via WebSocket/SSE)
@@ -54,8 +55,9 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 
 ## Como rodar a stack
 
-A stack tem **dois serviços**: o motor de IA (Python/FastAPI) e o orquestrador (Node/Express), que
-expõe o cliente mínimo de demonstração do alerta em tempo real.
+A stack tem **três serviços**: o motor de IA (Python/FastAPI), o orquestrador (Node/Express) e o
+dashboard (React/Vite). O resumo abaixo cobre o essencial; o **passo a passo completo** (portas,
+configuração, dados, testes, solução de problemas) está em [`docs/como-executar.md`](docs/como-executar.md).
 
 ### Com Docker (um comando)
 
