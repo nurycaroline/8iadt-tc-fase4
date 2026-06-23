@@ -114,12 +114,22 @@ Use **três terminais**. Em produção, troque `npm run dev` do frontend pelo bu
 
 ### Terminal 1 — serviço de IA (Python 3.12+)
 
+> ⚠️ **Use Python 3.12+.** Em muitos sistemas (especialmente macOS) `python`/`python3` apontam para uma
+> versão antiga (3.9, p. ex.), e o `pip install` falha com mensagens como
+> `Could not find a version that satisfies the requirement onnxruntime>=1.20` /
+> `Ignored the following versions that require a different python version`. Crie o venv com o interpretador
+> 3.12 explícito e confirme a versão antes de instalar.
+
 ```bash
 # a partir da raiz do repositório
-python -m venv .venv && source .venv/bin/activate
+python3.12 -m venv .venv && source .venv/bin/activate
+python --version                              # confirme: Python 3.12.x
 pip install -r ai-service/requirements.txt
 cd ai-service && uvicorn app.api.main:app --host 0.0.0.0 --port 8000
 ```
+
+> Sem o Python 3.12? Instale-o (macOS: `brew install python@3.12`; Ubuntu/Debian:
+> `sudo apt install python3.12 python3.12-venv`) ou use a **Opção A (Docker)**, que não exige Python local.
 
 ### Terminal 2 — backend (Node 20+)
 
@@ -234,6 +244,7 @@ Passo a passo completo em [`deploy-azure.md`](deploy-azure.md).
 | `relatorio_url` nulo | libs de PDF ausentes | esperado em ambiente sem PDF — cai em HTML; no Docker o PDF é garantido |
 | Portas ocupadas (`8080`/`3000`/`8000`) | outro processo usando a porta | libere a porta ou ajuste o mapeamento no `docker-compose.yml`/`PORT` |
 | `pip install` falha com `Could not open requirements file: ... 'ai-service/requirements.txt'` | comando rodado fora da raiz do repositório | `cd` para a raiz (pasta com `ai-service/`, `backend/`, `frontend/`) e rode novamente |
+| `pip install` falha com `Could not find a version that satisfies onnxruntime>=1.20` / `Ignored the following versions that require a different python version` | venv criado com Python < 3.12 (ex.: 3.9 no macOS) | recrie o venv com 3.12: `rm -rf .venv && python3.12 -m venv .venv && source .venv/bin/activate` e confira com `python --version` |
 
 ---
 
