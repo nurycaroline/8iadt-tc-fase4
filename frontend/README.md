@@ -28,7 +28,12 @@ npm install
 npm run dev        # http://localhost:5173 (proxy → http://localhost:3000)
 ```
 
-Para apontar a outro backend: `BACKEND_URL=http://host:porta npm run dev`.
+A porta do dev server é **fixa em 5173** (`strictPort`), para nunca colidir com o
+backend (`:3000`). Se a 5173 já estiver ocupada, o Vite falha de forma explícita em
+vez de migrar para outra porta.
+
+- Para apontar a outro backend: `BACKEND_URL=http://host:porta npm run dev`.
+- Para trocar a porta do frontend: `FRONTEND_PORT=5174 npm run dev`.
 
 ## Build de produção
 
