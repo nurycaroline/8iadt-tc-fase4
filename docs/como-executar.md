@@ -107,9 +107,15 @@ docker compose -f docker-compose.yml -f docker-compose.tls.yml up --build
 
 Use **três terminais**. Em produção, troque `npm run dev` do frontend pelo build servido pelo backend.
 
+> ⚠️ **Execute todos os comandos a partir da raiz do repositório** (a pasta que contém
+> `ai-service/`, `backend/` e `frontend/`). Os caminhos abaixo são relativos a ela. Se o `pip install`
+> falhar com `Could not open requirements file: ... 'ai-service/requirements.txt'`, você não está na
+> raiz — rode `cd /caminho/para/o/repositorio` antes de continuar.
+
 ### Terminal 1 — serviço de IA (Python 3.12+)
 
 ```bash
+# a partir da raiz do repositório
 python -m venv .venv && source .venv/bin/activate
 pip install -r ai-service/requirements.txt
 cd ai-service && uvicorn app.api.main:app --host 0.0.0.0 --port 8000
@@ -227,6 +233,7 @@ Passo a passo completo em [`deploy-azure.md`](deploy-azure.md).
 | Dashboard sem "tempo real conectado" | backend fora do ar ou proxy errado | confirme o backend `:3000` e o proxy do Vite |
 | `relatorio_url` nulo | libs de PDF ausentes | esperado em ambiente sem PDF — cai em HTML; no Docker o PDF é garantido |
 | Portas ocupadas (`8080`/`3000`/`8000`) | outro processo usando a porta | libere a porta ou ajuste o mapeamento no `docker-compose.yml`/`PORT` |
+| `pip install` falha com `Could not open requirements file: ... 'ai-service/requirements.txt'` | comando rodado fora da raiz do repositório | `cd` para a raiz (pasta com `ai-service/`, `backend/`, `frontend/`) e rode novamente |
 
 ---
 
