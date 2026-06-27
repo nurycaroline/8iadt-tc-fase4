@@ -1,0 +1,21 @@
+{
+  "n_treino": 300,
+  "n_teste": 100,
+  "avaliacao": "holdout",
+  "f1_macro": 0.9299,
+  "f1_positivo": 0.932,
+  "acuracia": 0.93,
+  "matriz_confusao": [
+    [
+      45,
+      5
+    ],
+    [
+      2,
+      48
+    ]
+  ],
+  "modelo": "depressao",
+  "fonte": "/Volumes/SSD/Projetos/8iadt-tc-fase4/data/texto_clinico/fase8/depressao_pt.csv",
+  "algoritmo": "tfidf+logreg"
+}

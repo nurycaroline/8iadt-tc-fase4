@@ -3,16 +3,16 @@
 # Versionamos apenas a estrutura de pastas e pequenos metadados textuais.
 # Ver docs/01-fase1-dados.md e docs/07-privacidade-e-seguranca.md
 # ──────────────────────────────────────────────────────────────
-/data/**
+# /data/**
 
-# Exceções: estrutura + metadados/refs versionáveis (texto leve)
-!/data/**/
-!/data/README.md
+# # Exceções: estrutura + metadados/refs versionáveis (texto leve)
+# !/data/**/
+# !/data/README.md
 !/data/**/.gitkeep
-!/data/audio/metadados.json
-!/data/texto_clinico/rotulos.json
-!/data/casos/*.json
-!/data/video_cicatriz/data.yaml
+# !/data/audio/metadados.json
+# !/data/texto_clinico/rotulos.json
+# !/data/casos/*.json
+# !/data/video_cicatriz/data.yaml
 
 # ── Python ──
 __pycache__/
@@ -24,30 +24,11 @@ venv/
 .pytest_cache/
 .ruff_cache/
 
-# ── Modelos/pesos (Fase 2) ──
-# Pesos não são versionados (tamanho + reprodutíveis pelo treino). Métricas/gráficos sim.
-*.pt
-*.onnx
-*.joblib
-/ai-service/models/**
-!/ai-service/models/**/
-!/ai-service/models/.gitkeep
-!/ai-service/models/**/metrics.json
-!/ai-service/models/baseline.json
-!/ai-service/models/metricas_fusao.json
-!/ai-service/models/**/*.png
-
-# ── Saídas de treino do Ultralytics (YOLO) ──
-runs/
-runs_cicatriz/
-yolov8*.pt
-
 # ── Node.js (backend orquestrador — Fase 3) ──
 node_modules/
 npm-debug.log*
 backend/uploads/
 
-# ── Fase 3: storage local (fallback), banco SQLite e relatórios gerados ──
 _storage/
 backend/data/
 *.sqlite
@@ -56,7 +37,6 @@ backend/data/
 *.sqlite-shm
 *.db
 
-# ── Fase 7: certificados TLS de desenvolvimento (nunca versionar chaves privadas) ──
 /certs/
 *.pem
 *.key

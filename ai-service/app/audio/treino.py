@@ -110,6 +110,15 @@ def treinar_e_salvar() -> dict[str, Any] | None:
         LOG.error("Nenhuma feature extraída (áudios ausentes?). Veja docs/datasets.md.")
         return None
 
+    if len(set(int(v) for v in labels)) < 2:
+        LOG.error(
+            "Dataset acústico tem uma única classe (%d amostras). Regenere o manifest balanceado: "
+            "remova %s e rode `python -m scripts.data_prep.fase8_datasets --apenas audio`.",
+            len(labels),
+            manifest,
+        )
+        return None
+
     pipeline, metricas, y_te, y_pred = treinar_acustico(features, labels)
     metricas.update({"modelo": "violencia_acustico", "algoritmo": "mfcc+logreg"})
 

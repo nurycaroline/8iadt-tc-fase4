@@ -1,7 +1,0 @@
-path: data/video_cicatriz
-train: images
-val: images
-nc: 2
-names:
-  0: ferida_ok
-  1: ferida_alerta

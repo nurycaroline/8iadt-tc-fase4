@@ -1,0 +1,21 @@
+{
+  "n_treino": 409,
+  "n_teste": 137,
+  "avaliacao": "holdout",
+  "f1_macro": 1.0,
+  "f1_positivo": 1.0,
+  "acuracia": 1.0,
+  "matriz_confusao": [
+    [
+      69,
+      0
+    ],
+    [
+      0,
+      68
+    ]
+  ],
+  "modelo": "violencia",
+  "fonte": "/Volumes/SSD/Projetos/8iadt-tc-fase4/data/texto_clinico/fase8/violencia_pt.csv",
+  "algoritmo": "tfidf+logreg"
+}

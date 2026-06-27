@@ -176,18 +176,39 @@ def preparar_violencia_audio(limite: int) -> dict[str, Any] | None:
         LOG.warning("Colunas de áudio/rótulo não encontradas em %s.", DS_VIOLENCIA_AUDIO)
         return None
 
+    import io
+
     import soundfile as sf
 
+    # Evita a decodificação automática do `datasets` (que exige `torchcodec`/ffmpeg):
+    # lemos os bytes crus e decodificamos com `soundfile`, alinhado à política sem ffmpeg.
+    try:
+        from datasets import Audio
+
+        ds = ds.cast_column(col_audio, Audio(decode=False))
+    except Exception as exc:  # versão antiga do datasets ou coluna não-áudio
+        LOG.warning("Não foi possível desabilitar a decodificação de áudio (%s).", exc)
+
+    # O dataset Hemg vem ordenado por classe (todos os negativos primeiro), então pegar as
+    # primeiras `limite` linhas geraria um manifest de uma única classe. Amostramos de forma
+    # balanceada (até `limite//2` por classe), espelhando o pipeline de texto.
+    metade = max(1, limite // 2)
+    salvos = {0: 0, 1: 0}
     registros: list[dict[str, Any]] = []
     for i, reg in enumerate(ds):
-        if i >= limite:
+        if salvos[0] >= metade and salvos[1] >= metade:
             break
         label = normalizar_rotulo_violencia(reg[col_label])
+        if salvos[label] >= metade:
+            continue
         nome = f"audio_{i:04d}.wav"
         destino = pasta / nome
         try:
             audio = reg[col_audio]
-            if isinstance(audio, dict) and "array" in audio:
+            if isinstance(audio, dict) and audio.get("bytes"):
+                arr, sr = sf.read(io.BytesIO(audio["bytes"]))
+                sf.write(destino, arr, sr)
+            elif isinstance(audio, dict) and "array" in audio:
                 sf.write(destino, audio["array"], int(audio.get("sampling_rate", 16000)))
             elif isinstance(audio, dict) and audio.get("path"):
                 import shutil
@@ -199,10 +220,19 @@ def preparar_violencia_audio(limite: int) -> dict[str, Any] | None:
             LOG.warning("Falha ao salvar áudio %d (%s); pulando.", i, exc)
             continue
         registros.append({"caminho": nome, "label": label})
+        salvos[label] += 1
 
     if not registros:
         LOG.warning("Nenhum áudio salvo de %s.", DS_VIOLENCIA_AUDIO)
         return None
+    if salvos[0] == 0 or salvos[1] == 0:
+        LOG.warning(
+            "Manifest de áudio ficou com uma única classe (neg=%d, pos=%d). "
+            "Verifique os rótulos em %s.",
+            salvos[0],
+            salvos[1],
+            DS_VIOLENCIA_AUDIO,
+        )
     _salvar_manifest(manifest, registros)
     return {"arquivo": str(manifest), "n": len(registros), "fonte": DS_VIOLENCIA_AUDIO}
 

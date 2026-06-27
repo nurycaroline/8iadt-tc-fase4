@@ -1,10 +1,10 @@
 {
-  "mAP50": 0.929,
-  "precisao": 0.0038,
-  "recall": 1.0,
-  "epocas": 40,
+  "mAP50": 0.995,
+  "precisao": 0.9916,
+  "recall": 0.9869,
+  "epocas": 41,
   "mAP_por_classe": {
     "ferida_ok": 0.995,
-    "ferida_alerta": 0.951
+    "ferida_alerta": 0.995
   }
 }

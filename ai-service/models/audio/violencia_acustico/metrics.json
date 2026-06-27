@@ -1,0 +1,20 @@
+{
+  "n_treino": 300,
+  "n_teste": 100,
+  "avaliacao": "holdout",
+  "f1_macro": 0.94,
+  "f1_positivo": 0.9412,
+  "acuracia": 0.94,
+  "matriz_confusao": [
+    [
+      46,
+      4
+    ],
+    [
+      2,
+      48
+    ]
+  ],
+  "modelo": "violencia_acustico",
+  "algoritmo": "mfcc+logreg"
+}
