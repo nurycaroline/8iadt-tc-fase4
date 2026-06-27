@@ -125,7 +125,6 @@ python -m app.audio.treino          # violência acústica   → models/audio/*.
 python -c "from app.texto.nlp import analisar; print(analisar('me sinto sem esperança'))"
 ```
 
-> **Pesos não versionados** (política do repo): só `metrics.json`/`*.png` e amostras vão ao Git.
 > Sem os modelos treinados, **tudo degrada para o fallback por palavras-chave** (DD10) — o gate
 > (`ruff`+`pytest`) roda sem download/treino.
 
