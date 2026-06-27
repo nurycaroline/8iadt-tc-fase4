@@ -1,0 +1,18 @@
+{
+  "observacao": "Amostras sintéticas de pré-eclâmpsia (rótulo 'high') adicionadas para reforçar a classe de maior risco. Dados sintéticos — nenhum dado real de paciente.",
+  "n_base": 451,
+  "n_sinteticas": 80,
+  "n_aumentado": 531,
+  "base": {
+    "acuracia": 0.646,
+    "f1_macro": 0.6238
+  },
+  "aumentado": {
+    "acuracia": 0.7293,
+    "f1_macro": 0.6748
+  },
+  "delta": {
+    "acuracia": 0.0833,
+    "f1_macro": 0.051
+  }
+}
