@@ -152,3 +152,61 @@ def test_fisioterapia_nao_eleva_risco_sozinha():
     r = avaliar_fusao({"video_fisioterapia": {"execucao": "incorreta", "amplitude": "reduzida"}})
     assert r["risco_detectado"] == "BAIXO"
     assert "fisioterapia_alterada" in r["gatilhos"]
+
+
+# ── Fase 8: violência acústica, violência no texto e depressão no texto ─────
+
+
+def _audio_unificado(acustico, texto_evid, transcricao=""):
+    return {"acustico": acustico, "transcricao": transcricao, "texto": texto_evid}
+
+
+def _texto8(achado="neutro", trecho="", depressao=None, violencia=None):
+    return {
+        "achado": achado,
+        "trecho": trecho,
+        "depressao": depressao or {"rotulo": "neutro", "confianca": 0.0},
+        "violencia": violencia or {"rotulo": "neutro", "confianca": 0.0},
+    }
+
+
+def test_violencia_acustica_dispara_alto():
+    aud = _audio_unificado({"rotulo": "violencia", "confianca": 0.82}, _texto8())
+    r = avaliar_fusao({"audio": aud})
+    assert r["risco_detectado"] == "ALTO"
+    assert "violencia" in r["gatilhos"]
+
+
+def test_violencia_acustica_fraca_nao_dispara():
+    aud = _audio_unificado({"rotulo": "violencia", "confianca": 0.5}, _texto8())
+    r = avaliar_fusao({"audio": aud})
+    assert r["risco_detectado"] == "BAIXO"
+
+
+def test_violencia_no_texto_dispara_alto():
+    txt = _texto8(violencia={"rotulo": "violencia", "confianca": 0.7})
+    r = avaliar_fusao({"texto": txt})
+    assert r["risco_detectado"] == "ALTO"
+    assert "violencia" in r["gatilhos"]
+
+
+def test_depressao_no_texto_eleva_para_medio():
+    txt = _texto8(depressao={"rotulo": "depressao", "confianca": 0.72})
+    r = avaliar_fusao({"texto": txt})
+    assert r["risco_detectado"] == "MEDIO"
+    assert "desconforto_psicologico" in r["gatilhos"]
+
+
+def test_depressao_no_texto_fraca_nao_eleva():
+    txt = _texto8(depressao={"rotulo": "depressao", "confianca": 0.4})
+    r = avaliar_fusao({"texto": txt})
+    assert r["risco_detectado"] == "BAIXO"
+
+
+def test_violencia_na_transcricao_do_audio():
+    # A trilha de texto da transcrição do áudio também aciona o protocolo.
+    txt = _texto8(violencia={"rotulo": "violencia", "confianca": 0.8})
+    aud = _audio_unificado({"rotulo": "neutro", "confianca": 0.5}, txt, "ele me bateu")
+    r = avaliar_fusao({"audio": aud})
+    assert r["risco_detectado"] == "ALTO"
+    assert "violencia" in r["gatilhos"]

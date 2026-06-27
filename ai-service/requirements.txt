@@ -24,10 +24,20 @@ joblib>=1.4
 # Gráficos (matriz de confusão, curvas)
 matplotlib>=3.9
 
-# Áudio (transcrição). Whisper local; backend Azure opcional via env var.
+# Áudio (transcrição). Whisper local (sem Azure); ASR alternativo via faster-whisper.
 openai-whisper>=20240930
+# ASR local acelerado (CTranslate2) — alternativa selecionável por env (ASR_BACKEND=faster).
+faster-whisper>=1.2
 # Decodifica wav/flac/ogg sem ffmpeg (fallback do Whisper).
 soundfile>=0.12
+
+# ── Fase 8 — áudio/texto unificado (local/offline) ──
+# Features acústicas (MFCC/log-mel) para o classificador de violência no som.
+librosa>=0.11
+# Embeddings multilíngues (opcional; o baseline usa TF-IDF + LogisticRegression do scikit-learn).
+sentence-transformers>=5.1
+# Tradução EN→PT em lote (offline, CPU, MIT) — padrão da Fase 8 (X-ALMA é opção via env, ver docs).
+argostranslate>=1.11
 
 # Config/leitura YAML (data.yaml do YOLO)
 pyyaml>=6.0

@@ -81,6 +81,49 @@ def test_recomendacao_cai_no_nivel_sem_gatilho_especializado():
     assert "Encaminhamentos específicos" not in md
 
 
+def test_evidencias_fase8_sinais_ml():
+    # Fase 8: relatório cita violência acústica, depressão/violência da fala e do texto.
+    evidencias = {
+        "audio": {
+            "categoria": "violencia",
+            "confianca": 0.82,
+            "acustico": {"rotulo": "violencia", "confianca": 0.82},
+            "transcricao": "ele me ameaçou de novo",
+            "texto": {
+                "achado": "neutro",
+                "trecho": "",
+                "depressao": {"rotulo": "neutro", "confianca": 0.1},
+                "violencia": {"rotulo": "violencia", "confianca": 0.77},
+            },
+        },
+        "texto": {
+            "achado": "complicacao",
+            "trecho": "tristeza persistente",
+            "depressao": {"rotulo": "depressao", "confianca": 0.91},
+            "violencia": {"rotulo": "neutro", "confianca": 0.05},
+        },
+    }
+    md = relatorio.gerar_markdown(
+        case_id="c-f8", paciente=PACIENTE, fusao=FUSAO_ALTO, evidencias=evidencias
+    )
+    assert "Violência (acústico): violencia (confiança 0.82)" in md
+    assert "Violência (fala): violencia (confiança 0.77)" in md
+    assert "Depressão: depressao (confiança 0.91)" in md
+    # Sinais neutros não poluem o relatório.
+    assert "Depressão (fala)" not in md
+    assert "- Violência: " not in md
+
+
+def test_evidencias_audio_legado_sem_fase8():
+    # Evidência de áudio legada (só categoria/confiança) não gera sub-bullets da Fase 8.
+    evidencias = {"audio": {"categoria": "neutro", "confianca": 0.5}}
+    md = relatorio.gerar_markdown(
+        case_id="c-leg", paciente=PACIENTE, fusao=FUSAO_ALTO, evidencias=evidencias
+    )
+    assert "- Áudio: neutro (confiança 0.5)" in md
+    assert "(acústico)" not in md
+
+
 def test_anexos_com_links_reais():
     # docs/06 §3/§5: anexos referenciam os artefatos do caso (link http(s) ou identificador).
     artefatos = {

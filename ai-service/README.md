@@ -55,10 +55,15 @@ ai-service/
 | Sinais vitais | `python -m app.sinais_vitais.treino`     | `app.sinais_vitais.inferencia.prever(registro)`       |
 | Cicatriz      | `python -m app.cicatriz.treino`          | `app.cicatriz.inferencia.detectar(imagem)`            |
 | Cicatriz (export) | `python -m app.cicatriz.exportar`    | gera `models/cicatriz/best.onnx`                      |
-| Texto/NLP     | — (regras)                               | `app.texto.nlp.analisar(texto)`                       |
-| Áudio         | — (regras + ASR)                         | `app.audio.classificacao.inferir(caminho)`            |
+| Texto/NLP     | `python -m app.texto.treino` (Fase 8)    | `app.texto.nlp.analisar(texto)`                       |
+| Áudio         | `python -m app.audio.treino` (Fase 8)    | `app.audio.classificacao.inferir(caminho)`            |
 | Fisioterapia  | — (pose)                                 | `app.fisioterapia.inferencia.avaliar(fonte)`          |
 | Baseline      | `python -m app.baseline`                 | gera `models/baseline.json`                           |
+
+> **Fase 8 (áudio/texto unificado):** o texto usa classificadores **ML** de depressão/violência
+> (PT-BR) + keywords; o áudio tem **análise dupla** (acústico + transcrição→texto). Prepare os dados
+> com `python -m scripts.data_prep.fase8_datasets` (na raiz). Sem os pesos, tudo degrada por
+> keywords (DD10). Ver [`docs/11-fase8-audio-texto-unificado.md`](../docs/11-fase8-audio-texto-unificado.md).
 
 ## Saída padronizada por modalidade (contrato §3)
 
@@ -67,8 +72,8 @@ ai-service/
 | Cicatriz      | `{"evento": ferida_ok\|sinal_infeccao\|nenhum, "confianca": 0..1}`            |
 | Fisioterapia  | `{"execucao": correta\|incorreta\|nao_avaliado, "amplitude": ...}`            |
 | Sinais vitais | `{"tipo": normal\|risco_medio\|hipertensao\|pre_eclampsia, "valor": "150/95"}`|
-| Áudio         | `{"categoria": neutro\|ansiedade\|depressao_pos_parto\|violencia\|fadiga, "confianca": 0..1}` |
-| Texto         | `{"achado": complicacao\|sinal_infeccao\|neutro, "trecho": "..."}`            |
+| Áudio         | `{"acustico": {rotulo, confianca}, "transcricao", "texto": {…}, "categoria"(legado), "confianca"(legado)}` |
+| Texto         | `{"achado": complicacao\|sinal_infeccao\|neutro, "trecho", "depressao": {rotulo, confianca}, "violencia": {rotulo, confianca}}` |
 
 ## Limiares clínicos (Tarefa 2.7 — `app/limiares.py`)
 
@@ -77,8 +82,9 @@ ai-service/
 | PA sistólica / diastólica   | `>= 140/90 mmHg`                         |
 | Modelo de sinais vitais     | classe `high`                            |
 | Cicatriz (`ferida_alerta`)  | confiança `>= 0.7`                       |
-| Áudio (categoria de risco)  | confiança `>= 0.7`                       |
-| Texto clínico               | termo/categoria de risco identificado    |
+| Áudio (violência acústica)  | confiança `>= 0.7` (`CONFIANCA_MINIMA`)  |
+| Texto (depressão/violência ML) | confiança `>= 0.6` (`CONFIANCA_TEXTO`) |
+| Texto clínico (keywords)    | termo/categoria de risco identificado    |
 
 ## Métricas
 

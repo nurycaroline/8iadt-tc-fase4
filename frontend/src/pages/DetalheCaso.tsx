@@ -8,6 +8,7 @@ import { RelatorioModal } from '../components/RelatorioModal'
 import { RiscoBadge } from '../components/RiscoBadge'
 import { mensagemErro } from '../erros'
 import { infoRisco } from '../risco'
+import type { SubEvidencia } from '../types'
 
 function Linha({ rotulo, valor }: { rotulo: string; valor?: string | number | null }) {
   return (
@@ -16,6 +17,12 @@ function Linha({ rotulo, valor }: { rotulo: string; valor?: string | number | nu
       <span>{valor != null && valor !== '' ? valor : '—'}</span>
     </div>
   )
+}
+
+// Formata uma subevidência ML da Fase 8 (depressão/violência) como "rótulo (confiança)".
+function fmtSub(sub?: SubEvidencia | null): string | null {
+  if (!sub?.rotulo) return null
+  return sub.confianca != null ? `${sub.rotulo} (${sub.confianca})` : sub.rotulo
 }
 
 // Tela principal (docs/frontend.md §3.5): painéis por modalidade + painel de fusão.
@@ -83,14 +90,19 @@ export function DetalheCaso() {
 
         <div className="painel">
           <h3>Áudio</h3>
-          <Linha rotulo="Categoria" valor={ev.audio?.categoria} />
-          <Linha rotulo="Confiança" valor={ev.audio?.confianca != null ? ev.audio.confianca : null} />
+          <Linha rotulo="Violência (acústico)" valor={fmtSub(ev.audio?.acustico)} />
+          <Linha rotulo="Depressão (fala)" valor={fmtSub(ev.audio?.texto?.depressao)} />
+          <Linha rotulo="Violência (fala)" valor={fmtSub(ev.audio?.texto?.violencia)} />
+          <Linha rotulo="Resumo" valor={ev.audio?.categoria} />
+          {ev.audio?.transcricao && <p className="card-sub">“{ev.audio.transcricao}”</p>}
         </div>
 
         <div className="painel">
           <h3>Texto / NLP</h3>
           <Linha rotulo="Achado" valor={ev.texto?.achado} />
           <Linha rotulo="Trecho" valor={ev.texto?.trecho} />
+          <Linha rotulo="Depressão" valor={fmtSub(ev.texto?.depressao)} />
+          <Linha rotulo="Violência" valor={fmtSub(ev.texto?.violencia)} />
           {caso.texto_clinico && <p className="card-sub">“{caso.texto_clinico}”</p>}
         </div>
 

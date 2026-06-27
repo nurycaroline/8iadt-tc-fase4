@@ -79,6 +79,20 @@ def _cabecalho_paciente(paciente: dict[str, Any]) -> str:
     return base
 
 
+def _fmt_sub(sub: Any) -> str | None:
+    """Formata uma subevidência ML da Fase 8 (depressão/violência) como "rótulo (confiança)".
+
+    Retorna ``None`` quando ausente ou ``neutro``, para não poluir o relatório com não-achados.
+    """
+    if not isinstance(sub, dict):
+        return None
+    rotulo = sub.get("rotulo")
+    if not rotulo or rotulo == "neutro":
+        return None
+    conf = sub.get("confianca")
+    return f"{rotulo} (confiança {conf})" if conf is not None else str(rotulo)
+
+
 def _linha_evidencia(evidencias: dict[str, Any]) -> list[str]:
     linhas = []
     cic = evidencias.get("video_cicatriz")
@@ -96,11 +110,25 @@ def _linha_evidencia(evidencias: dict[str, Any]) -> list[str]:
     aud = evidencias.get("audio")
     if aud:
         linhas.append(f"- Áudio: {aud.get('categoria')} (confiança {aud.get('confianca')})")
+        # Fase 8: análise dupla — sinais acústico e da fala (transcrição) quando indicam risco.
+        acustico = _fmt_sub(aud.get("acustico"))
+        if acustico:
+            linhas.append(f"  - Violência (acústico): {acustico}")
+        fala = aud.get("texto") or {}
+        if (dep := _fmt_sub(fala.get("depressao"))) is not None:
+            linhas.append(f"  - Depressão (fala): {dep}")
+        if (vio := _fmt_sub(fala.get("violencia"))) is not None:
+            linhas.append(f"  - Violência (fala): {vio}")
     txt = evidencias.get("texto")
     if txt:
         trecho = txt.get("trecho") or ""
         sufixo = f' — "{trecho}"' if trecho else ""
         linhas.append(f"- Texto/laudo: {txt.get('achado')}{sufixo}")
+        # Fase 8: sinais ML de depressão/violência no texto, quando indicam risco.
+        if (dep := _fmt_sub(txt.get("depressao"))) is not None:
+            linhas.append(f"  - Depressão: {dep}")
+        if (vio := _fmt_sub(txt.get("violencia"))) is not None:
+            linhas.append(f"  - Violência: {vio}")
     if not linhas:
         linhas.append("- Nenhuma modalidade avaliada para este caso.")
     return linhas

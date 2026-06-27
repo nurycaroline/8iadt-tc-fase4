@@ -24,6 +24,7 @@ Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisõ
 | Fase 5 _(rascunho)_ | [`docs/08-fase5-producao-e-escala.md`](docs/08-fase5-producao-e-escala.md) | Produção, escala e robustez (fecha itens em aberto) |
 | Fase 6 | [`docs/09-fase6-relatorios-automaticos.md`](docs/09-fase6-relatorios-automaticos.md) | Relatórios automáticos especializados (conteúdo por tipo + anexos com links) — **implementada** |
 | Fase 7 | [`docs/10-fase7-privacidade-e-seguranca.md`](docs/10-fase7-privacidade-e-seguranca.md) | Privacidade e segurança (LGPD): auth, TLS, auditoria de acesso, retenção, pseudonimização e hardening — **implementada** |
+| Fase 8 | [`docs/11-fase8-audio-texto-unificado.md`](docs/11-fase8-audio-texto-unificado.md) | Áudio/texto unificado: trilha acústica de violência + classificadores ML de depressão/violência (PT-BR, local) — **implementada** |
 | Componente | [`docs/casos-de-uso.md`](docs/casos-de-uso.md) | Casos de uso (diagramas Mermaid) |
 | Componente | [`docs/06-relatorios-automaticos.md`](docs/06-relatorios-automaticos.md) | Relatórios clínicos automáticos (requisito do PDF) |
 | Componente | [`docs/07-privacidade-e-seguranca.md`](docs/07-privacidade-e-seguranca.md) | Privacidade, segurança e LGPD |
@@ -110,6 +111,7 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 | **5 — Produção/Escala** _(rascunho)_ | Escalar modelos, completar áudio/pose, deploy Azure real, dashboard React | Solução de **demo-grade** elevada a **produção** (itens em aberto fechados) |
 | **6 — Relatórios Automáticos** | Especializar o relatório por tipo de risco, anexos com links reais, PDF garantido e preview no dashboard | Relatório do `docs/06` cumprido por completo (especializado + anexos navegáveis) — **implementada** |
 | **7 — Privacidade/Segurança** | Fechar a lacuna entre os controles de LGPD do `docs/07` e o código (auth, TLS, auditoria de acesso, retenção, pseudonimização, hardening) | Controles do `docs/07` implementados; §5 do relatório deixa de ser aspiracional — **implementada** |
+| **8 — Áudio/Texto Unificado** | Trilha **acústica** de violência + classificadores **ML** de depressão/violência (PT-BR, datasets EN traduzidos offline); texto/áudio unificados; sem Azure | Áudio com análise dupla, texto unificado, fusão com novos gatilhos — **implementada** |
 
 > **Princípio guia:** comece com um **mini-dataset** (5 amostras por modalidade) e faça o pipeline rodar ponta-a-ponta. "Se rodar com 5, roda com 500." Só depois escale.
 
@@ -132,6 +134,16 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 > **Key Vault opcional**, com verificação de **conformidade no CI**. Detalhes em
 > [`docs/10-fase7-privacidade-e-seguranca.md`](docs/10-fase7-privacidade-e-seguranca.md) e na spec em
 > [`.specs/features/fase7-privacidade-e-seguranca/`](.specs/features/fase7-privacidade-e-seguranca/spec.md).
+
+> **Sobre a Fase 8:** **implementada**. Aprofunda a **Análise de Áudio Especializada** (depressão
+> pós-parto e vítimas de violência) e o **texto**: o áudio ganha **análise dupla** (classificador
+> **acústico** de violência no som + transcrição reanalisada como texto), e o texto passa a usar
+> **classificadores ML em PT-BR** de depressão e violência (datasets EN traduzidos **offline** com
+> Argos Translate), preservando as keywords de infecção/complicação. A depressão sai de
+> `complicacao` para o sinal dedicado. **Tudo local/offline (sem Azure)**; os campos legados do
+> contrato continuam presentes (derivados) — **sem regressão**. Detalhes em
+> [`docs/11-fase8-audio-texto-unificado.md`](docs/11-fase8-audio-texto-unificado.md) e na spec em
+> [`.specs/features/fase8-audio-texto-unificado/`](.specs/features/fase8-audio-texto-unificado/spec.md).
 
 ---
 

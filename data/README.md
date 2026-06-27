@@ -48,8 +48,9 @@ Ou rode uma modalidade isolada:
 | Cicatriz (YOLO)   | `python -m scripts.data_prep.cicatriz_yolo`     | **auto**  | Baixa `Test.zip` do AZH Wound (~4 MB), extrai amostras, converte e gera preview |
 | Texto clínico     | `python -m scripts.data_prep.texto_clinico`     | **auto**  | Gera documentos sintéticos (offline)|
 | Caso sintético    | `python -m scripts.data_prep.caso_sintetico`    | **auto**  | Junta 1 amostra de cada modalidade  |
-| Áudio             | `python -m scripts.data_prep.audio_transcrever` | manual    | Coloque áudios (`.wav/.mp3/.m4a/...`) em `data/audio/` — detecta **qualquer nome**. Whisper local ou Azure via env para transcrever |
+| Áudio             | `python -m scripts.data_prep.audio_transcrever` | manual    | Coloque áudios (`.wav/.mp3/.m4a/...`) em `data/audio/` — detecta **qualquer nome**. Transcrição **local** (Whisper/`faster-whisper`) |
 | Fisioterapia      | `python -m scripts.data_prep.fisioterapia_pose` | manual    | IntelliRehabDS: aceita **sequências DepthImages** (cada pasta de gesto = 1 amostra), **esqueletos** (`.csv/.txt`) e vídeos. Em `data/video_fisioterapia/` |
+| **Fase 8** (áudio/texto) | `python -m scripts.data_prep.fase8_datasets`    | **auto*** | Baixa os 3 datasets HF, traduz EN→PT (Argos, offline) e gera negativos → `data/texto_clinico/fase8/*.csv` e `data/audio/fase8/violencia/manifest.csv`. *Requer rede do HF na 1ª vez; offline depois. Ver [Fase 8](../docs/11-fase8-audio-texto-unificado.md) |
 
 Se um download automático falhar (rede, URL ou licença que exige login), os scripts emitem uma mensagem
 clara com a instrução de **obtenção manual** — baixe a amostra do link na tabela de origem e coloque-a
@@ -80,8 +81,9 @@ na pasta indicada.
 | Cicatriz (vídeo)  | AZH Wound                     | Acadêmico (ver repo)   | https://github.com/uwm-bigdata/wound-classification-using-images-and-locations |
 | Fisioterapia      | IntelliRehabDS                | Acadêmico (Zenodo)     | https://zenodo.org/records/4610859 |
 | Fisioterapia (alt)| REHAB24-6                     | Acadêmico              | (buscar "REHAB24-6 dataset") |
-| Áudio             | Androids Corpus               | Acadêmico              | https://github.com/androidscorpus/data |
-| Áudio (alt)       | DEPAC                         | Acadêmico              | https://aclanthology.org/2022.clpsych-1.1.pdf |
+| Áudio (violência acústica) | `Hemg/audio-based-violence-dataset` | **não especificada** (HF) — risco | https://huggingface.co/datasets/Hemg/audio-based-violence-dataset |
+| Texto (depressão) | `ShreyaR/DepressionDetection` (EN→PT) | **não especificada** (HF) — risco | https://huggingface.co/datasets/ShreyaR/DepressionDetection |
+| Texto (violência) | `Spiderman01/Domestic_violence_info_support_fromposts` (EN→PT) | **não especificada** (HF) — risco | https://huggingface.co/datasets/Spiderman01/Domestic_violence_info_support_fromposts |
 | Texto clínico     | Gerado sinteticamente         | N/A (próprio)          | `scripts/data_prep/texto_clinico.py` |
 
 ## Limitações conhecidas (registrar no relatório)
@@ -89,7 +91,12 @@ na pasta indicada.
 - **Cicatriz:** o AZH Wound não é específico de cesárea, mas feridas cirúrgicas têm aparência
   semelhante. Por ser uma base de **classificação**, geramos uma caixa por imagem cobrindo a ferida
   (decisão documentada) ao converter para o formato de detecção YOLOv8.
-- **Áudio:** não existe base pública só de depressão **pós-parto**; usamos bases de depressão/ansiedade
-  geral + áudios sintéticos (TTS) para as demais categorias.
+- **Áudio (Fase 8):** análise **dupla** — classificador **acústico** de violência (`Hemg`, licença
+  não especificada) + transcrição reanalisada como texto. Não há base só de depressão **pós-parto**;
+  a depressão migrou para o classificador **ML de texto** (PT). A violência acústica pode se perder na
+  transcrição (por isso a trilha do som é separada).
+- **Texto (Fase 8):** depressão (`ShreyaR`) e violência (`Spiderman01`) treinados em PT-BR a partir de
+  datasets **EN traduzidos offline** (Argos). Licenças **não especificadas** (risco); domínio
+  Reddit/Twitter ≠ pós-parto; a tradução adiciona ruído. Fallback por keywords quando o modelo falta.
 - **Fusão:** os datasets são de **pessoas diferentes**; o "mesmo paciente" só existe no uso real. Por
   isso o **caso de exemplo sintético** (`casos/`) junta 1 amostra de cada modalidade para a demo.

@@ -60,8 +60,15 @@ def _baseline_texto() -> dict | None:
         arq = pasta / reg["arquivo"]
         if not arq.exists():
             continue
+        evid = analisar(arq.read_text(encoding="utf-8"))
+        # Fase 8: risco no texto = achado clínico OU depressão/violência (ML/keywords).
+        risco_pred = (
+            evid["achado"] != "neutro"
+            or evid["depressao"]["rotulo"] != "neutro"
+            or evid["violencia"]["rotulo"] != "neutro"
+        )
         y_true.append(reg["achado"] != "neutro")
-        y_pred.append(analisar(arq.read_text(encoding="utf-8"))["achado"] != "neutro")
+        y_pred.append(risco_pred)
     return metricas_modalidade(y_true, y_pred) if y_true else None
 
 

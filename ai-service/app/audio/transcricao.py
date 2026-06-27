@@ -1,8 +1,8 @@
-"""Transcrição de áudio (ASR) — reaproveita a implementação validada na Fase 1.
+"""Transcrição de áudio (ASR) — **local/offline** (Fase 8), reusando a implementação da Fase 1.
 
-Whisper local por padrão; backend Azure Speech-to-Text trocável por ``AUDIO_BACKEND=azure``.
-A lógica (incl. fallback via ``soundfile`` sem ffmpeg) vive em
-``scripts/data_prep/audio_transcrever.py`` (Fase 1) e é reusada aqui para não duplicar código.
+Whisper local por padrão (``openai-whisper``); ``faster-whisper`` como alternativa selecionável. A
+lógica (incl. fallback via ``soundfile`` sem ffmpeg) vive em
+``scripts/data_prep/audio_transcrever.py`` e é reusada aqui para não duplicar código.
 """
 
 from __future__ import annotations

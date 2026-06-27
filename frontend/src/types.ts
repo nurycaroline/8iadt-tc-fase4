@@ -11,12 +11,34 @@ export interface Paciente {
   criado_em?: string
 }
 
+// Subevidência binária dos classificadores ML da Fase 8 (depressão/violência).
+export interface SubEvidencia {
+  rotulo?: string
+  confianca?: number
+}
+
+// Evidência de texto unificada (Fase 8): achado por keywords + sinais ML de depressão/violência.
+export interface EvidenciaTexto {
+  achado?: string
+  trecho?: string
+  depressao?: SubEvidencia | null
+  violencia?: SubEvidencia | null
+}
+
 export interface Evidencias {
   video_cicatriz?: { evento?: string; confianca?: number } | null
   video_fisioterapia?: { execucao?: string; amplitude?: string } | null
   sinais_vitais?: { tipo?: string; valor?: string } | null
-  audio?: { categoria?: string; confianca?: number } | null
-  texto?: { achado?: string; trecho?: string } | null
+  // Áudio na Fase 8: análise dupla (acústico + transcrição→texto). `categoria`/`confianca`
+  // são campos legados derivados, mantidos por compatibilidade.
+  audio?: {
+    acustico?: SubEvidencia | null
+    transcricao?: string
+    texto?: EvidenciaTexto | null
+    categoria?: string
+    confianca?: number
+  } | null
+  texto?: EvidenciaTexto | null
 }
 
 export interface ResultadoFusao {

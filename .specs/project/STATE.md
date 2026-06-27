@@ -6,6 +6,33 @@
 
 ## Fase atual
 
+**Fase 8 — Áudio/Texto Unificado (depressão e violência)** — **em implementação**.
+Spec em [`.specs/features/fase8-audio-texto-unificado/spec.md`](../features/fase8-audio-texto-unificado/spec.md)
+e doc [`docs/11-fase8-audio-texto-unificado.md`](../../docs/11-fase8-audio-texto-unificado.md). Troca a
+abordagem por **palavras-chave** de áudio/texto por **classificadores ML locais** em PT-BR e adiciona uma
+trilha **acústica** de violência. **Tudo local/offline (sem Azure).** Entregue (F8-01..F8-10): (F8-01)
+deps locais — `librosa`/`faster-whisper`/`sentence-transformers`/`argostranslate` em
+`ai-service/requirements.txt`, `datasets`/`huggingface-hub` em `scripts/requirements-data.txt`; (F8-02)
+pipeline de dados `scripts/data_prep/fase8_datasets.py` (download dos 3 datasets HF + tradução EN→PT
+offline via `scripts/data_prep/traducao.py`, Argos padrão / X-ALMA opcional por env + geração de
+**negativos** de violência), idempotente e tolerante a falha de rede; (F8-03) schema em `app/schemas.py`
+(`evidencia_texto` +`depressao`/`violencia`; `evidencia_audio_unificada` com `acustico`/`transcricao`/
+`texto` + **categoria legada derivada**; domínios `ROTULOS_DEPRESSAO`/`ROTULOS_VIOLENCIA`); (F8-04) treino
+de texto `app/texto/treino.py` (TF-IDF+LogReg → `models/texto/<nome>.joblib` + `metrics.json`); (F8-05)
+treino acústico `app/audio/treino.py` + `app/audio/features.py` (MFCC via librosa + LogReg →
+`models/audio/violencia_acustico.joblib`); (F8-06) `app/audio/classificacao.py` reescrito (análise dupla
+acústico + transcrição→texto unificado; fallback gracioso DD10; `classificar()` legado preservado p/
+baseline); (F8-07) `app/texto/nlp.py` reescrito (depressão ML + violência ML + keywords de infecção/
+complicação preservadas; depressão **saiu** de `TERMOS_COMPLICACAO`); (F8-08) fusão `app/fusao.py` +
+`app/limiares.py` com novos gatilhos (violência acústica `≥0.7`, violência/depressão no texto `≥0.6`),
+sem regressão; (F8-09) testes (+17 → **129** Python) — schema, classificadores (mocks/fixtures pequenas),
+áudio dupla e fusão; (F8-10) docs/contrato/datasets/02-fase2/PLANO/STATE. **Carregamento de modelo
+tolerante** (`app/ml_utils.py`): sem pesos, tudo degrada por keywords (gate roda sem download/treino).
+**Gate verde:** `ruff` + `pytest` (**129 testes** Python). **Pendência manual (ambiente):** download dos
+datasets HF + tradução + treino real (comandos no doc da Fase 8); os artefatos/pesos **não** são
+versionados (só métricas/amostras). **Decisão registrada:** datasets adotados + descarte do
+`singhsandk/domestic-violence-dataset-prep` (14 linhas, Q&A).
+
 **Fase 7 — Privacidade e Segurança (LGPD)** — **implementada** (F7-01..F7-08).
 Spec em [`.specs/features/fase7-privacidade-e-seguranca/`](../features/fase7-privacidade-e-seguranca/spec.md)
 e doc [`docs/10-fase7-privacidade-e-seguranca.md`](../../docs/10-fase7-privacidade-e-seguranca.md). A
@@ -158,6 +185,10 @@ público simples) e aparecem como passos opcionais.
 | S23 | **Reusar artefatos reais** (métricas/exemplo/log); nunca inventar números | [F4 design DD-F4-4](../features/fase4-entregaveis/design.md) |
 | S24 | **Vídeo = roteiro + placeholder de link**; gravação/publicação é humana   | [F4 design DD-F4-5](../features/fase4-entregaveis/design.md) |
 | S25 | Limitações documentadas honestamente (smoke da cicatriz; degradação)      | [F4 design DD-F4-6](../features/fase4-entregaveis/design.md) |
+| S26 | Áudio = **análise dupla** (acústico + transcrição→texto); categoria legada **derivada** | [F8 spec](../features/fase8-audio-texto-unificado/spec.md) |
+| S27 | Texto = **ML** (depressão/violência, PT-BR) + keywords; depressão sai de `complicacao` | [F8 spec](../features/fase8-audio-texto-unificado/spec.md) |
+| S28 | Tradução EN→PT = **Argos** (padrão, CPU/MIT); X-ALMA opcional por env (sem baixar 13B) | [F8 spec](../features/fase8-audio-texto-unificado/spec.md) |
+| S29 | Datasets F8: `ShreyaR`, `Spiderman01`, `Hemg` (licença **não especificada** — risco); descartado `singhsandk` (14 linhas) | [F8 spec](../features/fase8-audio-texto-unificado/spec.md) |
 
 ## Blockers / dependências externas
 
@@ -220,6 +251,12 @@ público simples) e aparecem como passos opcionais.
       do payload à IA; Key Vault opcional) — revisáveis se o escopo divergir.
 - [ ] **Ação humana/infra:** provisionar RBAC/Private Endpoint reais na Azure (F5-03) e gravar o vídeo
       demonstrando os controles (DD-F4-5).
+- [x] Implementar a Fase 8 (F8-01..F8-10): trilha acústica de violência + classificadores ML de
+      depressão/violência (PT-BR, datasets EN traduzidos offline), áudio/texto unificados, fusão com
+      novos gatilhos, sem Azure. Gate verde (ruff + 129 testes Python). Pesos não versionados.
+- [ ] **Ação humana (ambiente/grupo):** rodar `scripts.data_prep.fase8_datasets` (requer rede do HF na
+      1ª vez) + `app.texto.treino`/`app.audio.treino` para gerar os pesos/métricas reais; confirmar os
+      defaults da Fase 8 (Argos vs. X-ALMA; localização das deps de dados; categoria de áudio derivada).
 
 ## Ideias adiadas
 

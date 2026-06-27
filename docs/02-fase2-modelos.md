@@ -47,15 +47,24 @@
 - **Objetivo clínico:** sinalizar **risco materno / pré-eclâmpsia**.
 
 ## Tarefa 2.4 — Análise de áudio
-- **Pipeline:** áudio → **transcrição** (Whisper/Azure Speech) → **classificação** de risco.
-- **Classificação:** por palavras-chave + análise de sentimento (Azure Text Analytics) ou um classificador simples treinado nos rótulos.
-- **Saída:** categoria (`depressao_pos_parto`, `ansiedade`, `violencia`, `fadiga`, `neutro`) + confiança.
+- **Pipeline (Fase 2):** áudio → **transcrição** (Whisper) → **classificação** por palavras-chave.
+- **Saída (Fase 2):** categoria (`depressao_pos_parto`, `ansiedade`, `violencia`, `fadiga`, `neutro`) + confiança.
+
+> 🔄 **Atualizado na [Fase 8](11-fase8-audio-texto-unificado.md):** o áudio passa a ter **análise
+> dupla** — um classificador **acústico** de violência no som (`scikit-learn` sobre features MFCC)
+> **e** a transcrição reanalisada como texto unificado. A categoria legada vira um campo
+> **derivado**. **Sem Azure** (tudo local: Whisper/`faster-whisper`).
 
 ## Tarefa 2.5 — Análise de texto (NLP)
 - **Entrada:** laudos, exames e evolução clínica (Fase 1, Tarefa 1.5).
-- **Abordagem (enxuta):** extração de palavras-chave de risco + **análise de sentimento** (Azure Text Analytics) ou um classificador simples.
-- **Saída:** lista de achados de risco no texto + categoria (ex.: `complicacao`, `sinal_infeccao`, `neutro`).
-- Padronizar a saída num dicionário para a fusão.
+- **Abordagem (Fase 2):** extração de palavras-chave de risco (infecção/complicação).
+- **Saída (Fase 2):** achado (`complicacao`, `sinal_infeccao`, `neutro`) + trecho disparador.
+
+> 🔄 **Atualizado na [Fase 8](11-fase8-audio-texto-unificado.md):** a análise de texto fica
+> **unificada** — soma aos achados por keyword os classificadores **ML em PT-BR** de `depressao` e
+> `violencia` (TF-IDF + LogReg, datasets EN traduzidos offline). A depressão **sai** de
+> `complicacao` e passa ao sinal dedicado `depressao` (evita dupla contagem na fusão). **Sem Azure
+> Text Analytics** (tudo local).
 
 ## Tarefa 2.6 — Baseline por modalidade única
 - Antes da fusão, registre a performance de **cada modalidade isolada** detectando o evento de risco.
@@ -74,6 +83,11 @@ Documentar os disparadores matemáticos do alerta, por exemplo:
 | Achado no texto clínico | termo/categoria de risco identificado |
 
 > Esses limiares alimentam o **motor de fusão** da Fase 3.
+
+> 🔄 **Atualizado na [Fase 8](11-fase8-audio-texto-unificado.md):** novos gatilhos — **violência
+> acústica** (classificador do som, confiança `≥ 0.7`), **violência no texto** e **depressão no
+> texto** (classificadores ML, confiança `≥ 0.6`). Centralizados em
+> [`app/limiares.py`](../ai-service/app/limiares.py) (`CONFIANCA_MINIMA`, `CONFIANCA_TEXTO`).
 
 ---
 

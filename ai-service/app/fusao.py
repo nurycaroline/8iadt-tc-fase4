@@ -20,8 +20,9 @@ Regras (contrato §4 + docs/03 Tarefa 3.1):
 - **Matriz base** (cicatriz × sinais vitais): infecção+risco → ``ALTO``; infecção+normal →
   ``MEDIO``; ok/nenhum+risco → ``MEDIO``; ok/nenhum+normal → ``BAIXO``.
 - **Elevação por contexto** (texto/áudio): cicatriz infecção + febre/dor → infecção puerperal
-  (``ALTO``); vitais de risco + cefaleia/proteinúria → pré-eclâmpsia (``ALTO``); áudio de
-  violência → protocolo de proteção (``ALTO``); áudio de depressão pós-parto/ansiedade →
+  (``ALTO``); vitais de risco + cefaleia/proteinúria → pré-eclâmpsia (``ALTO``); **violência**
+  (acústica no som, relato em áudio ou classificador ML de texto) → protocolo de proteção
+  (``ALTO``); **depressão** (classificador ML de texto) ou áudio de depressão/ansiedade →
   desconforto psicológico (≥ ``MEDIO``).
 - **Contexto isolado**: quando a única fonte de risco é texto/áudio fraco, o teto é ``MEDIO`` (o
   contrato trata texto/áudio como contexto adicional) — a única exceção é a **violência**, que
@@ -32,7 +33,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.limiares import confianca_suficiente
+from app.limiares import confianca_suficiente, confianca_texto_suficiente
 
 # Ordem dos níveis de risco (para escolher o maior gatilho acionado).
 NIVEIS = ("BAIXO", "MEDIO", "ALTO")
@@ -85,6 +86,22 @@ def _nivel_max(a: str, b: str) -> str:
     return a if _ORDEM[a] >= _ORDEM[b] else b
 
 
+def _texto_violencia(texto: dict[str, Any] | None) -> bool:
+    """True se a subevidência de violência do texto (Fase 8) atinge o limiar de risco."""
+    sub = (texto or {}).get("violencia") or {}
+    return sub.get("rotulo") == "violencia" and confianca_texto_suficiente(
+        sub.get("confianca", 0.0)
+    )
+
+
+def _texto_depressao(texto: dict[str, Any] | None) -> bool:
+    """True se a subevidência de depressão do texto (Fase 8) atinge o limiar de risco."""
+    sub = (texto or {}).get("depressao") or {}
+    return sub.get("rotulo") == "depressao" and confianca_texto_suficiente(
+        sub.get("confianca", 0.0)
+    )
+
+
 def avaliar_fusao(evidencias: dict[str, Any]) -> dict[str, Any]:
     """Cruza as evidências e devolve ``{risco_detectado, mensagem_alerta, gatilhos}``.
 
@@ -106,6 +123,17 @@ def avaliar_fusao(evidencias: dict[str, Any]) -> dict[str, Any]:
     audio_categoria = aud.get("categoria")
     audio_forte = confianca_suficiente(aud.get("confianca", 0.0))
 
+    # Trilha acústica de violência (Fase 8): classificador do som, gatilho com confiança >= 0.7.
+    aud_acustico = aud.get("acustico") or {}
+    violencia_acustica = aud_acustico.get("rotulo") == "violencia" and confianca_suficiente(
+        aud_acustico.get("confianca", 0.0)
+    )
+
+    # Sinais ML de texto (Fase 8): considera o texto digitado **e** a transcrição do áudio.
+    aud_texto = aud.get("texto")
+    violencia_texto = _texto_violencia(txt) or _texto_violencia(aud_texto)
+    depressao_texto = _texto_depressao(txt) or _texto_depressao(aud_texto)
+
     # Febre/dor relatada (contexto de infecção): laudo de infecção ou áudio de fadiga/dor.
     relato_febre_dor = texto_infeccao or (audio_categoria == "fadiga" and audio_forte)
 
@@ -123,11 +151,12 @@ def avaliar_fusao(evidencias: dict[str, Any]) -> dict[str, Any]:
         acionar("infeccao_puerperal", "ALTO")
     if (vitais_risco and texto_complicacao) or pre_eclampsia_explicita:
         acionar("pre_eclampsia", "ALTO")
-    if audio_categoria == "violencia" and audio_forte:
+    # Violência aciona o protocolo mesmo isolada: som (acústico), relato (áudio legado) ou texto ML.
+    if (audio_categoria == "violencia" and audio_forte) or violencia_acustica or violencia_texto:
         acionar("violencia", "ALTO")
 
-    # 2) Desconforto psicológico — ao menos MEDIO (encaminhamento).
-    if audio_categoria in ("depressao_pos_parto", "ansiedade") and audio_forte:
+    # 2) Desconforto psicológico — ao menos MEDIO: áudio legado ou depressão no texto (ML).
+    if (audio_categoria in ("depressao_pos_parto", "ansiedade") and audio_forte) or depressao_texto:
         acionar("desconforto_psicologico", "MEDIO")
 
     # 3) Matriz base — contribuições MEDIO que não foram subsumidas por um gatilho ALTO acima.

@@ -9,7 +9,8 @@ clínico e a documentação no relatório técnico.
 | PA sistólica / diastólica     | >= 140/90 mmHg (hipertensão / pré-eclâmpsia)        |
 | Modelo de sinais vitais       | classe `high` (alto risco)                          |
 | Detecção visual na cicatriz   | `ferida_alerta` com confiança >= 0.7                |
-| Risco no áudio                | categoria de risco com confiança >= 0.7             |
+| Violência acústica (áudio)    | classificador de violência no som com conf. >= 0.7  |
+| Violência/depressão no texto  | classificador ML com confiança >= 0.6               |
 | Achado no texto clínico       | termo/categoria de risco identificado               |
 """
 
@@ -19,8 +20,12 @@ from __future__ import annotations
 PA_SISTOLICA_ALERTA = 140
 PA_DIASTOLICA_ALERTA = 90
 
-# Confiança mínima para considerar uma detecção/classificação de risco (cicatriz, áudio).
+# Confiança mínima para considerar uma detecção/classificação de risco (cicatriz, áudio acústico).
 CONFIANCA_MINIMA = 0.7
+
+# Confiança mínima dos classificadores ML de **texto** (depressão/violência) — Fase 8. Mais baixa
+# que o limiar acústico/visual: o texto entra como contexto e os datasets são de domínio diferente.
+CONFIANCA_TEXTO = 0.6
 
 # Classe do modelo de sinais vitais considerada de alto risco.
 CLASSE_RISCO_ALTO = "high"
@@ -38,6 +43,11 @@ def pa_em_alerta(sistolica: float | None, diastolica: float | None) -> bool:
 def confianca_suficiente(confianca: float) -> bool:
     """True se a confiança atinge o limiar mínimo para contar como sinal de risco."""
     return float(confianca) >= CONFIANCA_MINIMA
+
+
+def confianca_texto_suficiente(confianca: float) -> bool:
+    """True se a confiança do classificador ML de texto atinge o limiar (Fase 8)."""
+    return float(confianca) >= CONFIANCA_TEXTO
 
 
 def risco_alto_sinais_vitais(

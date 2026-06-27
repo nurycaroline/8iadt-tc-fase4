@@ -39,28 +39,47 @@
 | **Preeclampsia (sintético, HF)** | ~21 mil amostras focadas em pré-eclâmpsia (fatores de risco com odds ratios da literatura) | Mais volume/foco em pré-eclâmpsia | https://huggingface.co/datasets/electricsheepafrica/africa-synth-maternal-health-preeclampsia-dataset-all |
 | **Maternal health pregnancy (sintético, HF)** | 30 mil registros de pré-natal (PA, hemoglobina, glicemia, proteinúria, desfecho) | Cenários variados de risco | https://huggingface.co/datasets/LinderStacy-1/maternal-health-pregnancy |
 
-## 4. Áudio (consultas / relatos)
+## 4. Áudio (consultas / relatos) — Fase 8 (análise dupla)
 
-> Objetivo: detectar **depressão pós-parto / ansiedade / violência** na fala.
+> Objetivo: **classificador acústico de violência** no som **e** transcrição reanalisada como texto
+> unificado. A depressão/ansiedade deixa de ser uma categoria de áudio por keyword e passa para os
+> classificadores **ML de texto** (§5). Tudo **local/offline** (sem Azure). Ver
+> [Fase 8](11-fase8-audio-texto-unificado.md).
 
-| Fonte | O que é | Uso | Link |
-|-------|---------|-----|------|
-| **Androids Corpus** ⭐ | 228 gravações (saudáveis vs. com depressão), leitura e fala espontânea; uso acadêmico | Treinar/validar classificação de depressão na fala | https://github.com/androidscorpus/data |
-| **DEPAC** | Fala rotulada com escalas de depressão (PHQ-9) e ansiedade (GAD-7) | Mais tarefas de fala e rótulos | https://aclanthology.org/2022.clpsych-1.1.pdf |
-| **Áudios sintéticos (TTS)** | Falas de consulta nas categorias-alvo geradas por TTS | Rápido e sem questão de privacidade (demo) | — |
-| **Gravações próprias (consentimento simulado)** | Falas curtas gravadas pelo grupo | Demonstração realista no vídeo | — |
+| Fonte | O que é | Idioma | Licença | Uso |
+|-------|---------|--------|---------|-----|
+| **`Hemg/audio-based-violence-dataset`** ⭐ | ~2.171 clipes `audio` + `label` (`violence`/`Nonvoilence` — rótulo *sic*) | áudio | **não especificada** (HF) — risco | Treinar o classificador **acústico** de violência (features MFCC + `scikit-learn`) |
+| **Áudios sintéticos (TTS)** | Falas de consulta nas categorias-alvo geradas por TTS | PT | próprio | Demo/smoke sem questão de privacidade |
+| **Gravações próprias (consentimento simulado)** | Falas curtas gravadas pelo grupo | PT | próprio | Demonstração realista no vídeo |
 
-> **Limitação honesta:** não existe base só de depressão **pós-parto**. Usa-se base de depressão/ansiedade **geral** + áudios sintéticos. Explique isso no relatório.
-> Para transcrição: **Whisper** (local) ou **Azure Speech-to-Text**. Para sentimento: **Azure Text Analytics**.
+> **Transcrição (ASR):** **Whisper local** (`openai-whisper`) por padrão; `faster-whisper` como
+> alternativa. **Azure deixa de ser citado** (tudo offline).
+> **Limitações honestas:** licença do `Hemg` **não especificada** (registrar risco); a violência
+> acústica pode se **perder na transcrição** (por isso a trilha do som é separada); sem o modelo
+> treinado, a trilha acústica degrada para neutro e a violência ainda é captada pelo texto (DD10).
+> **Descartado:** `Androids Corpus`/`DEPAC` (a depressão migrou para o classificador de texto em PT).
 
-## 5. Texto clínico (NLP)
+## 5. Texto clínico (NLP) — Fase 8 (depressão + violência ML)
 
-> Objetivo: achar sinais de risco em laudos/exames/evolução (ex.: PA alta, proteinúria, febre/dor na cicatriz).
+> Objetivo: além dos sinais de risco em laudos/evolução (PA alta, proteinúria, febre/dor na
+> cicatriz — por keywords), **classificar depressão e violência** com modelos **ML treinados em
+> PT-BR** (datasets EN traduzidos **offline** com Argos Translate). Ver
+> [Fase 8](11-fase8-audio-texto-unificado.md).
 
-| Fonte | Uso |
-|-------|-----|
-| **Laudos/evolução sintéticos** | Gerar ~5 documentos com achados normais e de risco (rápido e sem privacidade) |
-| **Campos textuais dos datasets de pré-natal (HF)** | Reaproveitar descrições/desfechos como texto clínico |
+| Fonte | O que é | Idioma | Licença | Uso |
+|-------|---------|--------|---------|-----|
+| **`ShreyaR/DepressionDetection`** ⭐ | ~7.731 linhas `clean_text` + `is_depression` (binário) | EN → **traduzido PT** | **não especificada** (HF) — risco | Treinar o classificador de **depressão** (TF-IDF + LogReg) |
+| **`Spiderman01/Domestic_violence_info_support_fromposts`** | 273 posts EN de vítimas de VD (só **positivos**; rótulo é "tipo de apoio") | EN → **traduzido PT** | **não especificada** (HF) — risco | Treinar o classificador de **violência** (texto) — exige **negativos** |
+| **Negativos de violência** | Amostras neutras (`is_depression=0`) do ShreyaR (PT) + textos clínicos neutros de `data/texto_clinico/` | EN→PT / PT | misto | Completar a classe negativa do classificador de violência |
+| **Laudos/evolução sintéticos** | ~5 documentos com achados normais e de risco | PT | próprio | Keywords de infecção/complicação (preservadas) |
+
+> **Tradução EN→PT:** **Argos Translate** (`argostranslate`, CPU, MIT) é o **padrão** (offline após
+> baixar o pacote de idioma uma vez); **X-ALMA** é a opção preferencial selecionável por
+> `TRADUCAO_BACKEND=xalma` (apenas estruturada — não baixa o modelo de 13B no fluxo padrão).
+> **Limitações honestas:** licenças **não especificadas**; domínio Reddit/Twitter ≠ pós-parto; a
+> tradução adiciona ruído; o conjunto de violência é pequeno (273) → mantém-se o **fallback por
+> keywords** quando o modelo ML está ausente. **Descartado:** `singhsandk/domestic-violence-dataset-prep`
+> (14 linhas, formato Q&A — inadequado para treino).
 
 ## 6. Caso de exemplo sintético (gerado por você)
 Script Python que monta uma **paciente fictícia** combinando 1 amostra de cada modalidade num caso coerente (ex.: cicatriz com alerta + PA alta + áudio com sinal de risco + laudo com proteinúria). É o que torna a **fusão demonstrável** — ver [Fase 1, Tarefa 1.6](01-fase1-dados.md).
