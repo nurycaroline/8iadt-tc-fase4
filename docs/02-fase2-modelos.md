@@ -10,7 +10,7 @@
 > [`ai-service/README.md`](../ai-service/README.md).
 
 ## Resultado esperado (Definition of Done)
-- [ ] Modelo de **vídeo — cicatriz** (YOLOv8) treinado e exportado (`.pt`/`.onnx`) com métricas (mAP, precisão/recall).
+- [x] Modelo de **vídeo — cicatriz** (YOLOv8) treinado (GPU/Colab, 41 épocas) com métricas reais (mAP@50 0,995, precisão/recall ≈0,99); `best.pt` versionado.
 - [ ] Modelo de **vídeo — fisioterapia** (YOLOv8-pose) funcionando com avaliação de movimento.
 - [ ] Modelo de **sinais vitais** treinado com métricas (acurácia, F1, matriz de confusão).
 - [ ] Módulo de **áudio** funcionando (transcrição + classificação) com exemplos.

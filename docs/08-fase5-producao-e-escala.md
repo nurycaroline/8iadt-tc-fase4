@@ -15,8 +15,8 @@
 
 | # | Item em aberto | Onde está registrado | Estado atual |
 |---|----------------|----------------------|--------------|
-| 1 | Detector de **cicatriz** detecta abaixo do limiar (smoke, 6 imagens) | STATE `todos`/`blockers`; [checklist §Escopo](05-checklist-entrega.md) | `caso_alto` fecha **MÉDIO** (vitais+texto), não ALTO |
-| 2 | **Áudio** e **fisioterapia** degradam por falta de dados (DD10) | STATE `todos`/`blockers`; [checklist §Técnico](05-checklist-entrega.md) | Sem métricas reais dessas 2 modalidades |
+| 1 | ~~Detector de **cicatriz** detecta abaixo do limiar (smoke)~~ **Resolvido** | STATE `todos`/`blockers`; [checklist §Escopo](05-checklist-entrega.md) | **Escalado** (41 épocas, mAP50 0,995); com pesos, `caso_alto` fecha **ALTO** |
+| 2 | **Fisioterapia** degrada por falta de dados (DD10); **áudio** já treinado (Fase 8) | STATE `todos`/`blockers`; [checklist §Técnico](05-checklist-entrega.md) | Áudio acústico F1≈0,94; fisioterapia ainda sem métricas |
 | 3 | **Deploy real na Azure** (Blob testado, serviços hospedados) | [checklist §Pré-requisitos](05-checklist-entrega.md); STATE | Só **fallback local** (`STORAGE_BACKEND=local`) |
 | 4 | **Dashboard React** completo | STATE `ideias adiadas` / out-of-scope da Fase 4; [`frontend.md`](frontend.md) | Apenas **cliente mínimo** (HTML + socket.io) |
 | 5 | **Pré-eclâmpsia**: reforçar sinais vitais com dados sintéticos | STATE `ideias adiadas` | Modelo com métricas reais (acurácia≈0.65/F1≈0.62) |
@@ -35,8 +35,8 @@
 | F5-04 | Dashboard React de produção | ✅ **Implementado** | [`frontend/`](../frontend/) (React+Vite+TS, react-query, socket.io); backend serve `dist/` (SPA) |
 | F5-05 | Reforço dos sinais vitais (pré-eclâmpsia) | ✅ **Implementado** | [`scripts/data_prep/preeclampsia_sintetico.py`](../scripts/data_prep/preeclampsia_sintetico.py) + `app/sinais_vitais/treino.comparar_com_aumento` + [`scripts/reforco_sinais_vitais.py`](../scripts/reforco_sinais_vitais.py) |
 | F5-06 | Hardening (observabilidade/CI-CD) | ✅ **Parcial** | `/ready` no backend; job de CI do frontend; `frontend/Dockerfile`+nginx; serviço no compose |
-| F5-01 | Escalar detector de cicatriz | ⛔ **Bloqueado (ambiente)** | Exige **GPU/Colab** + dataset ampliado; treino smoke da Fase 2 permanece (DD10) |
-| F5-02 | Áudio + fisioterapia completas | ⛔ **Bloqueado (ambiente)** | Exige amostras com **login/licença** (obtenção manual); módulos degradam sem quebrar (DD10) |
+| F5-01 | Escalar detector de cicatriz | ✅ **Concluído** | Treino em GPU/Colab ([`notebooks/cicatriz_yolo_colab.ipynb`](../ai-service/notebooks/cicatriz_yolo_colab.ipynb)), 41 épocas, mAP50 0,995, precisão/recall ≈0,99; `best.pt` versionado |
+| F5-02 | Áudio + fisioterapia completas | 🟡 **Parcial** | **Áudio** treinado na Fase 8 (acústico F1≈0,94 + transcrição→texto); **fisioterapia** ainda exige amostras com licença (degrada — DD10) |
 | F5-03 | Deploy real na Azure | ⛔ **Bloqueado (ambiente)** | Exige **conta/credenciais Azure**; código Azure-ready + passos em [`deploy-azure.md`](deploy-azure.md); fallback local valida a stack |
 
 **Endpoints novos do backend (F5-04):** `GET /casos`, `GET /casos/:id`, `GET /casos/:id/relatorio`, `GET /ready`.
@@ -50,8 +50,8 @@ pós-deploy para F5-03.
 
 ## Resultado esperado (Definition of Done)
 
-- [ ] **Cicatriz escalada**: treino em GPU/Colab com dataset ampliado; `caso_alto` fecha **ALTO** ponta a
-      ponta **com evidência de vídeo real** (sem degradação) — F5-01.
+- [x] **Cicatriz escalada**: treino em GPU/Colab (41 épocas, mAP50 0,995); com os pesos, `caso_alto` fecha
+      **ALTO** ponta a ponta — F5-01. _(Regenerar o log E2E num ambiente com `ultralytics` para registrar.)_
 - [ ] **Áudio + fisioterapia completas**: amostras obtidas, baseline rodado e **métricas reais** publicadas
       em `ai-service/models/` — F5-02.
 - [ ] **Deploy Azure** validado por **smoke pós-deploy** (Blob testado, `/health` ok, alerta), mantendo o

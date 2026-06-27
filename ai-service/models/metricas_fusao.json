@@ -1,0 +1,42 @@
+{
+  "so_video": {
+    "n": 6,
+    "precisao": 0.5,
+    "recall": 0.3333,
+    "taxa_falsos_positivos": 0.3333,
+    "tp": 1,
+    "fp": 1,
+    "fn": 2,
+    "tn": 2
+  },
+  "so_vitais": {
+    "n": 6,
+    "precisao": 1.0,
+    "recall": 0.6667,
+    "taxa_falsos_positivos": 0.0,
+    "tp": 2,
+    "fp": 0,
+    "fn": 1,
+    "tn": 3
+  },
+  "so_audio_texto": {
+    "n": 6,
+    "precisao": 0.6667,
+    "recall": 0.6667,
+    "taxa_falsos_positivos": 0.3333,
+    "tp": 2,
+    "fp": 1,
+    "fn": 1,
+    "tn": 2
+  },
+  "fusao": {
+    "n": 6,
+    "precisao": 1.0,
+    "recall": 1.0,
+    "taxa_falsos_positivos": 0.0,
+    "tp": 3,
+    "fp": 0,
+    "fn": 0,
+    "tn": 3
+  }
+}

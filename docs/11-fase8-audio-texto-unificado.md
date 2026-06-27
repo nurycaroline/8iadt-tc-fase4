@@ -128,6 +128,21 @@ python -c "from app.texto.nlp import analisar; print(analisar('me sinto sem espe
 > Sem os modelos treinados, **tudo degrada para o fallback por palavras-chave** (DD10) — o gate
 > (`ruff`+`pytest`) roda sem download/treino.
 
+## Resultados do treino (ambiente do grupo, 2026-06-27)
+
+Treino executado com os comandos acima; pesos e `metrics.json` versionados em `ai-service/models/`.
+
+| Modelo | Algoritmo | n (treino/teste) | F1 macro | Acurácia |
+|--------|-----------|------------------|----------|----------|
+| Depressão (texto) | TF-IDF + LogReg | 300 / 100 | **0,93** | 0,93 |
+| Violência (texto) | TF-IDF + LogReg | 409 / 137 | **1,00** ⚠️ | 1,00 |
+| Violência (acústico) | MFCC + LogReg | 300 / 100 | **0,94** | 0,94 |
+
+> ⚠️ **Violência (texto) com F1 = 1,0** é um **alerta de cautela**, não um troféu: negativos gerados +
+> domínio traduzido tornam as classes provavelmente **separáveis demais**, e o `metrics.json` (546 amostras)
+> está **dessincronizado** do CSV atual (~2,78 mil linhas). **Retreinar** para sincronizar e reavaliar antes
+> de afirmar desempenho. Métricas **ilustrativas** (filosofia mini-dataset).
+
 ## Definition of Done
 
 - [x] Deps locais nas versões estáveis atuais; sem Azure nos módulos reescritos.

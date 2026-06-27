@@ -6,7 +6,7 @@
 
 ## Fase atual
 
-**Fase 8 — Áudio/Texto Unificado (depressão e violência)** — **em implementação**.
+**Fase 8 — Áudio/Texto Unificado (depressão e violência)** — **implementada + modelos treinados**.
 Spec em [`.specs/features/fase8-audio-texto-unificado/spec.md`](../features/fase8-audio-texto-unificado/spec.md)
 e doc [`docs/11-fase8-audio-texto-unificado.md`](../../docs/11-fase8-audio-texto-unificado.md). Troca a
 abordagem por **palavras-chave** de áudio/texto por **classificadores ML locais** em PT-BR e adiciona uma
@@ -28,10 +28,13 @@ complicação preservadas; depressão **saiu** de `TERMOS_COMPLICACAO`); (F8-08)
 sem regressão; (F8-09) testes (+17 → **129** Python) — schema, classificadores (mocks/fixtures pequenas),
 áudio dupla e fusão; (F8-10) docs/contrato/datasets/02-fase2/PLANO/STATE. **Carregamento de modelo
 tolerante** (`app/ml_utils.py`): sem pesos, tudo degrada por keywords (gate roda sem download/treino).
-**Gate verde:** `ruff` + `pytest` (**129 testes** Python). **Pendência manual (ambiente):** download dos
-datasets HF + tradução + treino real (comandos no doc da Fase 8); os artefatos/pesos **não** são
-versionados (só métricas/amostras). **Decisão registrada:** datasets adotados + descarte do
-`singhsandk/domestic-violence-dataset-prep` (14 linhas, Q&A).
+**Gate verde:** `ruff` + `pytest` (**129 testes** Python). **Treino real concluído (ambiente do grupo,
+2026-06-27):** depressão (texto) F1 macro **0,93**; violência (texto) F1 **1,0** (⚠️ provável separabilidade
+trivial / dataset dessincronizado — `metrics.json` 546 amostras vs CSV ~2,78 mil; **retreinar** para
+sincronizar); violência **acústica** F1 macro **0,94** — pesos `models/texto/*.joblib` e
+`models/audio/violencia_acustico.joblib` **agora versionados**. **Decisão registrada:** datasets adotados +
+descarte do `singhsandk/domestic-violence-dataset-prep` (14 linhas, Q&A). **Atenção:** rodar com Python
+**≥3.12** — o `app.baseline`/`app.metricas_fusao` usam `zip(strict=True)` (quebra no pyenv 3.9 global).
 
 **Fase 7 — Privacidade e Segurança (LGPD)** — **implementada** (F7-01..F7-08).
 Spec em [`.specs/features/fase7-privacidade-e-seguranca/`](../features/fase7-privacidade-e-seguranca/spec.md)
@@ -85,8 +88,9 @@ e serve `frontend/dist` (SPA); (F5-05) **reforço dos sinais vitais** com pré-e
 (`scripts/data_prep/preeclampsia_sintetico.py` + `treino.comparar_com_aumento` +
 `scripts/reforco_sinais_vitais.py`); (F5-06 parcial) **hardening** — `/ready`, job de CI do frontend,
 `frontend/Dockerfile`+nginx (proxy REST+WS) e serviço `frontend` no compose (`:8080`).
-**Bloqueado por ambiente** (código pronto/Azure-ready; degrada sem quebrar — DD10): (F5-01) escalar o
-detector de **cicatriz** exige GPU/Colab + dataset; (F5-02) **áudio/fisioterapia** exigem amostras com
+**Bloqueado por ambiente** (código pronto/Azure-ready; degrada sem quebrar — DD10): ~~(F5-01) escalar o
+detector de **cicatriz**~~ **concluído** (treino em GPU/Colab, 41 épocas, mAP50≈0.995; `best.pt`
+versionado); (F5-02) **áudio/fisioterapia** exigem amostras com
 licença (obtenção manual); (F5-03) **deploy real na Azure** exige conta/credenciais. **Gate verde:**
 `ruff` + `pytest` (**102 testes** Python: 96 base + 6 da Fase 5); `eslint`+`jest` (**18 testes** Node:
 11 base + 7) e `eslint`+`vitest`+`build` (**7 testes** frontend). Decisões de escopo (Whisper vs. Azure
@@ -139,12 +143,14 @@ Código em `ai-service/app/` (um módulo por modalidade) + testes em `ai-service
 modalidade expõe inferência com **saída padronizada** (dict do contrato §3); limiares em
 `app/limiares.py`; baseline em `ai-service/models/baseline.json`. Gate verde:
 `ruff check scripts ai-service` + `pytest -q` (63 testes).
-Treinos reais executados neste ambiente: **sinais vitais** (Random Forest, 451 amostras,
-acurácia≈0.65/F1≈0.62) e **cicatriz** (YOLOv8n smoke, 6 imagens AZH, mAP50≈0.93, export ONNX ok).
+Treinos reais executados: **sinais vitais** (Random Forest, 451 amostras, acurácia≈0.65/F1≈0.62) e
+**cicatriz** (YOLOv8n, agora **escalado** em GPU/Colab — 41 épocas, mAP50≈0.995, precisão≈0.99,
+recall≈0.99; `best.pt` versionado — supera o smoke inicial de 6 imagens).
 **Texto/NLP** 5/5 vs. rótulos. **Áudio/fisioterapia**: classificadores/geometria testados; treino/
 inferência completa exige dados de obtenção manual (degradam sem quebrar — DD10).
 Observações do ambiente: Python **3.12** (não 3.13; dentro da faixa suportada); o detector de
-cicatriz é **smoke** e precisa escalar (GPU/Colab) para detecções confiáveis acima do limiar.
+cicatriz foi **escalado** (GPU/Colab, 41 épocas) e já detecta com precisão/recall ≈0.99 — **F5-01
+concluído**.
 
 **Fase 1 — Aquisição e Preparação de Dados** — **implementada**.
 Plano em [`.specs/features/fase1-dados/`](../features/fase1-dados/) (spec → design → tasks).
@@ -166,7 +172,7 @@ público simples) e aparecem como passos opcionais.
 | S4  | Testes unitários só em funções puras (limpeza/conversão/builder)    | [F1 design DD5](../features/fase1-dados/design.md)             |
 | S5  | `data/` ignorado pelo Git; só `data/README.md` versionado           | [F1 design DD7](../features/fase1-dados/design.md)             |
 | S6  | **Python 3.13/3.12** (não 3.14): whisper não suporta 3.14 ainda     | [F1 design DD8](../features/fase1-dados/design.md)             |
-| S7  | Serviço de IA em `ai-service/app/`; pesos não versionados           | [F2 design DD1/DD4](../features/fase2-modelos/design.md)       |
+| S7  | Serviço de IA em `ai-service/app/`. **Revisado (2026-06-27):** os pesos treinados (`best.pt`, `*.joblib`) **passaram a ser versionados** — ver "Decisão pendente" sobre Git LFS | [F2 design DD1/DD4](../features/fase2-modelos/design.md)       |
 | S8  | Cada modalidade expõe `inferir() -> dict` do contrato de API §3     | [F2 design DD3](../features/fase2-modelos/design.md)           |
 | S9  | Sinais vitais = Random Forest (principal); Isolation Forest opcional | [F2 design DD6](../features/fase2-modelos/design.md)           |
 | S10 | Áudio/Texto = regras/palavras-chave (sentimento Azure opcional)     | [F2 design DD7](../features/fase2-modelos/design.md)           |
@@ -206,8 +212,8 @@ público simples) e aparecem como passos opcionais.
 
 - [x] Planejar a Fase 2 (spec → design → tasks em `.specs/features/fase2-modelos/`).
 - [x] Implementar a Fase 2 seguindo `tasks.md` (T1–T14). Gate verde (ruff + 63 testes).
-- [ ] **Escalar o detector de cicatriz** (mais dados/épocas em GPU/Colab) — smoke atual não detecta
-      acima do limiar de confiança.
+- [x] **Escalar o detector de cicatriz** (mais dados/épocas em GPU/Colab) — **concluído** (41 épocas,
+      mAP50≈0.995, precisão/recall≈0.99; `best.pt` versionado).
 - [ ] Obter amostras de **áudio** e **fisioterapia** (manual) e rodar o baseline completo dessas modalidades.
 - [x] Planejar a Fase 3 (spec → design → tasks em `.specs/features/fase3-fusao-e-nuvem/`).
 - [x] Implementar a Fase 3 seguindo `tasks.md` (T1–T18): fusão, pipeline, FastAPI, relatório, métricas,
@@ -216,8 +222,8 @@ público simples) e aparecem como passos opcionais.
 - [ ] Decisão pendente do grupo: **deploy real na Azure** vs. fallback local para a gravação da demo (T17).
 - [x] Runtime/versões fixadas no `backend/package.json` (Node 22 LTS, última estável das libs) e nas
       deps Python adicionadas em `ai-service/requirements.txt`.
-- [ ] **Escalar o detector de cicatriz** (GPU/Colab) para o `caso_alto` fechar `ALTO` ponta-a-ponta sem
-      mock (hoje degrada e a fusão decide com vitais+texto).
+- [x] **Escalar o detector de cicatriz** (GPU/Colab) — **concluído**; com os pesos, o `caso_alto` fecha
+      `ALTO` num ambiente com `ultralytics`/`torch` (regenerar o log E2E nesse ambiente — pendente).
 - [x] Planejar a Fase 4 (spec → design → tasks em `.specs/features/fase4-entregaveis/`): repositório,
       relatório técnico e vídeo (14 requisitos F4E-01..F4E-14, 9 tarefas T1–T9).
 - [x] Implementar a Fase 4 seguindo `tasks.md` (T1–T9): auditoria do repo, evidências, relatório técnico
@@ -254,9 +260,17 @@ público simples) e aparecem como passos opcionais.
 - [x] Implementar a Fase 8 (F8-01..F8-10): trilha acústica de violência + classificadores ML de
       depressão/violência (PT-BR, datasets EN traduzidos offline), áudio/texto unificados, fusão com
       novos gatilhos, sem Azure. Gate verde (ruff + 129 testes Python). Pesos não versionados.
-- [ ] **Ação humana (ambiente/grupo):** rodar `scripts.data_prep.fase8_datasets` (requer rede do HF na
-      1ª vez) + `app.texto.treino`/`app.audio.treino` para gerar os pesos/métricas reais; confirmar os
-      defaults da Fase 8 (Argos vs. X-ALMA; localização das deps de dados; categoria de áudio derivada).
+- [x] **Treino da Fase 8 concluído** (2026-06-27): `app.texto.treino` + `app.audio.treino` geraram os
+      pesos/métricas reais (depressão F1≈0,93; violência texto F1=1,0 ⚠️; violência acústica F1≈0,94);
+      pesos versionados.
+- [ ] **Retreinar o classificador de violência (texto)** para sincronizar com o dataset atual
+      (`metrics.json` 546 amostras vs CSV ~2,78 mil) e investigar o F1=1,0 (provável separabilidade trivial
+      dos negativos gerados).
+- [x] **Regenerado `models/metricas_fusao.json`** (2026-06-27, Python 3.12) — fusão precisão/recall 1,0,
+      FP 0,0 vs. modalidades isoladas. **Pendente:** regenerar `models/baseline.json` (`python -m app.baseline`,
+      precisa das deps de IA) e o log E2E com os pesos reais.
+- [ ] **Decisão do grupo:** versionar `best.pt` (6 MB) via **Git LFS** vs. commit direto (hoje commitado
+      direto); confirmar os defaults da Fase 8 (Argos vs. X-ALMA; categoria de áudio derivada).
 
 ## Ideias adiadas
 

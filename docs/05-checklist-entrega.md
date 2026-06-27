@@ -19,15 +19,15 @@ Use este checklist antes de submeter. Cada item corresponde a algo avaliado.
 ## Escopo (requisitos do PDF)
 - [x] Pelo menos **2 funcionalidades** implementadas
 - [x] Pelo menos **3 objetivos** atendidos
-- [x] **Análise de vídeo** com YOLOv8 customizado ✅ obrigatório — _treino smoke (mAP@50 0,929); escalar p/ produção (STATE)_
-- [x] **Análise de áudio** especializada ✅ obrigatório — _módulo Whisper + classificação; degrada sem amostras (F2-DD10)_
+- [x] **Análise de vídeo** com YOLOv8 customizado ✅ obrigatório — _treino **escalado** (GPU/Colab, 41 épocas, mAP@50 0,995, precisão/recall ≈0,99); `best.pt` versionado_
+- [x] **Análise de áudio** especializada ✅ obrigatório — _Whisper + trilha **acústica** (Fase 8, F1≈0,94); degrada p/ keywords sem amostras (F2-DD10)_
 - [x] **Relatórios automáticos especializados** ✅ obrigatório — [`app/relatorio.py`](../ai-service/app/relatorio.py)
 - [x] Modalidade **texto** (laudos/prescrições/evolução) contemplada
 - [x] Detecção de anomalias em **tempo real** — socket.io
 - [x] Integração com **nuvem (Azure)** — adaptador Azure Blob | local (fallback p/ a demo)
 
 ## Técnico
-- [x] 4 modelos funcionando individualmente com **métricas** — vitais/cicatriz/texto com métricas reais; áudio/fisioterapia degradam sem dados (documentado no relatório técnico §4)
+- [x] 4 modelos funcionando individualmente com **métricas** — vitais (F1≈0,62), cicatriz (mAP@50 0,995), texto (depressão F1≈0,93; violência F1=1,0 ⚠️ ver §4.3.1) e áudio acústico (F1≈0,94) com métricas reais; fisioterapia degrada sem dados (relatório técnico §4)
 - [x] **Motor de fusão** retornando o JSON padronizado — [`app/fusao.py`](../ai-service/app/fusao.py)
 - [x] **Métrica do ganho da fusão** vs. modalidade única — [`models/metricas_fusao.json`](../ai-service/models/metricas_fusao.json)
 - [x] **Alerta em tempo real** (WebSocket/SSE) no dashboard — socket.io + cliente mínimo

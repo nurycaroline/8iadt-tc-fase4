@@ -121,9 +121,10 @@ framework, fine-tuning simples a partir do `data.yaml` da Fase 1, e export ONNX 
 de árvore oferece bom desempenho com explicabilidade (importância de variáveis) e baixo custo de treino.
 **Por que ML + regras em áudio/texto (Fase 8):** os classificadores **ML locais** (TF-IDF + LogReg no
 texto; MFCC + LogReg no som) generalizam além de um léxico fixo de depressão/violência, enquanto as
-**palavras-chave** clínicas (febre/dor/proteinúria) permanecem **explicáveis** e rastreáveis. Sem os pesos
-(não versionados), tudo **degrada graciosamente** para as palavras-chave (DD10), preservando a
-**reprodutibilidade offline** — o que importa num sistema de apoio à decisão clínica.
+**palavras-chave** clínicas (febre/dor/proteinúria) permanecem **explicáveis** e rastreáveis. Os pesos
+treinados (texto/áudio) estão em `ai-service/models/`; em ambientes onde os pesos faltem, tudo
+**degrada graciosamente** para as palavras-chave (DD10), preservando a **reprodutibilidade offline** — o
+que importa num sistema de apoio à decisão clínica.
 
 > **Degradação graciosa ([F2-DD10](../.specs/features/fase2-modelos/design.md)):** quando faltam pesos
 > (YOLO, ML de texto/áudio) ou amostras, a modalidade retorna valor **neutro/ausente** — ou cai no
@@ -209,30 +210,32 @@ A classe **`high` (alto risco)** — a mais relevante clinicamente — tem o mel
 classe **`mid`** é a mais fraca (F1 0,38), limitação esperada num dataset pequeno com fronteira ambígua
 entre risco baixo e médio.
 
-### 4.2 Cicatriz — YOLOv8n (smoke)
+### 4.2 Cicatriz — YOLOv8n (escalado em GPU/Colab)
 
-Fonte: [`ai-service/models/cicatriz/metrics.json`](../ai-service/models/cicatriz/metrics.json) (mini-dataset
-AZH Wound, **40 épocas**, treino *smoke*).
+Fonte: [`ai-service/models/cicatriz/metrics.json`](../ai-service/models/cicatriz/metrics.json) (treino
+escalado em GPU/Colab — [`notebooks/cicatriz_yolo_colab.ipynb`](../ai-service/notebooks/cicatriz_yolo_colab.ipynb) —
+**41 épocas**, sobre o dataset AZH Wound).
 
 | Métrica | Valor |
 | ------- | ----- |
-| mAP@50 (geral) | **0,929** |
+| mAP@50 (geral) | **0,995** |
 | mAP@50 `ferida_ok` | 0,995 |
-| mAP@50 `ferida_alerta` | 0,951 |
-| Recall | 1,0 |
-| Precisão | **0,0038** |
+| mAP@50 `ferida_alerta` | 0,995 |
+| Recall | **0,987** |
+| Precisão | **0,992** |
 
-> **Limitação honesta (smoke):** a **precisão muito baixa (0,0038)** indica excesso de falsos positivos —
-> o detector foi treinado como *smoke* num mini-dataset (poucas imagens/épocas) só para validar o pipeline
-> ponta a ponta. O mAP alto reflete o conjunto reduzido. **Precisa escalar** (mais dados/épocas em GPU/Colab)
-> para detecções confiáveis acima do limiar — item registrado em [`.specs/project/STATE.md`](../.specs/project/STATE.md).
-> Os **pesos não são versionados** ([F2-DD4](../.specs/features/fase2-modelos/design.md)); neste ambiente
-> sem os pesos a cicatriz **degrada** (evento `nenhum`) — ver §4.5.
+> **Evolução em relação ao smoke da Fase 2:** o detector saiu do treino *smoke* (mini-dataset, precisão
+> ≈0,0038) para um treino **escalado** (41 épocas) com **precisão 0,992 / recall 0,987 / mAP@50 0,995** —
+> fechando o item **F5-01** ([`.specs/project/STATE.md`](../.specs/project/STATE.md), antes "escalar o
+> detector de cicatriz"). Os **pesos (`best.pt`) agora estão versionados** no repositório. Em ambientes
+> **sem** `ultralytics`/`torch` instalados, a inferência ainda **degrada graciosamente** (evento `nenhum`,
+> DD10) — ver §4.5.
 
 ### 4.3 Texto/NLP e baseline por modalidade
 
-Fonte: [`ai-service/models/baseline.json`](../ai-service/models/baseline.json) (detecção binária de caso
-crítico por modalidade):
+Fonte: `ai-service/models/baseline.json` (detecção binária de caso crítico por modalidade). **Nota:** este
+artefato é **gerado** por `python -m app.baseline` (a partir de `ai-service/`, com as deps de IA
+instaladas) e **não está versionado** no momento — regenerá-lo é um passo pendente do ambiente de treino:
 
 | Modalidade | n | Precisão | Recall | Taxa de FP |
 | ---------- | - | -------- | ------ | ---------- |
@@ -243,13 +246,29 @@ O **texto/NLP** acerta 5/5 nos rótulos de referência. O baseline binário de s
 **recall (0,929)** — perde poucos casos críticos — ao custo de mais falsos positivos isolados, exatamente o
 comportamento que a **fusão corrige** (§3).
 
-> 🔄 **Fase 8 (classificadores ML de texto/áudio):** a análise textual ganhou modelos **ML em PT-BR** de
-> depressão e violência (TF-IDF + LogReg) e o áudio uma trilha **acústica** de violência (MFCC + LogReg).
-> Seguindo a política do repo, **pesos e métricas desses modelos não são versionados** (só amostras e
-> `metrics.json` gerados **localmente** no treino) — por isso o baseline acima reflete a trilha por
-> **palavras-chave**, para a qual tudo degrada na ausência dos pesos (DD10). Como treinar e onde ficam as
-> métricas locais: [`docs/11-fase8-audio-texto-unificado.md`](11-fase8-audio-texto-unificado.md). Nenhum
-> número foi fabricado aqui (princípio do documento).
+> 🔄 **Nota:** o baseline acima reflete a trilha por **palavras-chave** (Fase 2). Os classificadores **ML**
+> da Fase 8 (treinados) têm métricas próprias na §4.3.1.
+
+#### 4.3.1 Classificadores ML da Fase 8 (texto/áudio)
+
+A Fase 8 adicionou modelos **ML em PT-BR** de depressão e violência no texto (TF-IDF + LogReg) e uma trilha
+**acústica** de violência no áudio (MFCC + LogReg). Os pesos e os `metrics.json` **estão versionados** em
+`ai-service/models/`; sem eles, tudo degrada para palavras-chave (DD10).
+
+| Modelo | Fonte (`metrics.json`) | Algoritmo | n (treino/teste) | F1 macro | Acurácia |
+| ------ | ---------------------- | --------- | ---------------- | -------- | -------- |
+| Depressão (texto) | [`models/texto/depressao/metrics.json`](../ai-service/models/texto/depressao/metrics.json) | TF-IDF + LogReg | 300 / 100 | **0,930** | 0,93 |
+| Violência (texto) | [`models/texto/violencia/metrics.json`](../ai-service/models/texto/violencia/metrics.json) | TF-IDF + LogReg | 409 / 137 | **1,000** | 1,00 |
+| Violência (acústico) | [`models/audio/violencia_acustico/metrics.json`](../ai-service/models/audio/violencia_acustico/metrics.json) | MFCC + LogReg | 300 / 100 | **0,940** | 0,94 |
+
+> **Caveat honesto (violência no texto, F1 = 1,0):** o holdout perfeito é um **alerta de cautela**, não um
+> resultado para celebrar. Os negativos do conjunto de violência são **gerados sinteticamente** e o domínio
+> é redes sociais traduzido EN→PT — as classes provavelmente ficaram **trivialmente separáveis**. Além disso,
+> o `metrics.json` registra **546 amostras** (409+137) enquanto o CSV de origem já tem **~2,78 mil linhas**,
+> indício de que **o modelo deve ser retreinado** para sincronizar com o dataset atual antes de qualquer
+> afirmação de desempenho. Tratar essas métricas como **ilustrativas** (filosofia mini-dataset; ver
+> [`docs/11`](11-fase8-audio-texto-unificado.md) §Limitações honestas). Nenhum número foi fabricado aqui
+> (princípio do `AGENTS.md`).
 
 ### 4.4 Modalidades dependentes de dados manuais
 
@@ -258,8 +277,8 @@ comportamento que a **fusão corrige** (§3).
 (geometria de ângulos), mas a inferência completa **degrada** sem dados/pesos
 ([F2-DD10](../.specs/features/fase2-modelos/design.md)). Para **áudio/texto**, a [Fase 8](11-fase8-audio-texto-unificado.md)
 adicionou um **pipeline de dados local** (datasets HF + tradução EN→PT offline + negativos) e treinos
-reprodutíveis; ainda assim, **pesos e métricas não são versionados** e, sem eles, a detecção degrada para
-**palavras-chave** — sem números fabricados aqui.
+reprodutíveis, **agora treinados** com pesos e `metrics.json` versionados (§4.3.1); sem eles, a detecção
+degrada para **palavras-chave** — sem números fabricados aqui.
 
 ### 4.5 Exemplo de anomalia detectada (E2E) — caso de alto risco
 
@@ -267,12 +286,13 @@ Execução real de [`scripts/e2e_demo.py`](../scripts/e2e_demo.py) sobre
 [`data/casos/caso_alto.json`](../data/casos/caso_alto.json), log capturado em
 [`docs/relatorio/e2e-log.txt`](relatorio/e2e-log.txt):
 
-- **Neste ambiente (sem pesos YOLO/ASR):** cicatriz e áudio **degradam**; a fusão decide **`MEDIO`** com
-  `sinais_vitais_risco` (PA 150/95) + `texto_infeccao` ("febre e dor na cicatriz") e **emite o alerta em
-  tempo real** (`MEDIO` aciona o socket.io).
-- **Cenário de referência (com pesos treinados):** o mesmo caso corroborado escala para **`ALTO`** com o
-  gatilho `infeccao_puerperal` (suspeita de **infecção puerperal**) — ver o bloco "Cenário de referência
-  ALTO" no log e o relatório da §6.
+- **Com o detector de cicatriz treinado (`best.pt` versionado):** num ambiente com `ultralytics`/`torch`,
+  o caso corroborado escala para **`ALTO`** com o gatilho `infeccao_puerperal` (suspeita de **infecção
+  puerperal**) — ver o bloco "Cenário de referência ALTO" no log.
+- **Em ambiente sem `ultralytics`/`torch` (ou sem ASR):** cicatriz/áudio **degradam** graciosamente (DD10)
+  e a fusão ainda decide **`MEDIO`** com `sinais_vitais_risco` (PA 150/95) + `texto_infeccao` ("febre e dor
+  na cicatriz"), **emitindo o alerta em tempo real** (socket.io). _O log abaixo é desse ambiente leve;
+  regenerar `docs/relatorio/e2e-log.txt` no ambiente de treino para capturar o `ALTO` ponta a ponta._
 
 Trecho do log (com `case_id` rastreável):
 
