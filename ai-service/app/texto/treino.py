@@ -27,16 +27,28 @@ LOG = get_logger("texto_treino")
 ALVOS = ("depressao", "violencia")
 
 
-def construir_pipeline():
-    """Pipeline TF-IDF + LogisticRegression (baseline local, rápido em CPU)."""
+def construir_pipeline(min_df: int = 2):
+    """Pipeline TF-IDF + LogisticRegression (baseline local, rápido em CPU).
+
+    Regularizado para **reduzir a memorização de tokens raros de fonte** (principal driver do
+    vazamento de domínio quando positivos/negativos vêm de corpora diferentes): ``min_df`` descarta
+    termos raros, ``max_features`` limita o vocabulário, ``sublinear_tf`` amortece a frequência e
+    ``C`` aplica uma penalização L2 mais forte. ``min_df`` é parametrizável para preservar a
+    filosofia mini-dataset (com poucas amostras, cai para 1 — ver ``treinar_texto``).
+    """
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import Pipeline
 
     return Pipeline(
         [
-            ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=1, max_features=20000)),
-            ("clf", LogisticRegression(max_iter=1000, class_weight="balanced")),
+            (
+                "tfidf",
+                TfidfVectorizer(
+                    ngram_range=(1, 2), min_df=min_df, max_features=5000, sublinear_tf=True
+                ),
+            ),
+            ("clf", LogisticRegression(max_iter=1000, class_weight="balanced", C=0.5)),
         ]
     )
 
@@ -49,7 +61,8 @@ def treinar_texto(
     from sklearn.model_selection import train_test_split
 
     y = [int(v) for v in labels]
-    pipeline = construir_pipeline()
+    # min_df=2 só vale com volume; com poucas amostras cai para 1 (não esvazia o vocabulário).
+    pipeline = construir_pipeline(min_df=2 if len(y) >= 50 else 1)
 
     # Com poucas amostras (ou classe única), treina e avalia no próprio conjunto (smoke honesto).
     pode_dividir = len(set(y)) > 1 and len(y) >= 8

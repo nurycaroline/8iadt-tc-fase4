@@ -138,10 +138,22 @@ Treino executado com os comandos acima; pesos e `metrics.json` versionados em `a
 | Violência (texto) | TF-IDF + LogReg | 409 / 137 | **1,00** ⚠️ | 1,00 |
 | Violência (acústico) | MFCC + LogReg | 300 / 100 | **0,94** | 0,94 |
 
-> ⚠️ **Violência (texto) com F1 = 1,0** é um **alerta de cautela**, não um troféu: negativos gerados +
-> domínio traduzido tornam as classes provavelmente **separáveis demais**, e o `metrics.json` (546 amostras)
-> está **dessincronizado** do CSV atual (~2,78 mil linhas). **Retreinar** para sincronizar e reavaliar antes
-> de afirmar desempenho. Métricas **ilustrativas** (filosofia mini-dataset).
+> ⚠️ **Violência (texto) com F1 = 1,0** é um **alerta de cautela**, não um troféu: positivos e negativos
+> vêm de **datasets de fonte distinta**, tornando as classes **separáveis demais** (vazamento de fonte) —
+> o classificador aprende vocabulário de origem, não semântica de violência.
+>
+> **Mitigação tentada (código):** `_negativos_violencia()` passou a usar negativos do **mesmo domínio** (posts
+> do ShreyaR, misturando neutros e de depressão) e o pipeline TF-IDF foi **regularizado** (`min_df`
+> adaptativo, `max_features=5000`, `sublinear_tf`, L2 `C=0.5`). **Resultado do retreino (2026-06-27):** o F1
+> **permaneceu 1,0** (273 positivos + 273 negativos; matriz 69/68, zero erros).
+>
+> **Conclusão honesta:** o teto **não é** de regularização, e sim de **dados** — positivos (`Spiderman01`,
+> só **273** posts, *positivos-only*) e negativos (`ShreyaR`) vêm de **datasets/tópicos distintos**, então o
+> classificador os separa por **vocabulário de fonte**, não por semântica de violência. **Não generaliza**
+> para texto clínico real. Por isso, a detecção de violência **não depende** deste classificador isolado: o
+> sistema usa **trilha acústica** + **keywords clínicas** + transcrição (camadas redundantes na fusão).
+> **Para um F1 real seria preciso um único dataset com rótulos violência/não-violência da mesma fonte**
+> (decisão de dados do grupo — datasets adotados em S29).
 
 ## Definition of Done
 

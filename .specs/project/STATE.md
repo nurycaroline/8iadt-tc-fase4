@@ -29,9 +29,9 @@ sem regressão; (F8-09) testes (+17 → **129** Python) — schema, classificado
 áudio dupla e fusão; (F8-10) docs/contrato/datasets/02-fase2/PLANO/STATE. **Carregamento de modelo
 tolerante** (`app/ml_utils.py`): sem pesos, tudo degrada por keywords (gate roda sem download/treino).
 **Gate verde:** `ruff` + `pytest` (**129 testes** Python). **Treino real concluído (ambiente do grupo,
-2026-06-27):** depressão (texto) F1 macro **0,93**; violência (texto) F1 **1,0** (⚠️ provável separabilidade
-trivial / dataset dessincronizado — `metrics.json` 546 amostras vs CSV ~2,78 mil; **retreinar** para
-sincronizar); violência **acústica** F1 macro **0,94** — pesos `models/texto/*.joblib` e
+2026-06-27):** depressão (texto) F1 macro **0,93**; violência (texto) F1 **1,0** (⚠️ teto de **dados** —
+positivos `Spiderman01` e negativos `ShreyaR` são fontes distintas → separabilidade trivial; não generaliza,
+ver docs/11 §Resultados); violência **acústica** F1 macro **0,94** — pesos `models/texto/*.joblib` e
 `models/audio/violencia_acustico.joblib` **agora versionados**. **Decisão registrada:** datasets adotados +
 descarte do `singhsandk/domestic-violence-dataset-prep` (14 linhas, Q&A). **Atenção:** rodar com Python
 **≥3.12** — o `app.baseline`/`app.metricas_fusao` usam `zip(strict=True)` (quebra no pyenv 3.9 global).
@@ -263,9 +263,18 @@ público simples) e aparecem como passos opcionais.
 - [x] **Treino da Fase 8 concluído** (2026-06-27): `app.texto.treino` + `app.audio.treino` geraram os
       pesos/métricas reais (depressão F1≈0,93; violência texto F1=1,0 ⚠️; violência acústica F1≈0,94);
       pesos versionados.
-- [ ] **Retreinar o classificador de violência (texto)** para sincronizar com o dataset atual
-      (`metrics.json` 546 amostras vs CSV ~2,78 mil) e investigar o F1=1,0 (provável separabilidade trivial
-      dos negativos gerados).
+- [x] **Investigado o F1=1,0 da violência (texto)** — causa: **vazamento de fonte/domínio** (negativos de
+      outro corpus). **Corrigido no código** (2026-06-27): `scripts/data_prep/fase8_datasets._negativos_violencia`
+      usa negativos do **mesmo domínio** (ShreyaR neutro+depressão) e `app/texto/treino.construir_pipeline`
+      foi **regularizado** (`min_df` adaptativo, `max_features=5000`, `sublinear_tf`, L2 `C=0.5`).
+- [x] **Retreinado a violência (texto)** (2026-06-27) com a correção (negativos do mesmo domínio +
+      regularização): **F1 permaneceu 1,0** (273+273 amostras). **Conclusão:** o teto é de **dados** —
+      positivos (`Spiderman01`, 273, positivos-only) e negativos (`ShreyaR`) são **datasets distintos** →
+      separáveis por fonte, não por semântica. Não generaliza. A detecção de violência se apoia em
+      **acústico + keywords + transcrição** (camadas da fusão), não neste classificador isolado.
+- [ ] **(Opcional, decisão do grupo)** Obter um **único dataset** com rótulos violência/não-violência da
+      **mesma fonte** para um F1 de violência (texto) realista — caso contrário, manter o classificador como
+      baseline limitado e documentado.
 - [x] **Regenerado `models/metricas_fusao.json`** (2026-06-27, Python 3.12) — fusão precisão/recall 1,0,
       FP 0,0 vs. modalidades isoladas. **Pendente:** regenerar `models/baseline.json` (`python -m app.baseline`,
       precisa das deps de IA) e o log E2E com os pesos reais.

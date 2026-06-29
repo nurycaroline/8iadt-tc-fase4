@@ -261,14 +261,16 @@ A Fase 8 adicionou modelos **ML em PT-BR** de depressão e violência no texto (
 | Violência (texto) | [`models/texto/violencia/metrics.json`](../ai-service/models/texto/violencia/metrics.json) | TF-IDF + LogReg | 409 / 137 | **1,000** | 1,00 |
 | Violência (acústico) | [`models/audio/violencia_acustico/metrics.json`](../ai-service/models/audio/violencia_acustico/metrics.json) | MFCC + LogReg | 300 / 100 | **0,940** | 0,94 |
 
-> **Caveat honesto (violência no texto, F1 = 1,0):** o holdout perfeito é um **alerta de cautela**, não um
-> resultado para celebrar. Os negativos do conjunto de violência são **gerados sinteticamente** e o domínio
-> é redes sociais traduzido EN→PT — as classes provavelmente ficaram **trivialmente separáveis**. Além disso,
-> o `metrics.json` registra **546 amostras** (409+137) enquanto o CSV de origem já tem **~2,78 mil linhas**,
-> indício de que **o modelo deve ser retreinado** para sincronizar com o dataset atual antes de qualquer
-> afirmação de desempenho. Tratar essas métricas como **ilustrativas** (filosofia mini-dataset; ver
-> [`docs/11`](11-fase8-audio-texto-unificado.md) §Limitações honestas). Nenhum número foi fabricado aqui
-> (princípio do `AGENTS.md`).
+> **Caveat honesto (violência no texto, F1 = 1,0):** o holdout perfeito **não** indica um bom modelo. A
+> causa é de **dados**, não de ajuste: os **positivos** (`Spiderman01`, só **273** posts, *positivos-only*) e
+> os **negativos** (`ShreyaR`) vêm de **datasets/tópicos distintos**, então o classificador os separa por
+> **vocabulário de fonte**, não por semântica de violência — e **não generaliza** para texto clínico real.
+> Tentamos mitigar (negativos do **mesmo domínio** + pipeline TF-IDF **regularizado**: `min_df` adaptativo,
+> `max_features=5000`, `sublinear_tf`, L2 `C=0.5`) e **retreinamos** (2026-06-27): o **F1 permaneceu 1,0**,
+> confirmando o teto de dados. Por isso a detecção de violência **não se apoia** neste classificador isolado:
+> a fusão combina **trilha acústica + keywords clínicas + transcrição** (camadas redundantes). Um F1 real
+> exigiria um **único dataset rotulado violência/não-violência da mesma fonte**. Métrica atual = **ilustrativa**;
+> nenhum número foi fabricado (princípio do `AGENTS.md`).
 
 ### 4.4 Modalidades dependentes de dados manuais
 

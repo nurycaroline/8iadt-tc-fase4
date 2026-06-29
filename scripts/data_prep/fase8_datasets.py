@@ -11,7 +11,8 @@ Saídas (em ``data/`` — **ignorado pelo Git**, conforme política do repo):
 
 - ``data/texto_clinico/fase8/depressao_pt.csv`` — ``texto,label`` (1 = depressão).
 - ``data/texto_clinico/fase8/violencia_pt.csv`` — ``texto,label`` (1 = violência); **negativos**
-  vêm de amostras neutras (``is_depression=0``) do ShreyaR traduzidas + textos clínicos neutros.
+  do **mesmo domínio** (posts do ShreyaR, misturando neutros e de depressão) traduzidos +
+  textos clínicos neutros como complemento — reduz o vazamento de fonte/domínio.
 - ``data/audio/fase8/violencia/manifest.csv`` — ``caminho,label`` (1 = violência) + áudios.
 - ``data/<...>/fase8/relatorio.json`` — contagens/idioma/licença (amostra para o relatório).
 
@@ -254,25 +255,49 @@ def _amostrar_balanceado(ds, col_texto: str, col_label: str, limite: int) -> lis
 
 
 def _negativos_violencia(qtd: int) -> list[str]:
-    """Gera negativos de violência: ShreyaR neutro (PT) + textos clínicos neutros existentes."""
-    negativos = list(textos_clinicos_neutros())
-    faltam = max(0, qtd - len(negativos))
-    if faltam:
-        ds = _carregar_hf(DS_DEPRESSAO)
-        if ds is not None:
-            col_texto = _coluna(ds, "clean_text", "text", "Text")
-            col_label = _coluna(ds, "is_depression", "label", "Label")
-            neutros_en = [
-                str(r[col_texto])
-                for r in ds
-                if col_texto and col_label and r.get(col_texto) and int(bool(r[col_label])) == 0
-            ][:faltam]
-            if neutros_en:
-                from .traducao import traduzir_lote
+    """Gera negativos de violência do **mesmo domínio** dos positivos (posts de rede social).
 
-                LOG.info("Traduzindo %d negativos (neutros) EN→PT...", len(neutros_en))
-                negativos += traduzir_lote(neutros_en)
-    return negativos[: qtd] if qtd else negativos
+    Evita o **vazamento de fonte/domínio** (positivos de um corpus, negativos de outro, o que torna
+    as classes trivialmente separáveis): os negativos vêm majoritariamente do dataset de depressão
+    (``ShreyaR``, mesma origem de posts), **misturando** textos **neutros** e de **depressão**.
+    Assim o classificador separa *violência* de *sofrimento psíquico*, não só "agitado" de "calmo".
+    Os textos clínicos neutros entram só como **complemento/fallback** (domínio diferente; cobre o
+    caso sem rede do HF).
+
+    Observação honesta: como o dataset de violência (``Spiderman01``) só traz **positivos**, ainda
+    resta resíduo de viés de fonte; mitiga-se aqui com negativos do domínio mais próximo + a
+    regularização do pipeline (ver ``app.texto.treino.construir_pipeline``).
+    """
+    sociais_en: list[str] = []
+    ds = _carregar_hf(DS_DEPRESSAO)
+    if ds is not None:
+        col_texto = _coluna(ds, "clean_text", "text", "Text")
+        col_label = _coluna(ds, "is_depression", "label", "Label")
+        if col_texto:
+            neutros, deprimidos = [], []
+            for r in ds:
+                texto = r.get(col_texto)
+                if not texto:
+                    continue
+                rotulo = int(bool(r[col_label])) if col_label else 0
+                (deprimidos if rotulo == 1 else neutros).append(str(texto))
+            # Mistura equilibrada: ~metade neutros + ~metade "deprimidos" (sofrimento != violência).
+            metade = max(1, qtd // 2)
+            usados_neutros = neutros[:metade]
+            sociais_en = usados_neutros + deprimidos[: max(0, qtd - len(usados_neutros))]
+
+    if sociais_en:
+        from .traducao import traduzir_lote
+
+        LOG.info("Traduzindo %d negativos de violência (mesmo domínio) EN→PT...", len(sociais_en))
+        negativos = traduzir_lote(sociais_en)
+    else:
+        negativos = []
+
+    # Complemento/fallback de domínio clínico (poucos; cobre o caso sem rede do HF).
+    if len(negativos) < qtd:
+        negativos += textos_clinicos_neutros()
+    return negativos[:qtd] if qtd else negativos
 
 
 def _salvar_csv_texto(caminho: Path, textos: list[str], labels: list[int]) -> None:
