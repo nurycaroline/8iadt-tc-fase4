@@ -17,7 +17,6 @@
     "idade_gestacional_semanas": 28
   },
   "video_cicatriz_url": "https://<conta>.blob.core.windows.net/videos/cicatriz01.jpg",
-  "video_fisioterapia_url": "https://<conta>.blob.core.windows.net/videos/fisio01.mp4",
   "dados_vitais": {
     "csv_url": "https://<conta>.blob.core.windows.net/sinais/case01.csv"
   },
@@ -39,7 +38,6 @@
   "risco_detectado": "ALTO",
   "evidencias": {
     "video_cicatriz": { "evento": "sinal_infeccao", "confianca": 0.86 },
-    "video_fisioterapia": { "execucao": "incorreta", "amplitude": "reduzida" },
     "sinais_vitais": { "tipo": "hipertensao", "valor": "150/95" },
     "audio": {
       "acustico": { "rotulo": "neutro", "confianca": 0.40 },
@@ -71,7 +69,6 @@
 |-------|---------|
 | `risco_detectado` | `BAIXO`, `MEDIO`, `ALTO` |
 | `evidencias.video_cicatriz.evento` | `ferida_ok`, `sinal_infeccao`, `nenhum` |
-| `evidencias.video_fisioterapia.execucao` | `correta`, `incorreta`, `nao_avaliado` |
 | `evidencias.sinais_vitais.tipo` | `normal`, `risco_medio`, `hipertensao`, `pre_eclampsia` |
 | `evidencias.audio.acustico.rotulo` | `violencia`, `neutro` |
 | `evidencias.audio.texto` | mesma estrutura de `evidencias.texto` (transcrição reanalisada) |

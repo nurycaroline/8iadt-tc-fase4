@@ -18,7 +18,6 @@ data/
 │   ├── images/         # amostras de imagem (ignoradas)
 │   ├── labels/         # rótulos no formato YOLOv8 (.txt)
 │   └── data.yaml       # classes + paths (versionado)
-├── video_fisioterapia/ # amostras de exercícios + keypoints
 ├── audio/
 │   └── metadados.json  # {arquivo, transcricao, categoria}
 ├── texto_clinico/
@@ -36,9 +35,9 @@ Pré-requisitos: `pip install -r scripts/requirements-data.txt`.
 python -m scripts.data_prep
 ```
 
-O orquestrador roda todas as modalidades (best-effort) e imprime um resumo. Modalidades **manuais**
-(áudio e fisioterapia) aparecem como `FALHOU` quando os arquivos ainda não foram adicionados — isso é
-esperado; adicione as amostras e rode de novo.
+O orquestrador roda todas as modalidades (best-effort) e imprime um resumo. A modalidade **manual**
+(áudio) aparece como `FALHOU` quando os arquivos ainda não foram adicionados — isso é esperado;
+adicione as amostras e rode de novo.
 
 Ou rode uma modalidade isolada:
 
@@ -49,19 +48,16 @@ Ou rode uma modalidade isolada:
 | Texto clínico     | `python -m scripts.data_prep.texto_clinico`     | **auto**  | Gera documentos sintéticos (offline)|
 | Caso sintético    | `python -m scripts.data_prep.caso_sintetico`    | **auto**  | Junta 1 amostra de cada modalidade  |
 | Áudio             | `python -m scripts.data_prep.audio_transcrever` | manual    | Coloque áudios (`.wav/.mp3/.m4a/...`) em `data/audio/` — detecta **qualquer nome**. Transcrição **local** (Whisper/`faster-whisper`) |
-| Fisioterapia      | `python -m scripts.data_prep.fisioterapia_pose` | manual    | IntelliRehabDS: aceita **sequências DepthImages** (cada pasta de gesto = 1 amostra), **esqueletos** (`.csv/.txt`) e vídeos. Em `data/video_fisioterapia/` |
 | **Fase 8** (áudio/texto) | `python -m scripts.data_prep.fase8_datasets`    | **auto*** | Baixa os 3 datasets HF, traduz EN→PT (Argos, offline) e gera negativos → `data/texto_clinico/fase8/*.csv` e `data/audio/fase8/violencia/manifest.csv`. *Requer rede do HF na 1ª vez; offline depois. Ver [Fase 8](../docs/11-fase8-audio-texto-unificado.md) |
 
 Se um download automático falhar (rede, URL ou licença que exige login), os scripts emitem uma mensagem
 clara com a instrução de **obtenção manual** — baixe a amostra do link na tabela de origem e coloque-a
 na pasta indicada.
 
-> **Áudio e fisioterapia processam qualquer arquivo presente** (busca recursiva em subpastas) — não
-> exigem nomes fixos. A **categoria** do áudio e a **execução** da fisioterapia são inferidas pelo nome:
-> áudio por palavra-chave (`relato_ansiedade.wav` → `ansiedade`; pasta `HC` do Androids → `neutro`);
-> fisioterapia pelo padrão IntelliRehabDS `Subject_Date_Gesture_Repetition_CorrectLabel_Position`
-> (`CorrectLabel` 1=correto, 2=incorreto). Se não reconhecer, marca `nao_rotulado`/`correto` e avisa
-> para ajustar no `metadados.json`.
+> **Áudio processa qualquer arquivo presente** (busca recursiva em subpastas) — não exige nomes fixos.
+> A **categoria** do áudio é inferida pelo nome: por palavra-chave (`relato_ansiedade.wav` → `ansiedade`;
+> pasta `HC` do Androids → `neutro`). Se não reconhecer, marca `nao_rotulado` e avisa para ajustar no
+> `metadados.json`.
 >
 > **Transcrição (ffmpeg):** o Whisper normalmente usa **ffmpeg**. Se não tiver ffmpeg
 > (`brew install ffmpeg`), instale o `soundfile` (`pip install soundfile`) — o script decodifica
@@ -79,8 +75,6 @@ na pasta indicada.
 | ----------------- | ----------------------------- | ---------------------- | ------ |
 | Sinais vitais     | Maternal Health Risk (UCI)    | **CC BY 4.0**          | https://archive.ics.uci.edu/dataset/863/maternal+health+risk |
 | Cicatriz (vídeo)  | AZH Wound                     | Acadêmico (ver repo)   | https://github.com/uwm-bigdata/wound-classification-using-images-and-locations |
-| Fisioterapia      | IntelliRehabDS                | Acadêmico (Zenodo)     | https://zenodo.org/records/4610859 |
-| Fisioterapia (alt)| REHAB24-6                     | Acadêmico              | (buscar "REHAB24-6 dataset") |
 | Áudio (violência acústica) | `Hemg/audio-based-violence-dataset` | **não especificada** (HF) — risco | https://huggingface.co/datasets/Hemg/audio-based-violence-dataset |
 | Texto (depressão) | `ShreyaR/DepressionDetection` (EN→PT) | **não especificada** (HF) — risco | https://huggingface.co/datasets/ShreyaR/DepressionDetection |
 | Texto (violência) | `Spiderman01/Domestic_violence_info_support_fromposts` (EN→PT) | **não especificada** (HF) — risco | https://huggingface.co/datasets/Spiderman01/Domestic_violence_info_support_fromposts |

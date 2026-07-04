@@ -27,7 +27,6 @@ def test_montar_caso_omite_modalidade_ausente():
     # Modalidades não fornecidas não aparecem no JSON (campos opcionais no contrato).
     assert "audio_url" not in caso
     assert "video_cicatriz_url" not in caso
-    assert "video_fisioterapia_url" not in caso
 
 
 def test_montar_caso_valida_obrigatorios():

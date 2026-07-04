@@ -5,8 +5,8 @@ evidências (logs/prints) para o relatório técnico e o vídeo. Roda **em proce
 Docker), usando o pipeline do serviço de IA com o adaptador de storage local — o mesmo motor servido
 por ``POST /inferencia`` e orquestrado pelo backend Node em ``POST /analisar``.
 
-Observações de ambiente: sem os pesos do YOLO (cicatriz/fisioterapia) e sem transcrição de áudio,
-essas modalidades **degradam** (evidência omitida, DD10); o alerta é demonstrado pelas modalidades
+Observações de ambiente: sem os pesos do YOLO (cicatriz) e sem transcrição de áudio, essas
+modalidades **degradam** (evidência omitida, DD10); o alerta é demonstrado pelas modalidades
 disponíveis (sinais vitais + texto). Com os pesos treinados, a fusão escala para ``ALTO``.
 
 Uso (a partir da raiz do repositório)::
@@ -67,7 +67,7 @@ def executar_caso(caso: dict) -> dict:
 def _imprimir_evidencias(resposta: dict) -> None:
     print("\nEvidências por modalidade:")
     evid = resposta["evidencias"]
-    for modalidade in ("video_cicatriz", "video_fisioterapia", "sinais_vitais", "audio", "texto"):
+    for modalidade in ("video_cicatriz", "sinais_vitais", "audio", "texto"):
         if modalidade in evid:
             print(f"  - {modalidade}: {evid[modalidade]}")
         else:

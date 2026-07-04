@@ -59,9 +59,9 @@ pip install -r scripts/requirements-data.txt
 python -m scripts.data_prep
 ```
 
-> Áudio e fisioterapia podem aparecer como `FALHOU`/`nao_avaliado` se as amostras manuais não forem
-> colocadas em `data/audio/` e `data/video_fisioterapia/` — esse é o comportamento esperado de
-> **degradação graciosa** (DD10) e é validado nos casos C-04 e B-04/B-05.
+> Áudio pode aparecer como `FALHOU`/`nao_avaliado` se as amostras manuais não forem colocadas em
+> `data/audio/` — esse é o comportamento esperado de **degradação graciosa** (DD10) e é validado
+> nos casos C-04 e B-04.
 
 ## 3. Como usar este plano
 
@@ -142,14 +142,7 @@ Um caso só é `PASSOU` quando **todos** os critérios do resultado esperado for
 - **Resultado esperado:** com amostra, retorna `{categoria, confianca}` (ex.: `depressao_pos_parto`,
   `violencia`, `ansiedade`); **sem** amostra, a modalidade degrada graciosamente (omitida), sem quebrar.
 
-### B-05 — Fisioterapia (pose + execução)
-- **Objetivo:** validar a avaliação de execução/amplitude do exercício.
-- **Pré-condições:** amostra de vídeo/pose em `data/video_fisioterapia/` (opcional).
-- **Passos:** execute a inferência de fisioterapia sobre a amostra.
-- **Resultado esperado:** com amostra, retorna `{execucao, amplitude}`; **sem** amostra, retorna
-  `nao_avaliado`/omite a modalidade sem quebrar o pipeline.
-
-### B-06 — Métricas por modalidade existem
+### B-05 — Métricas por modalidade existem
 - **Objetivo:** confirmar que métricas reais estão versionadas (sem números inventados).
 - **Pré-condições:** repositório clonado.
 - **Passos:** abra `ai-service/models/baseline.json`, `ai-service/models/cicatriz/metrics.json` e
@@ -280,7 +273,7 @@ Um caso só é `PASSOU` quando **todos** os critérios do resultado esperado for
 - **Objetivo:** validar a visualização consolidada.
 - **Pré-condições:** caso criado (E-03).
 - **Passos:** abra `/casos/:id`.
-- **Resultado esperado:** painéis por modalidade (cicatriz, fisioterapia, vitais, áudio, texto) e o
+- **Resultado esperado:** painéis por modalidade (cicatriz, vitais, áudio, texto) e o
   **painel de fusão** com `RiscoBadge` e `mensagem_alerta`; modalidades ausentes aparecem como
   não avaliadas (sem quebrar a tela).
 
@@ -455,8 +448,7 @@ Um caso só é `PASSOU` quando **todos** os critérios do resultado esperado for
 | Análise de áudio especializada | 2 | B-04, E-04 |
 | Modalidade texto (NLP) | 2 | B-03, C-05 |
 | Sinais vitais | 2 | B-01, E-07 |
-| Fisioterapia (pose) | 2 | B-05 |
-| Métricas por modalidade | 2 | B-06 |
+| Métricas por modalidade | 2 | B-05 |
 | Motor de fusão + JSON padronizado | 3 | C-02, C-03, C-04 |
 | Ganho da fusão vs. modalidade única | 3 | C-04 |
 | API `/inferencia` e `/analisar` | 3 | C-02, C-05 |
@@ -505,7 +497,6 @@ Um caso só é `PASSOU` quando **todos** os critérios do resultado esperado for
 | B-03 | | |
 | B-04 | | |
 | B-05 | | |
-| B-06 | | |
 | C-01 | | |
 | C-02 | | |
 | C-03 | | |

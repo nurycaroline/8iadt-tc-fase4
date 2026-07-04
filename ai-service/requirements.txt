@@ -6,7 +6,7 @@
 # Python 3.12+ (testado em 3.12). O openai-whisper ainda não suporta 3.14 (ver design.md DD8).
 # Versões mínimas conservadoras; o pip resolve a última compatível.
 
-# Visão computacional: detecção (cicatriz) e pose (fisioterapia)
+# Visão computacional: detecção de cicatriz (YOLOv8)
 ultralytics>=8.3
 opencv-python>=4.10
 Pillow>=10.4

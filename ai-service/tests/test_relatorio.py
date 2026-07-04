@@ -142,8 +142,6 @@ def test_anexos_com_links_reais():
     assert "[https://conta.blob.core.windows.net/videos/cic01.jpg]" in md
     # Caminho local vira identificador (sem link), não modalidade ausente.
     assert "`data/sinais_vitais/case01.csv`" in md
-    # Modalidade sem artefato é omitida.
-    assert "Vídeo da fisioterapia" not in md
 
 
 def test_anexos_sem_artefatos_mantem_legado():

@@ -20,7 +20,6 @@ from typing import Any
 MODALIDADES = (
     "sinais_vitais",
     "video_cicatriz",
-    "video_fisioterapia",
     "audio",
     "texto_clinico",
     "casos",

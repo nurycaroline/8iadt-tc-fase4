@@ -27,7 +27,6 @@ export interface EvidenciaTexto {
 
 export interface Evidencias {
   video_cicatriz?: { evento?: string; confianca?: number } | null
-  video_fisioterapia?: { execucao?: string; amplitude?: string } | null
   sinais_vitais?: { tipo?: string; valor?: string } | null
   // Áudio na Fase 8: análise dupla (acústico + transcrição→texto). `categoria`/`confianca`
   // são campos legados derivados, mantidos por compatibilidade.
@@ -54,7 +53,6 @@ export interface Caso {
   id: string
   paciente_id: string
   video_cicatriz_url: string | null
-  video_fisioterapia_url: string | null
   audio_url: string | null
   sinais_vitais_csv_url: string | null
   texto_clinico: string | null

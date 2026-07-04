@@ -7,7 +7,6 @@ type Etapa = 'preenchendo' | 'enviando' | 'analisando' | 'erro'
 
 const MODALIDADES: { campo: string; rotulo: string; accept: string }[] = [
   { campo: 'video_cicatriz', rotulo: 'Vídeo/foto da cicatriz', accept: 'image/*,video/*' },
-  { campo: 'video_fisioterapia', rotulo: 'Vídeo da fisioterapia', accept: 'video/*' },
   { campo: 'audio', rotulo: 'Áudio do relato', accept: 'audio/*' },
   { campo: 'sinais_vitais', rotulo: 'Sinais vitais (CSV)', accept: '.csv,text/csv' },
 ]

@@ -21,7 +21,6 @@ Esse recorte foi escolhido porque:
 | Modalidade | Entrada | Modelo | Saída |
 |-----------|---------|--------|-------|
 | **Vídeo (cicatriz)** | Foto/vídeo da cicatriz da cesárea | YOLOv8 (detecção) | sinal de **infecção** (vermelhidão, secreção, deiscência) + confiança |
-| **Vídeo (fisioterapia)** | Vídeo do exercício de reabilitação | YOLOv8-pose | qualidade/evolução do movimento (recuperação física) |
 | **Sinais vitais** | Dados clínicos tabulares (PA, FC, glicemia, temperatura) | Random Forest / Isolation Forest | normal / risco materno / pré-eclâmpsia |
 | **Áudio** | Áudio de consulta/relato | ASR (transcrição) + classificador | indicadores de depressão pós-parto/ansiedade/violência |
 | **Texto/NLP** | Laudos, exames, evolução clínica | NLP (palavras-chave / sentimento / regras) | achados de risco no texto clínico |
@@ -29,12 +28,11 @@ Esse recorte foi escolhido porque:
 
 > A inclusão do **texto** fecha a tríade "áudio, vídeo e texto" citada no enunciado e reforça a multimodalidade. Pode ser um módulo enxuto (regras + análise de sentimento), mas precisa existir.
 
-> **Sobre o vídeo:** as duas aplicações (cicatriz e fisioterapia) usam a mesma família YOLOv8 — a primeira por **detecção** (sinal de infecção), a segunda por **estimativa de pose** (movimento). Ambas são coisas que a mãe grava **em casa**, reforçando o "monitoramento contínuo".
 
 ## 4. Mapeamento dos requisitos do PDF
 
 ### Funcionalidades (mín. 2 — atendemos 3)
-- [x] Analisar **vídeos** (cicatriz / fisioterapia) para padrões anômalos / sinal de infecção.
+- [x] Analisar **vídeos** (cicatriz) para padrões anômalos / sinal de infecção.
 - [x] Processar **gravações de voz** (depressão pós-parto, ansiedade, violência).
 - [x] Detectar **anomalias em sinais vitais** (pressão/risco materno, pré-eclâmpsia).
 - [x] Integrar com **nuvem (Azure)**.
@@ -57,7 +55,7 @@ Esse recorte foi escolhido porque:
 | Cola | O que é |
 |------|---------|
 | **Paciente + caso** | Cada paciente cadastrada recebe **um conjunto de dados**; tudo é da **mesma pessoa, no mesmo episódio**. |
-| **Linha do tempo do pós-parto** | Cada modalidade observa um ângulo do **mesmo acompanhamento**: relato (áudio/texto), corpo (cicatriz/fisioterapia), números (sinais vitais). |
+| **Linha do tempo do pós-parto** | Cada modalidade observa um ângulo do **mesmo acompanhamento**: relato (áudio/texto), corpo (cicatriz), números (sinais vitais). |
 | **Motor de fusão** | Cruza as evidências e gera **um** nível de risco. |
 
 > **Treino x uso real.** Os **datasets públicos** servem **só para treinar** cada modelo (são de pessoas diferentes — tudo bem). O **"mesmo paciente"** só existe no **uso real**. Para **demonstrar** a fusão sem paciente real, montamos um **"caso de exemplo" sintético** juntando amostras (ver [Fase 1](01-fase1-dados.md)).
@@ -75,7 +73,6 @@ Esse recorte foi escolhido porque:
 | D7 | Incluir **módulo de texto/NLP** | Fecha a tríade "áudio, vídeo e texto" do enunciado |
 | D8 | **Medir o ganho da fusão** (vs. modalidade única) | Prova o valor da multimodalidade — o diferencial avaliado |
 | D9 | Alerta em **tempo real** (WebSocket/SSE) + **relatório automático** | Requisitos explícitos do PDF |
-| D10 | **Vídeo com dois usos** (cicatriz por detecção + fisioterapia por pose) | Aproveita YOLOv8 em dois sinais relevantes do puerpério |
 
 ## 7. Riscos e mitigações
 

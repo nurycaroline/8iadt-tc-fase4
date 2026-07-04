@@ -148,12 +148,6 @@ def test_mensagem_concatena_gatilhos_multiplos():
     assert "protocolo de proteção" in r["mensagem_alerta"]
 
 
-def test_fisioterapia_nao_eleva_risco_sozinha():
-    r = avaliar_fusao({"video_fisioterapia": {"execucao": "incorreta", "amplitude": "reduzida"}})
-    assert r["risco_detectado"] == "BAIXO"
-    assert "fisioterapia_alterada" in r["gatilhos"]
-
-
 # ── Fase 8: violência acústica, violência no texto e depressão no texto ─────
 
 

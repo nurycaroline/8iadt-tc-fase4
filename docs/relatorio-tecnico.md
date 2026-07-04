@@ -33,7 +33,7 @@ modalidades da mesma paciente** e **alerta cedo** a equipe. As **4 modalidades**
 
 | Modalidade | O que a paciente envia | Risco que ajuda a detectar |
 | ---------- | ---------------------- | -------------------------- |
-| **Vídeo** | foto/vídeo da cicatriz da cesárea e exercícios de fisioterapia | infecção da ferida; recuperação motora |
+| **Vídeo** | foto/vídeo da cicatriz da cesárea | infecção da ferida |
 | **Sinais vitais** | PA, frequência cardíaca, glicemia (CSV) | pré-eclâmpsia / risco hipertensivo |
 | **Áudio** | relato/consulta em áudio | depressão pós-parto, ansiedade, violência |
 | **Texto** | laudos/exames/evolução clínica | complicações relatadas, febre/dor |
@@ -69,7 +69,7 @@ flowchart TD
 
     subgraph IA["Motor de IA — Python + FastAPI"]
         API["POST /inferencia<br/>(pipeline)"]
-        MODS["Modelos por modalidade<br/>cicatriz · fisioterapia · sinais vitais · áudio · texto"]
+        MODS["Modelos por modalidade<br/>cicatriz · sinais vitais · áudio · texto"]
         FUS{{"Motor de fusão<br/>(regras explícitas)"}}
         REL["Relatório automático<br/>Markdown → HTML/PDF"]
     end
@@ -110,13 +110,12 @@ Cada modalidade expõe uma inferência com **saída padronizada** (dict do contr
 | Modalidade | Modelo / técnica | Justificativa da escolha |
 | ---------- | ---------------- | ------------------------ |
 | **Cicatriz (vídeo)** | **YOLOv8** (`ultralytics`, `yolov8n`) — detecção de objeto; export ONNX opcional | Ecossistema de visão maduro e pronto para fine-tuning de detecção de ferida; `yolov8n` (nano) viabiliza treino rápido no mini-dataset ([F2-DD9](../.specs/features/fase2-modelos/design.md)) |
-| **Fisioterapia (vídeo)** | **YOLOv8-pose** (`yolov8n-pose`) — keypoints + geometria pura em [`app/fisioterapia/angulos.py`](../ai-service/app/fisioterapia/angulos.py) | Mesmo ecossistema (`ultralytics`) cobre pose; ângulos/amplitude são regras puras, **explicáveis e testáveis** |
 | **Sinais vitais** | **Random Forest** (`scikit-learn`) — principal; **Isolation Forest** opcional (anomalia) | Dados **tabulares** rotulados (`RiskLevel`) pedem modelo supervisionado robusto e explicável; Isolation Forest como complemento não supervisionado ([F2-DD6](../.specs/features/fase2-modelos/design.md)) |
 | **Áudio** | **Análise dupla** ([Fase 8](11-fase8-audio-texto-unificado.md)): trilha **acústica** de violência (MFCC + LogReg, `scikit-learn`) **+** **transcrição** (Whisper local) reanalisada pelo NLP de texto unificado | Capta a violência no **som** (que a transcrição perde) e **reaproveita todo o NLP de texto**; roda **offline**, com **fallback** por palavras-chave sem os pesos ([F2-DD7](../.specs/features/fase2-modelos/design.md)) |
 | **Texto/NLP** | **Análise unificada** ([Fase 8](11-fase8-audio-texto-unificado.md)): classificadores **ML PT-BR** de `depressao` e `violencia` (TF-IDF + LogReg) **+** palavras-chave de infecção/complicação ([`app/texto/nlp.py`](../ai-service/app/texto/nlp.py)) | O ML generaliza além de um léxico fixo (depressão/violência); as keywords clínicas seguem **explicáveis** para febre/dor/proteinúria; **degrada** para keywords sem os pesos ([F2-DD7](../.specs/features/fase2-modelos/design.md)) |
 
-**Por que YOLOv8/YOLOv8-pose:** maturidade do ecossistema (`ultralytics`), detecção e pose no mesmo
-framework, fine-tuning simples a partir do `data.yaml` da Fase 1, e export ONNX para portabilidade.
+**Por que YOLOv8:** maturidade do ecossistema (`ultralytics`), fine-tuning simples a partir do `data.yaml`
+da Fase 1, e export ONNX para portabilidade.
 **Por que Random Forest:** os sinais vitais são **dados tabulares** com rótulo de risco — um classificador
 de árvore oferece bom desempenho com explicabilidade (importância de variáveis) e baixo custo de treino.
 **Por que ML + regras em áudio/texto (Fase 8):** os classificadores **ML locais** (TF-IDF + LogReg no
@@ -159,7 +158,6 @@ A fusão é um **motor de regras determinístico** (não end-to-end): a IA das m
 - **violência** — trilha **acústica** do som (conf. `≥ 0,7`) **ou** classificador **ML** de violência no texto/transcrição (conf. `≥ 0,6`) → `violencia` (**ALTO**), aciona protocolo mesmo isolado (Fase 8);
 - **depressão** — classificador **ML** no texto/transcrição (conf. `≥ 0,6`) **ou** áudio de depressão/ansiedade → `desconforto_psicologico` (≥ **MEDIO**) (Fase 8);
 - **contexto isolado** (só texto/áudio fraco) tem teto **MEDIO** — exceto violência;
-- fisioterapia alterada é **contexto adicional**, nunca eleva o risco sozinha.
 
 O risco final é o **maior** nível acionado e a mensagem concatena os gatilhos — alerta **explicável**.
 
@@ -274,13 +272,10 @@ A Fase 8 adicionou modelos **ML em PT-BR** de depressão e violência no texto (
 
 ### 4.4 Modalidades dependentes de dados manuais
 
-**Fisioterapia (pose)** depende de amostras de **obtenção manual** (sem download público simples — ver
-[`.specs/project/STATE.md`](../.specs/project/STATE.md)); o módulo existe e foi testado em funções puras
-(geometria de ângulos), mas a inferência completa **degrada** sem dados/pesos
-([F2-DD10](../.specs/features/fase2-modelos/design.md)). Para **áudio/texto**, a [Fase 8](11-fase8-audio-texto-unificado.md)
-adicionou um **pipeline de dados local** (datasets HF + tradução EN→PT offline + negativos) e treinos
-reprodutíveis, **agora treinados** com pesos e `metrics.json` versionados (§4.3.1); sem eles, a detecção
-degrada para **palavras-chave** — sem números fabricados aqui.
+Para **áudio/texto**, a [Fase 8](11-fase8-audio-texto-unificado.md) adicionou um **pipeline de dados
+local** (datasets HF + tradução EN→PT offline + negativos) e treinos reprodutíveis, **agora treinados**
+com pesos e `metrics.json` versionados (§4.3.1); sem eles, a detecção degrada para **palavras-chave** —
+sem números fabricados aqui.
 
 ### 4.5 Exemplo de anomalia detectada (E2E) — caso de alto risco
 

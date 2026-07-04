@@ -35,7 +35,6 @@ export function criarRotasPacientes(repos, storage = null) {
       for (const caso of repos.casos.porPaciente(id)) {
         for (const url of [
           caso.video_cicatriz_url,
-          caso.video_fisioterapia_url,
           caso.audio_url,
           caso.sinais_vitais_csv_url,
           caso.relatorio_url,

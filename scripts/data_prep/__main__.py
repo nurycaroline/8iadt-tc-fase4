@@ -4,8 +4,8 @@ Uso:
     python -m scripts.data_prep
 
 Executa cada modalidade de forma independente (best-effort) e imprime um resumo. Passos
-*essenciais* são auto-baixáveis/geráveis; *opcionais* (áudio, fisioterapia) dependem de obtenção
-manual (TTS/gravações próprias ou datasets com formulário) — ver data/README.md.
+*essenciais* são auto-baixáveis/geráveis; *opcionais* (áudio) dependem de obtenção manual
+(TTS/gravações próprias ou datasets com formulário) — ver data/README.md.
 """
 
 from __future__ import annotations
@@ -16,7 +16,6 @@ from . import (
     audio_transcrever,
     caso_sintetico,
     cicatriz_yolo,
-    fisioterapia_pose,
     sinais_vitais,
     texto_clinico,
 )
@@ -30,7 +29,6 @@ PASSOS = [
     ("sinais_vitais", sinais_vitais.main, True),
     ("cicatriz_yolo", cicatriz_yolo.main, True),
     ("audio", audio_transcrever.main, False),
-    ("fisioterapia", fisioterapia_pose.main, False),
     ("caso_sintetico", caso_sintetico.main, True),
 ]
 
@@ -57,7 +55,7 @@ def main() -> int:
         print(f"\nPassos essenciais com falha: {', '.join(falhas_essenciais)}")
         print("Veja data/README.md para obtenção manual quando o download exigir rede/licença.")
         return 1
-    print("\nMini-dataset essencial pronto. Áudio/fisioterapia podem exigir passos manuais.")
+    print("\nMini-dataset essencial pronto. Áudio pode exigir passos manuais.")
     return 0
 
 

@@ -11,7 +11,6 @@ from typing import Any
 
 # Domínios de valores (contrato-api.md §3).
 EVENTOS_CICATRIZ = ("ferida_ok", "sinal_infeccao", "nenhum")
-EXECUCOES_FISIOTERAPIA = ("correta", "incorreta", "nao_avaliado")
 TIPOS_SINAIS_VITAIS = ("normal", "risco_medio", "hipertensao", "pre_eclampsia")
 # Categoria legada de áudio — mantida por compatibilidade; na Fase 8 é **derivada** da análise
 # dupla (acústico + texto), não mais por palavras-chave (ver evidencia_audio_unificada).
@@ -61,16 +60,6 @@ def evidencia_cicatriz(evento: str, confianca: float) -> dict[str, Any]:
         "evento": _validar(evento, EVENTOS_CICATRIZ, "evento"),
         "confianca": _confianca(confianca),
     }
-
-
-def evidencia_fisioterapia(execucao: str, amplitude: str | None = None) -> dict[str, Any]:
-    """Evidência da fisioterapia: ``{execucao, amplitude}`` (amplitude opcional)."""
-    evid: dict[str, Any] = {
-        "execucao": _validar(execucao, EXECUCOES_FISIOTERAPIA, "execucao")
-    }
-    if amplitude is not None:
-        evid["amplitude"] = str(amplitude)
-    return evid
 
 
 def evidencia_sinais_vitais(tipo: str, valor: str) -> dict[str, Any]:

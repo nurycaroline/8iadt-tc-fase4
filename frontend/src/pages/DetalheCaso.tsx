@@ -77,12 +77,6 @@ export function DetalheCaso() {
         </div>
 
         <div className="painel">
-          <h3>Vídeo — fisioterapia (pose)</h3>
-          <Linha rotulo="Execução" valor={ev.video_fisioterapia?.execucao} />
-          <Linha rotulo="Amplitude" valor={ev.video_fisioterapia?.amplitude} />
-        </div>
-
-        <div className="painel">
           <h3>Sinais vitais</h3>
           <Linha rotulo="Classe" valor={ev.sinais_vitais?.tipo} />
           <Linha rotulo="Valor" valor={ev.sinais_vitais?.valor} />

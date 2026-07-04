@@ -23,8 +23,6 @@
 | Termo | Significado |
 |-------|-------------|
 | **YOLOv8** | Modelo de detecção/segmentação de objetos em imagem/vídeo (usado na cicatriz) |
-| **YOLOv8-pose** | Variante do YOLOv8 que estima **keypoints** do corpo (usado na fisioterapia) |
-| **Keypoints** | Pontos do corpo (articulações) detectados na estimativa de pose |
 | **mAP** (mean Average Precision) | Métrica de qualidade de detecção (ex.: mAP@0.5) |
 | **Random Forest** | Modelo de ML clássico de classificação |
 | **Isolation Forest** | Algoritmo de detecção de anomalias não supervisionado |

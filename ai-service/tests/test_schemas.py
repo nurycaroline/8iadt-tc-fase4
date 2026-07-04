@@ -36,14 +36,6 @@ def test_sinais_vitais_tipo_invalido():
         schemas.evidencia_sinais_vitais("alto", "150/95")
 
 
-def test_fisioterapia_amplitude_opcional():
-    assert schemas.evidencia_fisioterapia("correta") == {"execucao": "correta"}
-    assert schemas.evidencia_fisioterapia("incorreta", "reduzida") == {
-        "execucao": "incorreta",
-        "amplitude": "reduzida",
-    }
-
-
 def test_texto_valido():
     evid = schemas.evidencia_texto("sinal_infeccao", "febre e dor na cicatriz")
     assert evid["achado"] == "sinal_infeccao"

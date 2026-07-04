@@ -30,7 +30,6 @@ Nível de risco: {BAIXO | MÉDIO | ALTO}
 
 2. EVIDÊNCIAS POR MODALIDADE
    - Vídeo (cicatriz):  {evento} (confiança {x}) — imagem anexa
-   - Vídeo (fisioterapia): {execução/evolução} — keypoints
    - Sinais vitais:     {tipo} (valor {y}) — gráfico anexo
    - Áudio:             {categoria} (confiança {z}) — trecho/transcrição
    - Texto/laudo:       {achados de NLP}

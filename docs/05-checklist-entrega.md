@@ -27,7 +27,7 @@ Use este checklist antes de submeter. Cada item corresponde a algo avaliado.
 - [x] Integração com **nuvem (Azure)** — adaptador Azure Blob | local (fallback p/ a demo)
 
 ## Técnico
-- [x] 4 modelos funcionando individualmente com **métricas** — vitais (F1≈0,62), cicatriz (mAP@50 0,995), texto (depressão F1≈0,93; violência F1=1,0 ⚠️ ver §4.3.1) e áudio acústico (F1≈0,94) com métricas reais; fisioterapia degrada sem dados (relatório técnico §4)
+- [x] 4 modelos funcionando individualmente com **métricas** — vitais (F1≈0,62), cicatriz (mAP@50 0,995), texto (depressão F1≈0,93; violência F1=1,0 ⚠️ ver §4.3.1) e áudio acústico (F1≈0,94) com métricas reais
 - [x] **Motor de fusão** retornando o JSON padronizado — [`app/fusao.py`](../ai-service/app/fusao.py)
 - [x] **Métrica do ganho da fusão** vs. modalidade única — [`models/metricas_fusao.json`](../ai-service/models/metricas_fusao.json)
 - [x] **Alerta em tempo real** (WebSocket/SSE) no dashboard — socket.io + cliente mínimo

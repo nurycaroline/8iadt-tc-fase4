@@ -45,7 +45,7 @@ Abra `http://localhost:3000/` para o **cliente mínimo de demonstração** do al
 ### `POST /analisar` (multipart)
 
 Campos: `paciente_id` (obrigatório), `case_id` (opcional), `texto_clinico` (texto) e arquivos
-`video_cicatriz`, `video_fisioterapia`, `audio`, `sinais_vitais` (CSV). O backend monta o payload do
+`video_cicatriz`, `audio`, `sinais_vitais` (CSV). O backend monta o payload do
 contrato §1, chama `POST {AI_SERVICE_URL}/inferencia` (`axios`) e persiste o resultado. Se o serviço de
 IA estiver indisponível, responde `502/504` (com `case_id` logado) sem perder o upload já armazenado.
 

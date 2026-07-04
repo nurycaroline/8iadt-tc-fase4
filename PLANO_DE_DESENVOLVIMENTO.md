@@ -1,6 +1,6 @@
 # Plano de Desenvolvimento — Tech Challenge Fase 4 (8IADT)
 
-> Solução de **IA Multimodal para Saúde da Mulher**: **acompanhamento contínuo no pós-parto** com análise de **vídeo** (cicatriz da cesárea + fisioterapia), **áudio de consultas/relatos**, **sinais vitais** e **texto clínico**, com **fusão multimodal** para gerar **alertas precoces** em tempo real, hospedada em **nuvem (Azure)**.
+> Solução de **IA Multimodal para Saúde da Mulher**: **acompanhamento contínuo no pós-parto** com análise de **vídeo** (cicatriz da cesárea), **áudio de consultas/relatos**, **sinais vitais** e **texto clínico**, com **fusão multimodal** para gerar **alertas precoces** em tempo real, hospedada em **nuvem (Azure)**.
 
 Este documento é o **índice mestre** do plano. Ele resume o escopo, as decisões de projeto e como o trabalho está dividido em partes. Cada parte tem um documento próprio dentro de [`docs/`](docs/).
 
@@ -60,10 +60,10 @@ Para manter o projeto realista, alinhado ao "monitoramento contínuo" do enuncia
 
 **Cenário clínico central:** *Acompanhamento contínuo da mulher no **pós-parto** (e gestação avançada). A paciente, em casa, envia periodicamente seus dados; o sistema cruza tudo e alerta a equipe diante de **sinais precoces de risco**.*
 
-**Riscos-alvo monitorados:** infecção da cicatriz da cesárea, pré-eclâmpsia/hipertensão, depressão pós-parto/ansiedade, violência doméstica e evolução da recuperação física.
+**Riscos-alvo monitorados:** infecção da cicatriz da cesárea, pré-eclâmpsia/hipertensão, depressão pós-parto/ansiedade e violência doméstica.
 
 **4 modalidades implementadas (áudio, vídeo, sinais vitais e texto):**
-1. **Vídeo** — YOLOv8 detecta sinais de **infecção na cicatriz** da cesárea; **YOLOv8-pose** acompanha os **exercícios de fisioterapia**/recuperação.
+1. **Vídeo** — YOLOv8 detecta sinais de **infecção na cicatriz** da cesárea.
 2. **Sinais vitais** — modelo clássico (Random Forest / Isolation Forest) sobre dados clínicos tabulares (PA, FC, glicemia, temperatura) detecta **risco materno / pré-eclâmpsia**.
 3. **Áudio** — transcrição + classificação de sinais de **depressão pós-parto, ansiedade e violência** em áudio de consulta/relato.
 4. **Texto/NLP** — análise de laudos, exames e evolução clínica (fecha a tríade "áudio, vídeo e texto" do enunciado).
@@ -79,7 +79,7 @@ Para manter o projeto realista, alinhado ao "monitoramento contínuo" do enuncia
 Os dados **não são análises soltas**. Eles são amarrados por três "colas":
 
 1. **A paciente + um caso** — cada paciente cadastrada recebe **um conjunto de dados** (vídeo/áudio/sinais/texto). Tudo pertence à **mesma pessoa, no mesmo episódio de cuidado**.
-2. **A linha do tempo do pós-parto** — cada modalidade observa um ângulo do **mesmo acompanhamento**: o relato (áudio/texto), o corpo (cicatriz/fisioterapia em vídeo) e os números (sinais vitais).
+2. **A linha do tempo do pós-parto** — cada modalidade observa um ângulo do **mesmo acompanhamento**: o relato (áudio/texto), o corpo (cicatriz em vídeo) e os números (sinais vitais).
 3. **O motor de fusão** — cruza as evidências e gera **um** nível de risco, provando que a combinação vale mais que a soma das partes.
 
 > ⚠️ **Treino x uso real.** Os **datasets públicos** servem **só para treinar** cada modelo (são de pessoas diferentes — tudo bem). O **"mesmo paciente"** só existe no **uso real**, quando alguém é cadastrado e envia os próprios dados. Para **demonstrar** a fusão sem um paciente real, montamos um **"caso de exemplo" sintético** juntando amostras (ver [Fase 1](docs/01-fase1-dados.md)).

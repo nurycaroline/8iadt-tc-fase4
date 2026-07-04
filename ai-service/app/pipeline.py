@@ -24,7 +24,6 @@ from typing import Any
 from app.audio import classificacao as audio_inf
 from app.cicatriz import inferencia as cicatriz_inf
 from app.common import get_logger, project_root
-from app.fisioterapia import inferencia as fisioterapia_inf
 from app.fusao import avaliar_fusao
 from app.sinais_vitais import inferencia as vitais_inf
 from app.texto import nlp as texto_inf
@@ -85,13 +84,6 @@ def processar(requisicao: dict[str, Any], *, storage: Any | None = None) -> dict
             evidencias["video_cicatriz"] = cicatriz_inf.detectar(fonte)
         except Exception as exc:
             log.warning("Cicatriz omitida (%s).", exc)
-
-    if requisicao.get("video_fisioterapia_url"):
-        try:
-            fonte = _resolver(requisicao["video_fisioterapia_url"], storage)
-            evidencias["video_fisioterapia"] = fisioterapia_inf.avaliar(fonte)
-        except Exception as exc:
-            log.warning("Fisioterapia omitida (%s).", exc)
 
     dados_vitais = requisicao.get("dados_vitais") or {}
     if dados_vitais.get("csv_url"):

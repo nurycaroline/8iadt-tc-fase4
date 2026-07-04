@@ -25,7 +25,7 @@
 ## Tarefa 4.2 — Relatório técnico
 Deve conter (conforme o PDF):
 1. **Descrição do fluxo multimodal** (diagrama de arquitetura).
-2. **Modelos aplicados em cada tipo de dado** (vídeo — cicatriz/fisioterapia, áudio, sinais vitais, texto) e justificativa das escolhas (por que YOLOv8/YOLOv8-pose, por que Random Forest/Isolation Forest).
+2. **Modelos aplicados em cada tipo de dado** (vídeo — cicatriz, áudio, sinais vitais, texto) e justificativa das escolhas (por que YOLOv8, por que Random Forest/Isolation Forest).
 3. **Lógica de fusão** (motor de regras) **e a métrica do ganho da fusão** vs. modalidade única.
 4. **Resultados obtidos e exemplos de anomalias detectadas** (métricas, prints, matriz de confusão, mAP).
 5. **Seção de privacidade e segurança (LGPD)** — ver [07-privacidade-e-seguranca.md](07-privacidade-e-seguranca.md).
@@ -36,7 +36,7 @@ Deve conter (conforme o PDF):
 ## Tarefa 4.3 — Vídeo de demonstração (máx. 15 min)
 Roteiro sugerido:
 1. Apresentar o problema (acompanhamento no pós-parto) e a arquitetura (diagrama).
-2. Mostrar a **análise do vídeo** rodando com o YOLO: detecção na **cicatriz da cesárea** e **pose** no exercício de fisioterapia.
+2. Mostrar a **análise do vídeo** rodando com o YOLO: detecção na **cicatriz da cesárea**.
 3. Mostrar os **sinais vitais** (PA, FC, glicemia) sendo classificados pelo modelo.
 4. Mostrar o **áudio** sendo transcrito/classificado e o **texto/laudo** sendo analisado.
 5. **O momento da fusão:** ex.: cicatriz com sinal de infecção **+** PA alta/relato de febre → **alerta vermelho** em tempo real para a equipe.
@@ -50,7 +50,7 @@ Roteiro sugerido:
 ## Sugestão de divisão de tarefas no grupo
 | Frente | Responsável sugerido |
 |--------|----------------------|
-| Vídeo / YOLO (cicatriz + fisioterapia/pose) | 1 pessoa |
+| Vídeo / YOLO (cicatriz) | 1 pessoa |
 | Sinais vitais + fusão + métricas | 1 pessoa |
 | Áudio + texto/NLP | 1 pessoa |
 | Backend Node + Azure + tempo real + relatórios | 1 pessoa |

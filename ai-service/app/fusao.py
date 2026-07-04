@@ -69,9 +69,6 @@ MENSAGENS = {
     "texto_infeccao": (
         "Relato de febre/dor na evolução clínica — contexto adicional para a avaliação."
     ),
-    "fisioterapia_alterada": (
-        "Execução de fisioterapia alterada (amplitude reduzida) — contexto de recuperação."
-    ),
 }
 
 # Recomendação/encaminhamento por nível (usada pelo relatório, docs/06 §4).
@@ -106,14 +103,13 @@ def avaliar_fusao(evidencias: dict[str, Any]) -> dict[str, Any]:
     """Cruza as evidências e devolve ``{risco_detectado, mensagem_alerta, gatilhos}``.
 
     ``evidencias`` é um dicionário com chaves opcionais ``video_cicatriz``, ``sinais_vitais``,
-    ``audio``, ``texto`` e ``video_fisioterapia`` (cada valor no formato do contrato §3). Modalidade
-    ausente é simplesmente ignorada (a fusão avalia com o que tem, sem quebrar).
+    ``audio`` e ``texto`` (cada valor no formato do contrato §3). Modalidade ausente é simplesmente
+    ignorada (a fusão avalia com o que tem, sem quebrar).
     """
     cic = evidencias.get("video_cicatriz") or {}
     vit = evidencias.get("sinais_vitais") or {}
     aud = evidencias.get("audio") or {}
     txt = evidencias.get("texto") or {}
-    fis = evidencias.get("video_fisioterapia") or {}
 
     cic_infeccao = cic.get("evento") == "sinal_infeccao"
     vitais_risco = vit.get("tipo") in TIPOS_VITAIS_RISCO
@@ -171,11 +167,6 @@ def avaliar_fusao(evidencias: dict[str, Any]) -> dict[str, Any]:
     if texto_infeccao and "infeccao_puerperal" not in gatilhos:
         acionar("texto_infeccao", "MEDIO")
 
-    # 5) Fisioterapia — contexto adicional, nunca eleva o risco sozinha.
-    if fis.get("execucao") == "incorreta":
-        if "fisioterapia_alterada" not in gatilhos:
-            gatilhos.append("fisioterapia_alterada")
-
     return {
         "risco_detectado": risco,
         "mensagem_alerta": _montar_mensagem(risco, gatilhos),
@@ -185,8 +176,7 @@ def avaliar_fusao(evidencias: dict[str, Any]) -> dict[str, Any]:
 
 def _montar_mensagem(risco: str, gatilhos: list[str]) -> str:
     """Concatena as mensagens dos gatilhos acionados (ou mensagem neutra se nenhum)."""
-    relevantes = [g for g in gatilhos if g != "fisioterapia_alterada"]
-    if not relevantes and "fisioterapia_alterada" not in gatilhos:
+    if not gatilhos:
         return "Sem evidências suficientes de risco no momento."
     partes = [MENSAGENS[g] for g in gatilhos if g in MENSAGENS]
     return " ".join(partes) if partes else "Sem evidências suficientes de risco no momento."

@@ -19,7 +19,6 @@ LOG = get_logger("caso_sintetico")
 # Modalidades opcionais -> chave no JSON de requisição (contrato-api.md §1).
 _CAMPOS_MODALIDADE = {
     "video_cicatriz": "video_cicatriz_url",
-    "video_fisioterapia": "video_fisioterapia_url",
     "audio": "audio_url",
     "texto_clinico": "texto_clinico",
 }
@@ -30,7 +29,6 @@ def montar_caso(
     paciente: dict,
     *,
     video_cicatriz: str | None = None,
-    video_fisioterapia: str | None = None,
     dados_vitais_csv: str | None = None,
     audio: str | None = None,
     texto_clinico: str | None = None,
@@ -48,8 +46,6 @@ def montar_caso(
 
     if video_cicatriz is not None:
         caso["video_cicatriz_url"] = video_cicatriz
-    if video_fisioterapia is not None:
-        caso["video_fisioterapia_url"] = video_fisioterapia
     if dados_vitais_csv is not None:
         caso["dados_vitais"] = {"csv_url": dados_vitais_csv}
     if audio is not None:

@@ -19,7 +19,6 @@ function paraCaso(row) {
     id: row.id,
     paciente_id: row.paciente_id,
     video_cicatriz_url: row.video_cicatriz_url,
-    video_fisioterapia_url: row.video_fisioterapia_url,
     audio_url: row.audio_url,
     sinais_vitais_csv_url: row.sinais_vitais_csv_url,
     texto_clinico: row.texto_clinico,
@@ -83,17 +82,16 @@ export function criarRepositorios(db) {
       const id = caso.id || randomUUID();
       db.prepare(
         `INSERT INTO casos
-           (id, paciente_id, video_cicatriz_url, video_fisioterapia_url, audio_url,
+           (id, paciente_id, video_cicatriz_url, audio_url,
             sinais_vitais_csv_url, texto_clinico, risco_detectado, relatorio_url,
             resultado_json, timestamp)
-         VALUES (@id, @paciente_id, @video_cicatriz_url, @video_fisioterapia_url, @audio_url,
+         VALUES (@id, @paciente_id, @video_cicatriz_url, @audio_url,
             @sinais_vitais_csv_url, @texto_clinico, @risco_detectado, @relatorio_url,
             @resultado_json, @timestamp)`,
       ).run({
         id,
         paciente_id: caso.paciente_id,
         video_cicatriz_url: caso.video_cicatriz_url ?? null,
-        video_fisioterapia_url: caso.video_fisioterapia_url ?? null,
         audio_url: caso.audio_url ?? null,
         sinais_vitais_csv_url: caso.sinais_vitais_csv_url ?? null,
         texto_clinico: caso.texto_clinico ?? null,

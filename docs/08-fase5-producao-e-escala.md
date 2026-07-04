@@ -16,7 +16,7 @@
 | # | Item em aberto | Onde está registrado | Estado atual |
 |---|----------------|----------------------|--------------|
 | 1 | ~~Detector de **cicatriz** detecta abaixo do limiar (smoke)~~ **Resolvido** | STATE `todos`/`blockers`; [checklist §Escopo](05-checklist-entrega.md) | **Escalado** (41 épocas, mAP50 0,995); com pesos, `caso_alto` fecha **ALTO** |
-| 2 | **Fisioterapia** degrada por falta de dados (DD10); **áudio** já treinado (Fase 8) | STATE `todos`/`blockers`; [checklist §Técnico](05-checklist-entrega.md) | Áudio acústico F1≈0,94; fisioterapia ainda sem métricas |
+| 2 | **Áudio** treinado na Fase 8 | STATE `todos`/`blockers`; [checklist §Técnico](05-checklist-entrega.md) | Áudio acústico F1≈0,94 |
 | 3 | **Deploy real na Azure** (Blob testado, serviços hospedados) | [checklist §Pré-requisitos](05-checklist-entrega.md); STATE | Só **fallback local** (`STORAGE_BACKEND=local`) |
 | 4 | **Dashboard React** completo | STATE `ideias adiadas` / out-of-scope da Fase 4; [`frontend.md`](frontend.md) | Apenas **cliente mínimo** (HTML + socket.io) |
 | 5 | **Pré-eclâmpsia**: reforçar sinais vitais com dados sintéticos | STATE `ideias adiadas` | Modelo com métricas reais (acurácia≈0.65/F1≈0.62) |
@@ -36,7 +36,7 @@
 | F5-05 | Reforço dos sinais vitais (pré-eclâmpsia) | ✅ **Implementado** | [`scripts/data_prep/preeclampsia_sintetico.py`](../scripts/data_prep/preeclampsia_sintetico.py) + `app/sinais_vitais/treino.comparar_com_aumento` + [`scripts/reforco_sinais_vitais.py`](../scripts/reforco_sinais_vitais.py) |
 | F5-06 | Hardening (observabilidade/CI-CD) | ✅ **Parcial** | `/ready` no backend; job de CI do frontend; `frontend/Dockerfile`+nginx; serviço no compose |
 | F5-01 | Escalar detector de cicatriz | ✅ **Concluído** | Treino em GPU/Colab ([`notebooks/cicatriz_yolo_colab.ipynb`](../ai-service/notebooks/cicatriz_yolo_colab.ipynb)), 41 épocas, mAP50 0,995, precisão/recall ≈0,99; `best.pt` versionado |
-| F5-02 | Áudio + fisioterapia completas | 🟡 **Parcial** | **Áudio** treinado na Fase 8 (acústico F1≈0,94 + transcrição→texto); **fisioterapia** ainda exige amostras com licença (degrada — DD10) |
+| F5-02 | Áudio completo | ✅ **Concluído** | **Áudio** treinado na Fase 8 (acústico F1≈0,94 + transcrição→texto) |
 | F5-03 | Deploy real na Azure | ⛔ **Bloqueado (ambiente)** | Exige **conta/credenciais Azure**; código Azure-ready + passos em [`deploy-azure.md`](deploy-azure.md); fallback local valida a stack |
 
 **Endpoints novos do backend (F5-04):** `GET /casos`, `GET /casos/:id`, `GET /casos/:id/relatorio`, `GET /ready`.
@@ -52,7 +52,7 @@ pós-deploy para F5-03.
 
 - [x] **Cicatriz escalada**: treino em GPU/Colab (41 épocas, mAP50 0,995); com os pesos, `caso_alto` fecha
       **ALTO** ponta a ponta — F5-01. _(Regenerar o log E2E num ambiente com `ultralytics` para registrar.)_
-- [ ] **Áudio + fisioterapia completas**: amostras obtidas, baseline rodado e **métricas reais** publicadas
+- [x] **Áudio completo**: amostras de áudio, baseline rodado e **métricas reais** publicadas
       em `ai-service/models/` — F5-02.
 - [ ] **Deploy Azure** validado por **smoke pós-deploy** (Blob testado, `/health` ok, alerta), mantendo o
       **fallback local** — F5-03.
@@ -77,12 +77,9 @@ pós-deploy para F5-03.
   com o `caso_alto` (deve fechar **ALTO**).
 - Decidir versionamento dos pesos (Git LFS vs. métricas + download).
 
-### Tarefa 5.2 — Completar áudio e fisioterapia (F5-02)
-- Obter amostras (obtenção manual: Androids/DEPAC para áudio; IntelliRehabDS para pose) — ver
-  [`data/README.md`](../data/README.md) e [`01-fase1-dados.md`](01-fase1-dados.md).
-- Preparar via `scripts/data_prep/`; rodar baseline de áudio (Whisper local **ou** Azure Speech — decidir) e
-  de fisioterapia (YOLOv8-pose); publicar métricas.
-- Manter a degradação graciosa (DD10) onde ainda faltarem dados.
+### Tarefa 5.2 — Completar áudio (F5-02)
+- Áudio concluído na Fase 8: acústico (F1≈0,94) + transcrição→texto. Sem pendências de áudio.
+- Manter a degradação graciosa (DD10) onde ainda faltarem amostras.
 
 ### Tarefa 5.3 — Deploy real na Azure (F5-03)
 - Seguir [`deploy-azure.md`](deploy-azure.md): Storage Account + container, publicar `ai-service` e `backend`

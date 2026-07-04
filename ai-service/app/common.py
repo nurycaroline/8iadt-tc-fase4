@@ -18,7 +18,6 @@ from typing import Any
 DATA_MODALIDADES = (
     "sinais_vitais",
     "video_cicatriz",
-    "video_fisioterapia",
     "audio",
     "texto_clinico",
     "casos",
@@ -28,7 +27,6 @@ DATA_MODALIDADES = (
 MODELO_MODALIDADES = (
     "sinais_vitais",
     "cicatriz",
-    "fisioterapia",
     "audio",
     "texto",
 )

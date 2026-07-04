@@ -9,7 +9,6 @@ import { normalizarCaseId, pacienteMinimo } from '../seguranca/pseudonimizacao.j
 // Validação de upload (Fase 7 — F7-06): só tipos esperados por campo. Prefixo "x/" casa por família.
 const MIME_PERMITIDOS = {
   video_cicatriz: ['video/', 'image/'],
-  video_fisioterapia: ['video/', 'image/'],
   audio: ['audio/', 'video/'],
   sinais_vitais: ['text/csv', 'text/plain', 'application/vnd.ms-excel', 'application/octet-stream'],
 };
@@ -33,7 +32,6 @@ const upload = multer({
 
 const CAMPOS_ARQUIVO = [
   { name: 'video_cicatriz', maxCount: 1 },
-  { name: 'video_fisioterapia', maxCount: 1 },
   { name: 'audio', maxCount: 1 },
   { name: 'sinais_vitais', maxCount: 1 },
 ];
@@ -41,7 +39,6 @@ const CAMPOS_ARQUIVO = [
 // Mapeia o campo do upload → chave de URL no contrato §1.
 const MAPA_URL = {
   video_cicatriz: 'video_cicatriz_url',
-  video_fisioterapia: 'video_fisioterapia_url',
   audio: 'audio_url',
 };
 

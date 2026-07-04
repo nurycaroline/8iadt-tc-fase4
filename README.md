@@ -1,6 +1,6 @@
 # Tech Challenge Fase 4 — IA Multimodal para Saúde da Mulher (8IADT)
 
-Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada): a paciente envia, de casa, **áudio** (relato/consulta), **vídeo** (cicatriz da cesárea e exercícios de fisioterapia), **sinais vitais** (pressão, batimentos, glicemia) e **texto** (laudos/exames). O sistema faz a **fusão multimodal** desses dados para detectar **sinais precoces de risco** e gerar **alertas clínicos em tempo real**, com integração à **nuvem (Azure)**.
+Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada): a paciente envia, de casa, **áudio** (relato/consulta), **vídeo** (cicatriz da cesárea), **sinais vitais** (pressão, batimentos, glicemia) e **texto** (laudos/exames). O sistema faz a **fusão multimodal** desses dados para detectar **sinais precoces de risco** e gerar **alertas clínicos em tempo real**, com integração à **nuvem (Azure)**.
 
 > Projeto **implementado de ponta a ponta** (Fases 1–7): dados → modelos → fusão → API → alerta em tempo real → relatório automático → privacidade/segurança (LGPD), com Docker, testes e CI. Para rodar do zero, veja **[Como rodar a stack](#como-rodar-a-stack)** (resumo) ou o guia detalhado **[`docs/como-executar.md`](docs/como-executar.md)**. Para validar a entrega, siga o **[plano de teste manual](docs/plano-de-teste-manual.md)**. O histórico de planejamento por fases está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)** e em [`.specs/`](.specs/).
 
@@ -49,7 +49,7 @@ No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risc
 
 ## Stack prevista
 - **Backend/orquestrador:** Node.js + Express (alerta em tempo real via WebSocket/SSE)
-- **Motor de IA:** Python + FastAPI (YOLOv8 + YOLOv8-pose, scikit-learn, Whisper/Azure Speech, NLP de texto)
+- **Motor de IA:** Python + FastAPI (YOLOv8, scikit-learn, Whisper/Azure Speech, NLP de texto)
 - **Nuvem:** Azure Blob Storage + App Service/Functions
 - **Infra/qualidade:** Docker + docker-compose, testes (pytest/jest), CI (GitHub Actions)
 

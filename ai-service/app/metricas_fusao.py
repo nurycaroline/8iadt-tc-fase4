@@ -38,7 +38,7 @@ LOG = get_logger("metricas_fusao")
 
 # Modalidades incluídas em cada cenário de modalidade única.
 CENARIOS = {
-    "so_video": ("video_cicatriz", "video_fisioterapia"),
+    "so_video": ("video_cicatriz",),
     "so_vitais": ("sinais_vitais",),
     "so_audio_texto": ("audio", "texto"),
 }

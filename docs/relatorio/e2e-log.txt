@@ -1,45 +1,80 @@
-# Log do E2E — scripts/e2e_demo.py (caso_alto)
-# Capturado em ambiente sem pesos YOLO/ASR: cicatriz/áudio degradam (DD10);
-# a fusão decide com sinais vitais + texto. Reproduza com: python -m scripts.e2e_demo
-
 {"level":"INFO","logger":"e2e_demo:-","case_id":"-","msg":"Processando caso_alto (case_id=caso-alto) ponta-a-ponta…"}
-{"level":"WARNING","logger":"cicatriz:-","case_id":"-","msg":"Modelo de cicatriz ausente em /workspace/ai-service/models/cicatriz/best.pt; evento=nenhum."}
-{"level":"WARNING","logger":"sinais_vitais:-","case_id":"-","msg":"Modelo de sinais vitais ausente; derivando tipo só pela PA."}
-{"level":"WARNING","logger":"pipeline:caso-alto","case_id":"caso-alto","msg":"Áudio omitido (No module named 'whisper')."}
+{"level":"WARNING","logger":"pipeline:caso-alto","case_id":"caso-alto","msg":"Cicatriz omitida (data/video_cicatriz/images/ferida_alerta_01.jpg does not exist)."}
+{"level":"WARNING","logger":"audio:-","case_id":"-","msg":"Transcrição indisponível (Error opening 'data/audio/relato_depressao.wav': System error.); seguindo só com a trilha acústica."}
+/Volumes/SSD/Projetos/8iadt-tc-fase4/ai-service/app/audio/features.py:22: UserWarning: PySoundFile failed. Trying audioread instead.
+  y, _ = librosa.load(str(caminho), sr=SR, mono=True)
+/Volumes/SSD/Projetos/8iadt-tc-fase4/.venv/lib/python3.12/site-packages/librosa/core/audio.py:184: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+{"level":"WARNING","logger":"audio:-","case_id":"-","msg":"Classificador acústico falhou ([Errno 2] No such file or directory: 'data/audio/relato_depressao.wav'); trilha acústica neutra."}
 {"level":"INFO","logger":"pipeline:caso-alto","case_id":"caso-alto","msg":"Fusão concluída: risco=MEDIO gatilhos=sinais_vitais_risco,texto_infeccao"}
-{"level":"INFO","logger":"relatorio:-","case_id":"-","msg":"PDF indisponível (No module named 'weasyprint'); mantendo HTML."}
-{"level":"INFO","logger":"storage:-","case_id":"-","msg":"Artefato salvo localmente em /workspace/data/_storage/relatorios/caso-alto.html (text/html)."}
+{"level":"INFO","logger":"relatorio:-","case_id":"-","msg":"PDF indisponível (cannot load library 'libpango-1.0-0': dlopen(libpango-1.0-0, 0x0002): tried: 'libpango-1.0-0' (no such file), '/System/Volumes/Preboot/Cryptexes/OSlibpango-1.0-0' (no such file), '/opt/homebrew/lib/libpango-1.0-0' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/homebrew/lib/libpango-1.0-0' (no such file), '/usr/lib/libpango-1.0-0' (no such file, not in dyld cache), 'libpango-1.0-0' (no such file).  Additionally, ctypes.util.find_library() did not manage to locate a library called 'libpango-1.0-0'); mantendo HTML."}
+{"level":"INFO","logger":"storage:-","case_id":"-","msg":"Artefato salvo localmente em /Volumes/SSD/Projetos/8iadt-tc-fase4/data/_storage/relatorios/caso-alto.html (text/html)."}
 {"level":"INFO","logger":"e2e_demo:-","case_id":"-","msg":"Alerta emitido (MEDIO) para o caso caso-alto"}
+
+-----
+
+WeasyPrint could not import some external libraries. Please carefully follow the installation steps before reporting an issue:
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#troubleshooting 
+
+-----
+
 
 === JSON de risco (contrato §2) ===
 {
-  "timestamp": "2026-06-22T13:04:12Z",
+  "timestamp": "2026-07-04T13:53:40Z",
   "case_id": "caso-alto",
   "risco_detectado": "MEDIO",
   "evidencias": {
-    "video_cicatriz": {
-      "evento": "nenhum",
-      "confianca": 0.0
-    },
     "sinais_vitais": {
       "tipo": "hipertensao",
-      "valor": "150/95"
+      "valor": "140/90"
+    },
+    "audio": {
+      "acustico": {
+        "rotulo": "neutro",
+        "confianca": 0.5
+      },
+      "transcricao": "",
+      "texto": {
+        "achado": "neutro",
+        "trecho": "",
+        "depressao": {
+          "rotulo": "neutro",
+          "confianca": 0.7728
+        },
+        "violencia": {
+          "rotulo": "neutro",
+          "confianca": 0.7886
+        }
+      },
+      "categoria": "neutro",
+      "confianca": 0.5
     },
     "texto": {
       "achado": "sinal_infeccao",
-      "trecho": "Queixa de febre (38,5°C) e dor na cicatriz"
+      "trecho": "Queixa de febre (38,5°C) e dor na cicatriz",
+      "depressao": {
+        "rotulo": "neutro",
+        "confianca": 0.6741
+      },
+      "violencia": {
+        "rotulo": "neutro",
+        "confianca": 0.7313
+      }
     }
   },
   "mensagem_alerta": "Sinais vitais alterados (PA/condição de risco) — monitorar a paciente. Relato de febre/dor na evolução clínica — contexto adicional para a avaliação.",
-  "relatorio_url": "/workspace/data/_storage/relatorios/caso-alto.html"
+  "relatorio_url": "/Volumes/SSD/Projetos/8iadt-tc-fase4/data/_storage/relatorios/caso-alto.html"
 }
 
 Evidências por modalidade:
-  - video_cicatriz: {'evento': 'nenhum', 'confianca': 0.0}
-  - video_fisioterapia: (ausente/degradada neste ambiente)
-  - sinais_vitais: {'tipo': 'hipertensao', 'valor': '150/95'}
-  - audio: (ausente/degradada neste ambiente)
-  - texto: {'achado': 'sinal_infeccao', 'trecho': 'Queixa de febre (38,5°C) e dor na cicatriz'}
+  - video_cicatriz: (ausente/degradada neste ambiente)
+  - sinais_vitais: {'tipo': 'hipertensao', 'valor': '140/90'}
+  - audio: {'acustico': {'rotulo': 'neutro', 'confianca': 0.5}, 'transcricao': '', 'texto': {'achado': 'neutro', 'trecho': '', 'depressao': {'rotulo': 'neutro', 'confianca': 0.7728}, 'violencia': {'rotulo': 'neutro', 'confianca': 0.7886}}, 'categoria': 'neutro', 'confianca': 0.5}
+  - texto: {'achado': 'sinal_infeccao', 'trecho': 'Queixa de febre (38,5°C) e dor na cicatriz', 'depressao': {'rotulo': 'neutro', 'confianca': 0.6741}, 'violencia': {'rotulo': 'neutro', 'confianca': 0.7313}}
 
 >>> ALERTA EM TEMPO REAL (socket.io 'alerta') <<<
 {
@@ -52,7 +87,7 @@ Evidências por modalidade:
   }
 }
 
-Relatório gerado em: /workspace/data/_storage/relatorios/caso-alto.html
+Relatório gerado em: /Volumes/SSD/Projetos/8iadt-tc-fase4/data/_storage/relatorios/caso-alto.html
 
 === Cenário de referência ALTO (cicatriz com pesos treinados) ===
   risco: ALTO | gatilhos: infeccao_puerperal, sinais_vitais_risco

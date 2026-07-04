@@ -1,16 +1,10 @@
-"""Testes de detecção/inferência de áudio e fisioterapia (nomes/extensões flexíveis)."""
+"""Testes de detecção/inferência de áudio (nomes/extensões flexíveis)."""
 
 from __future__ import annotations
 
 from scripts.data_prep.audio_transcrever import (
     inferir_categoria,
     listar_audios,
-)
-from scripts.data_prep.fisioterapia_pose import (
-    coletar_amostras,
-    inferir_execucao,
-    montar_metadado,
-    parse_intellirehab,
 )
 
 
@@ -40,49 +34,3 @@ def test_listar_audios_recursivo_em_subpastas(tmp_path):
     assert achados == {"lote1/neutro/a.wav", "topo.mp3"}
 
 
-def test_parse_intellirehab():
-    info = parse_intellirehab("106_18_2_3_1_stand")
-    assert info == {
-        "subject": "106", "date": "18", "gesture": "2",
-        "repeticao": "3", "correct_label": "1", "position": "stand",
-    }
-    assert parse_intellirehab("nome_qualquer") is None
-
-
-def test_inferir_execucao_fisio():
-    # CorrectLabel do padrão IntelliRehabDS (5º campo): 1=correto, 2=incorreto.
-    assert inferir_execucao("106_18_2_3_1_stand") == "correto"
-    assert inferir_execucao("106_18_2_3_2_stand") == "incorreto"
-    # Fallback por palavra-chave quando não casa o padrão.
-    assert inferir_execucao("agachamento_incorreto.mp4") == "incorreto"
-    assert inferir_execucao("agachamento_01.mp4") == "correto"
-
-
-def test_coletar_amostras_sequencia_depth(tmp_path):
-    # Pasta de gesto com frames PNG -> 1 amostra (sequência), não 1 por imagem.
-    seq = tmp_path / "DepthImages1-2" / "106_18_2_3_2_stand"
-    seq.mkdir(parents=True)
-    for n in ("52978.png", "52979.png", "52980.png"):
-        (seq / n).write_bytes(b"\x89PNG")
-    registros = coletar_amostras(tmp_path)
-    assert len(registros) == 1
-    r = registros[0]
-    assert r["tipo"] == "sequencia_depth"
-    assert r["n_frames"] == 3
-    assert r["execucao"] == "incorreto"
-    assert r["subject"] == "106" and r["gesture"] == "2"
-
-
-def test_coletar_amostras_esqueleto_e_video(tmp_path):
-    (tmp_path / "108_5_1_2_1_sit.csv").write_text("kp")
-    (tmp_path / "exercicio.mp4").write_bytes(b"\x00")
-    (tmp_path / "metadados.json").write_text("[]")
-    registros = coletar_amostras(tmp_path)
-    tipos = {r["arquivo"]: r["tipo"] for r in registros}
-    assert tipos == {"108_5_1_2_1_sit.csv": "esqueleto", "exercicio.mp4": "video"}
-
-
-def test_montar_metadado_valida_execucao():
-    m = montar_metadado("ex1.mp4", "ex1", "correto", None)
-    assert m["execucao"] == "correto"
-    assert m["arquivo"] == "ex1.mp4"

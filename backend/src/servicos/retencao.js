@@ -8,7 +8,6 @@ import { comCaso, logger } from '../logger.js';
 
 const URLS_DE = (caso) => [
   caso.video_cicatriz_url,
-  caso.video_fisioterapia_url,
   caso.audio_url,
   caso.sinais_vitais_csv_url,
   caso.relatorio_url,

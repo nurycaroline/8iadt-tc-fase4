@@ -11,7 +11,6 @@
 
 ## Resultado esperado (Definition of Done)
 - [x] Modelo de **vídeo — cicatriz** (YOLOv8) treinado (GPU/Colab, 41 épocas) com métricas reais (mAP@50 0,995, precisão/recall ≈0,99); `best.pt` versionado.
-- [ ] Modelo de **vídeo — fisioterapia** (YOLOv8-pose) funcionando com avaliação de movimento.
 - [ ] Modelo de **sinais vitais** treinado com métricas (acurácia, F1, matriz de confusão).
 - [ ] Módulo de **áudio** funcionando (transcrição + classificação) com exemplos.
 - [ ] Módulo de **texto/NLP** funcionando com exemplos.
@@ -29,15 +28,7 @@
   4. Exportar em **ONNX** (ou PyTorch) para a inferência.
 - **Objetivo clínico:** sinalizar **sinal de infecção** (vermelhidão, secreção, deiscência) na cicatriz da cesárea.
 
-## Tarefa 2.2 — Análise de fisioterapia (YOLOv8-pose)
-- **Biblioteca:** `ultralytics` (modelo `*-pose`).
-- **Passos:**
-  1. Estimar **keypoints** do corpo nos vídeos de exercício (IntelliRehabDS).
-  2. Derivar ângulos/repetições e classificar a execução como `correto / incorreto` (ou medir amplitude/evolução).
-  3. Avaliar com os rótulos de correção do dataset.
-- **Objetivo clínico:** acompanhar a **recuperação física** ao longo do tempo.
-
-## Tarefa 2.3 — Análise de sinais vitais
+## Tarefa 2.2 — Análise de sinais vitais
 - **Biblioteca:** `scikit-learn`.
 - **Modelos:** **Random Forest** (classificação supervisionada com o rótulo `RiskLevel` do Maternal Health Risk) e/ou **Isolation Forest** (detecção de anomalia não supervisionada).
 - **Passos:**
@@ -46,7 +37,7 @@
   3. Salvar o modelo (`joblib`).
 - **Objetivo clínico:** sinalizar **risco materno / pré-eclâmpsia**.
 
-## Tarefa 2.4 — Análise de áudio
+## Tarefa 2.3 — Análise de áudio
 - **Pipeline (Fase 2):** áudio → **transcrição** (Whisper) → **classificação** por palavras-chave.
 - **Saída (Fase 2):** categoria (`depressao_pos_parto`, `ansiedade`, `violencia`, `fadiga`, `neutro`) + confiança.
 
@@ -55,7 +46,7 @@
 > **e** a transcrição reanalisada como texto unificado. A categoria legada vira um campo
 > **derivado**. **Sem Azure** (tudo local: Whisper/`faster-whisper`).
 
-## Tarefa 2.5 — Análise de texto (NLP)
+## Tarefa 2.4 — Análise de texto (NLP)
 - **Entrada:** laudos, exames e evolução clínica (Fase 1, Tarefa 1.5).
 - **Abordagem (Fase 2):** extração de palavras-chave de risco (infecção/complicação).
 - **Saída (Fase 2):** achado (`complicacao`, `sinal_infeccao`, `neutro`) + trecho disparador.
@@ -66,11 +57,11 @@
 > `complicacao` e passa ao sinal dedicado `depressao` (evita dupla contagem na fusão). **Sem Azure
 > Text Analytics** (tudo local).
 
-## Tarefa 2.6 — Baseline por modalidade única
+## Tarefa 2.5 — Baseline por modalidade única
 - Antes da fusão, registre a performance de **cada modalidade isolada** detectando o evento de risco.
 - Servirá de comparação para provar, na Fase 3, que a **fusão reduz falsos positivos / melhora a detecção**.
 
-## Tarefa 2.7 — Definição de limiares clínicos (gatilhos)
+## Tarefa 2.6 — Definição de limiares clínicos (gatilhos)
 Documentar os disparadores matemáticos do alerta, por exemplo:
 
 | Sinal | Condição de alerta |
@@ -78,7 +69,6 @@ Documentar os disparadores matemáticos do alerta, por exemplo:
 | PA sistólica / diastólica | `≥ 140/90 mmHg` (sinal de hipertensão/pré-eclâmpsia) |
 | Modelo de sinais vitais | classe `high risk` |
 | Detecção visual na cicatriz | classe `ferida_alerta` com confiança `≥ 0.7` |
-| Fisioterapia (pose) | execução `incorreta` / regressão na amplitude |
 | Risco no áudio | categoria de risco com confiança `≥ 0.7` |
 | Achado no texto clínico | termo/categoria de risco identificado |
 

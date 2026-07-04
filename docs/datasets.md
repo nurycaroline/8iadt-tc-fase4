@@ -20,16 +20,7 @@
 
 > **Domínio:** o AZH Wound não é específico de cesárea, mas **feridas cirúrgicas têm aparência semelhante**. Documente a decisão e a limitação no relatório.
 
-## 2. Vídeo — fisioterapia / recuperação (pose)
-
-> Objetivo: usar **YOLOv8-pose** para acompanhar os exercícios de reabilitação no pós-parto.
-
-| Dataset | O que é | Por que usar | Link |
-|---------|---------|--------------|------|
-| **IntelliRehabDS** ⭐ | Movimentos de 29 sujeitos (pacientes e controles) via Kinect, com rótulo correto/incorreto | Bom para classificar execução do exercício | https://zenodo.org/records/4610859 |
-| **REHAB24-6** | Vídeo RGB + esqueleto 2D/3D, repetições corretas/incorretas | Alternativa com rótulo de qualidade | (buscar "REHAB24-6 dataset") |
-
-## 3. Sinais vitais (tabular / dados clínicos)
+## 2. Sinais vitais (tabular / dados clínicos)
 
 > Objetivo: classificar **risco materno / pré-eclâmpsia** a partir de PA, FC, glicemia e temperatura.
 
@@ -39,7 +30,7 @@
 | **Preeclampsia (sintético, HF)** | ~21 mil amostras focadas em pré-eclâmpsia (fatores de risco com odds ratios da literatura) | Mais volume/foco em pré-eclâmpsia | https://huggingface.co/datasets/electricsheepafrica/africa-synth-maternal-health-preeclampsia-dataset-all |
 | **Maternal health pregnancy (sintético, HF)** | 30 mil registros de pré-natal (PA, hemoglobina, glicemia, proteinúria, desfecho) | Cenários variados de risco | https://huggingface.co/datasets/LinderStacy-1/maternal-health-pregnancy |
 
-## 4. Áudio (consultas / relatos) — Fase 8 (análise dupla)
+## 3. Áudio (consultas / relatos) — Fase 8 (análise dupla)
 
 > Objetivo: **classificador acústico de violência** no som **e** transcrição reanalisada como texto
 > unificado. A depressão/ansiedade deixa de ser uma categoria de áudio por keyword e passa para os
@@ -59,7 +50,7 @@
 > treinado, a trilha acústica degrada para neutro e a violência ainda é captada pelo texto (DD10).
 > **Descartado:** `Androids Corpus`/`DEPAC` (a depressão migrou para o classificador de texto em PT).
 
-## 5. Texto clínico (NLP) — Fase 8 (depressão + violência ML)
+## 4. Texto clínico (NLP) — Fase 8 (depressão + violência ML)
 
 > Objetivo: além dos sinais de risco em laudos/evolução (PA alta, proteinúria, febre/dor na
 > cicatriz — por keywords), **classificar depressão e violência** com modelos **ML treinados em
@@ -81,5 +72,5 @@
 > keywords** quando o modelo ML está ausente. **Descartado:** `singhsandk/domestic-violence-dataset-prep`
 > (14 linhas, formato Q&A — inadequado para treino).
 
-## 6. Caso de exemplo sintético (gerado por você)
+## 5. Caso de exemplo sintético (gerado por você)
 Script Python que monta uma **paciente fictícia** combinando 1 amostra de cada modalidade num caso coerente (ex.: cicatriz com alerta + PA alta + áudio com sinal de risco + laudo com proteinúria). É o que torna a **fusão demonstrável** — ver [Fase 1, Tarefa 1.6](01-fase1-dados.md).

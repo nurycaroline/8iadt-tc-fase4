@@ -28,7 +28,6 @@ GATILHO_LABEL = {
     "sinais_vitais_risco": "Sinais vitais alterados",
     "texto_complicacao": "Complicação relatada no texto clínico",
     "texto_infeccao": "Relato de febre/dor na evolução clínica",
-    "fisioterapia_alterada": "Execução de fisioterapia alterada",
 }
 
 NIVEL_DISPLAY = {"ALTO": "ALTO", "MEDIO": "MÉDIO", "BAIXO": "BAIXO"}
@@ -63,7 +62,6 @@ DISCLAIMER = (
 # A ordem segue as modalidades; a chave casa com o objeto de requisição do contrato (§1).
 ROTULO_ARTEFATO = {
     "video_cicatriz_url": "Vídeo/imagem da cicatriz (frame de alerta)",
-    "video_fisioterapia_url": "Vídeo da fisioterapia",
     "csv_url": "Sinais vitais (CSV/gráfico)",
     "audio_url": "Áudio da consulta/relato",
     "texto_clinico": "Texto/laudo clínico",
@@ -100,10 +98,6 @@ def _linha_evidencia(evidencias: dict[str, Any]) -> list[str]:
         linhas.append(
             f"- Vídeo (cicatriz): {cic.get('evento')} (confiança {cic.get('confianca')})"
         )
-    fis = evidencias.get("video_fisioterapia")
-    if fis:
-        amp = f", amplitude {fis['amplitude']}" if fis.get("amplitude") else ""
-        linhas.append(f"- Vídeo (fisioterapia): {fis.get('execucao')}{amp}")
     vit = evidencias.get("sinais_vitais")
     if vit:
         linhas.append(f"- Sinais vitais: {vit.get('tipo')} (valor {vit.get('valor')})")
@@ -254,7 +248,7 @@ def _secao_anexos(
 def _artefatos_da_requisicao(requisicao: dict[str, Any]) -> dict[str, str]:
     """Extrai as URLs/caminhos dos artefatos do objeto de requisição (contrato §1) p/ os anexos."""
     artefatos: dict[str, str] = {}
-    for chave in ("video_cicatriz_url", "video_fisioterapia_url", "audio_url"):
+    for chave in ("video_cicatriz_url", "audio_url"):
         if requisicao.get(chave):
             artefatos[chave] = requisicao[chave]
     dados_vitais = requisicao.get("dados_vitais") or {}

@@ -24,7 +24,6 @@ flowchart TD
     subgraph IA["Motor de IA — Python + FastAPI"]
         API["POST /inferencia<br/>(pipeline)"]
         M1["Cicatriz<br/>YOLOv8"]
-        M2["Fisioterapia<br/>YOLOv8-pose"]
         M3["Sinais vitais<br/>Random Forest"]
         M4["Áudio<br/>Whisper + regras"]
         M5["Texto/NLP<br/>regras/palavras-chave"]
@@ -34,8 +33,8 @@ flowchart TD
 
     N -->|salva artefatos| STO
     N -->|HTTP POST /inferencia| API
-    API --> M1 & M2 & M3 & M4 & M5
-    M1 & M2 & M3 & M4 & M5 --> FUS
+    API --> M1 & M3 & M4 & M5
+    M1 & M3 & M4 & M5 --> FUS
     FUS --> REL
     FUS -->|JSON de risco<br/>contrato §2| N
     REL -->|relatorio_url| STO
@@ -50,7 +49,7 @@ flowchart TD
 2. **Armazenamento** — o Node grava os artefatos no **Azure Blob** ou no **storage local** (fallback da
    demo), por trás do mesmo adaptador (escolha por variável de ambiente).
 3. **Inferência** — o Node chama o **serviço Python (FastAPI)** em `POST /inferencia`; o pipeline roda os
-   modelos por modalidade (cicatriz, fisioterapia, sinais vitais, áudio, texto).
+   modelos por modalidade (cicatriz, sinais vitais, áudio, texto).
 4. **Fusão** — o **motor de fusão** cruza as evidências e decide **um** nível de risco explicável
    (`BAIXO`/`MEDIO`/`ALTO`) com os gatilhos acionados.
 5. **Relatório** — para o caso é gerado um **relatório automático** (Markdown → HTML/PDF) salvo no storage.

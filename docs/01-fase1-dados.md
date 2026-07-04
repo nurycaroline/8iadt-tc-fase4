@@ -4,7 +4,6 @@
 
 ## Resultado esperado (Definition of Done)
 - [ ] Amostra de **vídeo/imagem de cicatriz** (AZH Wound) baixada e convertida para o formato YOLO via script.
-- [ ] Amostra de **vídeo de fisioterapia** (IntelliRehabDS) preparada para YOLOv8-pose.
 - [ ] 5 amostras de **sinais vitais** (Maternal Health Risk) limpas e rotuladas.
 - [ ] 5 áudios de consulta/relato (ou sintéticos/abertos) transcritos.
 - [ ] 5 documentos de **texto clínico** (laudos/exames/evolução) rotulados.
@@ -24,14 +23,7 @@
 
 > **Observação sobre o domínio:** o AZH Wound não é específico de cesárea, mas **feridas cirúrgicas têm aparência semelhante**. Registrar essa decisão (e a limitação) no relatório técnico.
 
-## Tarefa 1.2 — Vídeo: fisioterapia / recuperação (pose)
-- **Dataset:** **IntelliRehabDS** (movimentos de 29 sujeitos rotulados como correto/incorreto, via Kinect). Ver [datasets.md](datasets.md).
-- **Passos:**
-  1. Baixar amostras de alguns exercícios.
-  2. Preparar para **YOLOv8-pose** (keypoints) ou usar os keypoints já fornecidos como referência.
-  3. Rotular as repetições como `correto / incorreto` para avaliar a qualidade do movimento.
-
-## Tarefa 1.3 — Sinais vitais (tabular)
+## Tarefa 1.2 — Sinais vitais (tabular)
 - **Dataset:** **Maternal Health Risk** (UCI) — 1.013 registros com PA sistólica/diastólica, glicemia, temperatura, batimentos e nível de risco (`low/mid/high`). Ver [datasets.md](datasets.md).
 - **Passos:**
   1. Baixar o CSV com **Pandas**.
@@ -39,7 +31,7 @@
   3. Usar o rótulo `RiskLevel` (baixo/médio/alto) como alvo.
   4. Extrair/normalizar features (PA sistólica/diastólica, glicemia, temperatura, FC).
 
-## Tarefa 1.4 — Áudio (consultas/relatos)
+## Tarefa 1.3 — Áudio (consultas/relatos)
 - **Fontes:** bases públicas de fala com depressão/ansiedade (**Androids Corpus**, **DEPAC**) e/ou **áudios sintéticos (TTS)** lendo falas de consulta; ou gravações próprias com consentimento simulado. Ver [datasets.md](datasets.md).
 - **Passos:**
   1. Coletar 5 áudios curtos representando: depressão pós-parto, ansiedade, fala neutra, sinais de violência, fadiga.
@@ -48,14 +40,14 @@
 
 > **Limitação honesta:** não há base só de depressão **pós-parto**. Usamos bases de depressão/ansiedade geral e explicamos isso no relatório.
 
-## Tarefa 1.5 — Texto clínico (NLP)
+## Tarefa 1.4 — Texto clínico (NLP)
 - **Fontes:** laudos/exames sintéticos, registros de pré-natal/puerpério e notas de evolução clínica (gerados ou anonimizados de bases públicas).
 - **Passos:**
   1. Reunir ~5 documentos de texto representando achados normais e de risco (ex.: PA alta, proteinúria, menção a febre/dor na cicatriz).
   2. Rotular trechos de interesse (termos de complicação, sintomas de risco).
   3. Padronizar em texto simples para o módulo de NLP da Fase 2.
 
-## Tarefa 1.6 — Caso de exemplo sintético (a "cola" da demo)
+## Tarefa 1.5 — Caso de exemplo sintético (a "cola" da demo)
 > No uso real, os dados são **da mesma paciente**. Mas os datasets públicos são de **pessoas diferentes**. Para demonstrar a fusão, montamos casos fictícios coerentes.
 - **Script Python** que monta um "paciente de exemplo" juntando **1 amostra de cada modalidade** (ex.: cicatriz com alerta + PA alta + áudio com sinal de risco + laudo com proteinúria).
 - Gera também variações **normais** (tudo dentro do esperado → risco BAIXO) e de **risco isolado** (só 1 modalidade alterada → risco MÉDIO).

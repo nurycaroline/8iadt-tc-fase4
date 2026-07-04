@@ -4,7 +4,7 @@
 
 ## 1. Objetivo
 - Dar **visão em tempo real** do risco de cada paciente monitorada.
-- Mostrar lado a lado as **modalidades** (vídeo da cicatriz, fisioterapia, sinais vitais, áudio, texto) e a **decisão da fusão**.
+- Mostrar lado a lado as **modalidades** (vídeo da cicatriz, sinais vitais, áudio, texto) e a **decisão da fusão**.
 - Disparar **alerta visual/sonoro** quando o risco for `MÉDIO`/`ALTO`.
 - Permitir **upload de caso** e **download do relatório automático**.
 
@@ -46,7 +46,6 @@
 - Cabeçalho com os dados do paciente (primeiro nome, idade, gestante/idade gestacional ou semanas de pós-parto).
 Layout em painéis por modalidade:
 - **Vídeo/foto da cicatriz** com *bounding box* do YOLO + badge (`ferida_ok` / `ferida_alerta`).
-- **Vídeo da fisioterapia** com *keypoints* do YOLOv8-pose + avaliação da execução (correta/incorreta, amplitude).
 - **Sinais vitais** (PA, FC, glicemia, temperatura) com **destaque de limiar** (ex.: PA≥140/90) e a classe de risco do modelo.
 - **Painel de áudio**: forma de onda + transcrição + badge da categoria (depressão pós-parto, ansiedade, violência...).
 - **Painel de texto/NLP**: laudo/exame/evolução com **trechos de risco destacados**.

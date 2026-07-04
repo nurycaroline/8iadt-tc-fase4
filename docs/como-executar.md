@@ -157,8 +157,8 @@ pip install -r scripts/requirements-data.txt
 python -m scripts.data_prep        # baixa/gera vitais, cicatriz (YOLO) e texto
 ```
 
-> Áudio e fisioterapia exigem amostras manuais em `data/audio/` e `data/video_fisioterapia/`. Sem elas, a
-> modalidade **degrada graciosamente** (é omitida), o que é esperado.
+> Áudio exige amostras manuais em `data/audio/`. Sem elas, a modalidade **degrada graciosamente**
+> (é omitida), o que é esperado.
 
 ## 7. Primeiro fluxo ponta-a-ponta
 
@@ -239,7 +239,7 @@ Passo a passo completo em [`deploy-azure.md`](deploy-azure.md).
 | Backend responde `502`/`504` em `/analisar` | `ai-service` indisponível/lento | confirme o `ai-service` (`curl :8000/health`); ajuste `AI_TIMEOUT_MS` |
 | `401` nas rotas de dados | `API_KEY` definido | envie o header `x-api-key`; ou remova `API_KEY` para a demo |
 | `503` em `/ready` ou nas rotas | dependência indisponível ou `AUTH_REQUIRED=true` sem `API_KEY` | verifique storage/DB; configure `API_KEY` |
-| Áudio/fisioterapia `nao_avaliado` | sem amostras manuais | esperado (degradação graciosa) — adicione amostras em `data/` |
+| Áudio `nao_avaliado` | sem amostras manuais | esperado (degradação graciosa) — adicione amostras em `data/audio/` |
 | Dashboard sem "tempo real conectado" | backend fora do ar ou proxy errado | confirme o backend `:3000` e o proxy do Vite |
 | `relatorio_url` nulo | libs de PDF ausentes | esperado em ambiente sem PDF — cai em HTML; no Docker o PDF é garantido |
 | Portas ocupadas (`8080`/`3000`/`8000`) | outro processo usando a porta | libere a porta ou ajuste o mapeamento no `docker-compose.yml`/`PORT` |

@@ -15,7 +15,7 @@ ucimlrepo>=0.0.7          # Maternal Health Risk (UCI id 863)
 datasets>=4.5
 huggingface-hub>=1.8
 
-# Imagem / formato YOLO (cicatriz, fisioterapia)
+# Imagem / formato YOLO (cicatriz)
 opencv-python>=4.10
 Pillow>=10.4
 ultralytics>=8.3

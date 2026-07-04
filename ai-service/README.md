@@ -33,7 +33,6 @@ ai-service/
 │   ├── limiares.py        # gatilhos clínicos (Tarefa 2.7)
 │   ├── sinais_vitais/     # Random Forest (treino + inferência)
 │   ├── cicatriz/          # YOLOv8 (treino + export ONNX + inferência)
-│   ├── fisioterapia/      # YOLOv8-pose + ângulos/amplitude
 │   ├── audio/             # transcrição (Whisper) + classificação
 │   ├── texto/             # NLP por regras/palavras-chave
 │   ├── baseline.py        # baseline por modalidade única (Tarefa 2.6)
@@ -57,7 +56,6 @@ ai-service/
 | Cicatriz (export) | `python -m app.cicatriz.exportar`    | gera `models/cicatriz/best.onnx`                      |
 | Texto/NLP     | `python -m app.texto.treino` (Fase 8)    | `app.texto.nlp.analisar(texto)`                       |
 | Áudio         | `python -m app.audio.treino` (Fase 8)    | `app.audio.classificacao.inferir(caminho)`            |
-| Fisioterapia  | — (pose)                                 | `app.fisioterapia.inferencia.avaliar(fonte)`          |
 | Baseline      | `python -m app.baseline`                 | gera `models/baseline.json`                           |
 
 > **Fase 8 (áudio/texto unificado):** o texto usa classificadores **ML** de depressão/violência
@@ -131,5 +129,5 @@ geometria de pose, métricas do baseline). Treino/IO/ASR/export são validados p
   (mais dados/épocas em GPU/Colab) para gerar detecções confiáveis acima do limiar.
 - **Domínio da cicatriz:** AZH Wound (feridas cirúrgicas) como proxy de cesárea; classe
   `ferida_alerta` mapeada para `sinal_infeccao`.
-- **Áudio/fisioterapia:** dependem de amostras de obtenção manual (Fase 1); os módulos degradam para
+- **Áudio:** depende de amostras de obtenção manual (Fase 1); os módulos degradam para
   `neutro`/`nao_avaliado` quando faltam dados/pesos, sem quebrar o pipeline.

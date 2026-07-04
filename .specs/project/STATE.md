@@ -6,6 +6,14 @@
 
 ## Fase atual
 
+**Remoção da modalidade `video_fisioterapia` (YOLOv8-pose) — 2026-07-04**
+A análise de vídeo de fisioterapia foi removida completamente do projeto (código, testes, banco,
+contrato de API, frontend e documentação avaliada). A análise de vídeo obrigatória (cicatriz,
+YOLOv8) permanece intacta. Os documentos históricos em `.specs/features/*` não foram alterados
+(registro histórico de planejamento por fase). As métricas de fusão não foram afetadas (nenhum
+caso de teste dependia de `video_fisioterapia` para elevar o risco). Regenerados:
+`ai-service/models/metricas_fusao.json` e `docs/relatorio/e2e-log.txt`.
+
 **Fase 8 — Áudio/Texto Unificado (depressão e violência)** — **implementada + modelos treinados**.
 Spec em [`.specs/features/fase8-audio-texto-unificado/spec.md`](../features/fase8-audio-texto-unificado/spec.md)
 e doc [`docs/11-fase8-audio-texto-unificado.md`](../../docs/11-fase8-audio-texto-unificado.md). Troca a

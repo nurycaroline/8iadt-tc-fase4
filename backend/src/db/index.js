@@ -31,7 +31,6 @@ function migrar(db) {
       id TEXT PRIMARY KEY,
       paciente_id TEXT NOT NULL,
       video_cicatriz_url TEXT,
-      video_fisioterapia_url TEXT,
       audio_url TEXT,
       sinais_vitais_csv_url TEXT,
       texto_clinico TEXT,

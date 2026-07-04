@@ -32,7 +32,6 @@ class RequisicaoInferencia(BaseModel):
     case_id: str
     paciente: Paciente
     video_cicatriz_url: str | None = None
-    video_fisioterapia_url: str | None = None
     dados_vitais: DadosVitais | None = None
     audio_url: str | None = None
     texto_clinico: str | None = None
