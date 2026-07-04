@@ -1,76 +1,66 @@
-# Tech Challenge Fase 4 — IA Multimodal para Saúde da Mulher (8IADT)
+# IA Multimodal para Saúde da Mulher (8IADT)
 
-Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada): a paciente envia, de casa, **áudio** (relato/consulta), **vídeo** (cicatriz da cesárea), **sinais vitais** (pressão, batimentos, glicemia) e **texto** (laudos/exames). O sistema faz a **fusão multimodal** desses dados para detectar **sinais precoces de risco** e gerar **alertas clínicos em tempo real**, com integração à **nuvem (Azure)**.
-
-> Projeto **implementado de ponta a ponta** (Fases 1–7): dados → modelos → fusão → API → alerta em tempo real → relatório automático → privacidade/segurança (LGPD), com Docker, testes e CI. Para rodar do zero, veja **[Como rodar a stack](#como-rodar-a-stack)** (resumo) ou o guia detalhado **[`docs/como-executar.md`](docs/como-executar.md)**. Para validar a entrega, siga o **[plano de teste manual](docs/plano-de-teste-manual.md)**. O histórico de planejamento por fases está em **[`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md)** e em [`.specs/`](.specs/).
+Solução de IA que faz o **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada): a paciente envia, de casa, **áudio** (relato/consulta), **vídeo** (cicatriz da cesárea), **sinais vitais** (pressão, batimentos, glicemia) e **texto** (laudos/exames). O sistema faz a **fusão multimodal** desses dados para detectar **sinais precoces de risco** e gerar **alertas clínicos em tempo real**.
 
 > ⚠️ **Disclaimer ético.** Esta é uma solução **acadêmica de apoio à decisão clínica**. **Não realiza diagnóstico** nem substitui a avaliação de profissionais de saúde, e **não deve ser usada em ambiente real** sem validação clínica e regulatória adequada. Dados de saúde são **sensíveis** pela LGPD — o repositório usa **apenas dados sintéticos** e os controles de privacidade/segurança estão descritos em [privacidade e segurança (LGPD)](docs/07-privacidade-e-seguranca.md).
 
-## Estrutura do repositório
+## A dor que a solução resolve
+
+No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risco (infecção da cicatriz, pré-eclâmpsia, depressão pós-parto, violência) aparecem aos poucos e ficam **espalhados** em sistemas e pessoas diferentes. Quando alguém cruza tudo, a complicação já aconteceu. Esta solução é o "cérebro" que **junta as modalidades da mesma paciente** e **alerta cedo** a equipe.
+
+## O que a solução faz
+
+- **Análise por modalidade:** visão computacional da cicatriz da cesárea (YOLOv8), transcrição e análise de áudio (Whisper + NLP), leitura de sinais vitais e interpretação de texto clínico (laudos/exames).
+- **Fusão multimodal:** combina os sinais de todas as modalidades da mesma paciente em um **escore de risco** único (`BAIXO`/`MEDIO`/`ALTO`).
+- **Alerta em tempo real:** quando a fusão fecha risco `MEDIO`/`ALTO`, dispara um alerta para a equipe (WebSocket/SSE) e o exibe no dashboard.
+- **Dashboard de monitoramento:** lista/entrada de pacientes, envio de caso, detalhe por modalidade e visão da fusão, com alerta ao vivo.
+- **Relatórios automáticos:** gera um resumo clínico do caso, exportável para PDF/HTML.
+- **Privacidade e segurança (LGPD):** autenticação por chave, TLS na borda, auditoria de acesso, retenção configurável e gestão de segredos fora do código — tudo opt-in, preservando a demo local.
+
+## Como funciona
+
+Três serviços trabalham juntos:
+
+```
+frontend/    # Dashboard (React + Vite + TS): monitoramento e alerta em tempo real
+backend/     # Orquestrador (Node/Express): upload, storage, persistência, alertas
+ai-service/  # Motor de IA (Python/FastAPI): modelos por modalidade, fusão, relatório, métricas
+```
+
+O fluxo típico: a paciente/equipe envia um caso pelo **dashboard** → o **backend** guarda os artefatos (storage local) e chama o **motor de IA** → o `ai-service` analisa cada modalidade, faz a **fusão** e devolve o **escore de risco** → o backend **persiste** o resultado e **emite o alerta** em tempo real quando o risco é relevante.
+
+### Estrutura do repositório
 
 ```
 ai-service/   # Motor de IA (Python/FastAPI): modelos por modalidade, fusão, relatório, métricas
 backend/      # Orquestrador (Node/Express): upload, storage, persistência, alerta em tempo real
-frontend/     # Dashboard de produção (React+Vite+TS): monitoramento + alerta em tempo real (Fase 5)
+frontend/     # Dashboard de produção (React+Vite+TS): monitoramento + alerta em tempo real
 docs/         # Documentação: arquitetura, contrato de API, relatório técnico, roteiro do vídeo
-scripts/      # Preparação de dados (Fase 1), demo E2E e utilitários
+scripts/      # Preparação de dados, demo E2E e utilitários
 data/         # Datasets sintéticos/públicos versionados (rodar/treinar sem baixar); sem dados reais (LGPD)
 ```
 
-Dependências com **versões fixadas** em [`ai-service/requirements.txt`](ai-service/requirements.txt) (Python) e
-[`backend/package.json`](backend/package.json) (Node). Os **pesos de modelo** (`best.pt`, `*.joblib`, via
-**Git LFS**) e os **datasets sintéticos/públicos** são versionados para permitir rodar e retreinar **sem
-baixar**; **nenhum dado real de paciente** entra no Git — o job "conformidade" do CI garante isso
-([`scripts/check_conformidade.py`](scripts/check_conformidade.py)). Ver [`.gitignore`](.gitignore) e
-[privacidade/LGPD](docs/07-privacidade-e-seguranca.md).
+Dependências com **versões fixadas** em [`ai-service/requirements.txt`](ai-service/requirements.txt) (Python) e [`backend/package.json`](backend/package.json) (Node). Os **pesos de modelo** (`best.pt`, `*.joblib`, via **Git LFS**) e os **datasets sintéticos/públicos** são versionados para permitir rodar e retreinar **sem baixar**; **nenhum dado real de paciente** entra no Git — o job "conformidade" do CI garante isso ([`scripts/check_conformidade.py`](scripts/check_conformidade.py)).
 
-## A dor que a solução resolve
-No pós-parto a mãe vai para casa e o acompanhamento enfraquece. Sinais de risco (infecção da cicatriz, pré-eclâmpsia, depressão pós-parto, violência) aparecem aos poucos e ficam **espalhados** em sistemas e pessoas diferentes. Quando alguém cruza tudo, a complicação já aconteceu. Esta solução é o "cérebro" que **junta as modalidades da mesma paciente** e **alerta cedo** a equipe.
+## Stack
 
-## Por onde começar
-1. Leia o [plano mestre](PLANO_DE_DESENVOLVIMENTO.md).
-2. Confirme o escopo em [`docs/00-visao-geral-e-escopo.md`](docs/00-visao-geral-e-escopo.md).
-3. Comece a Fase 1 pelo mini-dataset: [`docs/01-fase1-dados.md`](docs/01-fase1-dados.md).
-
-## Documentação
-- **[Como executar o projeto](docs/como-executar.md)** (guia detalhado: Docker, local, dados, testes, LGPD) · **[Plano de teste manual](docs/plano-de-teste-manual.md)** (validação das Fases 1–7)
-- [Plano de desenvolvimento (índice)](PLANO_DE_DESENVOLVIMENTO.md)
-- [Visão geral e escopo](docs/00-visao-geral-e-escopo.md)
-- [Fase 1 — Dados](docs/01-fase1-dados.md)
-- [Fase 2 — Modelos](docs/02-fase2-modelos.md)
-- [Fase 3 — Fusão e Nuvem](docs/03-fase3-fusao-e-nuvem.md)
-- [Fase 4 — Entregáveis](docs/04-fase4-entregaveis.md)
-- [Fase 5 — Produção, Escala e Robustez](docs/08-fase5-producao-e-escala.md) _(dashboard, reforço de vitais, hardening)_
-- **[Relatório técnico](docs/relatorio-tecnico.md)** (6 seções) · **[Roteiro do vídeo](docs/roteiro-video.md)** (≤15 min) · [Evidências consolidadas](docs/relatorio/)
-- [Fase 6 — Relatórios Automáticos](docs/09-fase6-relatorios-automaticos.md) · [Fase 7 — Privacidade e Segurança (LGPD)](docs/10-fase7-privacidade-e-seguranca.md) _(auth, TLS, auditoria, retenção, hardening)_
-- [Casos de uso](docs/casos-de-uso.md) · [Relatórios automáticos](docs/06-relatorios-automaticos.md) · [Privacidade e Segurança (LGPD)](docs/07-privacidade-e-seguranca.md)
-- [Motor de IA (`ai-service/`)](ai-service/README.md) — modelos (Fase 2) + fusão/API/relatório (Fase 3)
-- [Backend orquestrador (`backend/`)](backend/README.md) — Node/Express, upload, storage, alerta em tempo real
-- [Arquitetura](docs/arquitetura.md) · [Front-end (dashboard)](docs/frontend.md) · [Contrato de API](docs/contrato-api.md) · [Datasets](docs/datasets.md)
-- [Deploy na Azure](docs/deploy-azure.md) · [Qualidade: Docker, testes e CI](docs/qualidade-testes-ci.md) · [Plano de teste manual](docs/plano-de-teste-manual.md) · [Cronograma por dependências](docs/cronograma-dependencias.md) · [Glossário](docs/glossario.md) · [Checklist](docs/05-checklist-entrega.md)
-
-## Stack prevista
 - **Backend/orquestrador:** Node.js + Express (alerta em tempo real via WebSocket/SSE)
-- **Motor de IA:** Python + FastAPI (YOLOv8, scikit-learn, Whisper/Azure Speech, NLP de texto)
-- **Nuvem:** Azure Blob Storage + App Service/Functions
+- **Motor de IA:** Python + FastAPI (YOLOv8, scikit-learn, Whisper, NLP de texto)
+- **Dashboard:** React + Vite + TypeScript
 - **Infra/qualidade:** Docker + docker-compose, testes (pytest/jest), CI (GitHub Actions)
 
 ## Como rodar a stack
 
-A stack tem **três serviços**: o motor de IA (Python/FastAPI), o orquestrador (Node/Express) e o
-dashboard (React/Vite). O resumo abaixo cobre o essencial; o **passo a passo completo** (portas,
-configuração, dados, testes, solução de problemas) está em [`docs/como-executar.md`](docs/como-executar.md).
+O resumo abaixo cobre o essencial; o **passo a passo completo** (portas, configuração, dados, testes, solução de problemas) está em [`docs/como-executar.md`](docs/como-executar.md).
 
 ### Com Docker (um comando)
 
 ```bash
-cp .env.example .env          # ajuste se for usar Azure; o padrão é storage local
+cp .env.example .env          # storage local por padrão
 docker compose up --build     # sobe ai-service (8000) e backend (3000)
 ```
 
-Com `docker compose up` o **dashboard** (Fase 5) sobe em `http://localhost:8080/`; o backend também
-expõe o cliente mínimo de fallback em `http://localhost:3000/`. Envie um caso em `POST /analisar` (ou pela
-tela "Enviar caso") e veja o alerta surgir quando a fusão fecha o risco `MEDIO`/`ALTO`.
+Com `docker compose up` o **dashboard** sobe em `http://localhost:8080/`; o backend também expõe o cliente mínimo de fallback em `http://localhost:3000/`. Envie um caso em `POST /analisar` (ou pela tela "Enviar caso") e veja o alerta surgir quando a fusão fecha o risco `MEDIO`/`ALTO`.
 
 ### Sem Docker (local)
 
@@ -87,9 +77,7 @@ cd backend && npm install && npm start
 cd frontend && npm install && npm run dev   # http://localhost:5173
 ```
 
-> **Dashboard (Fase 5):** painel de monitoramento com lista/entrada de pacientes, upload do caso,
-> **detalhe do caso** (painéis por modalidade + fusão) e **alerta em tempo real**. Em produção, o backend
-> serve o build de `frontend/dist`; detalhes em [`frontend/README.md`](frontend/README.md).
+> Em produção, o backend serve o build de `frontend/dist`; detalhes em [`frontend/README.md`](frontend/README.md).
 
 ### Demo ponta-a-ponta (em processo, sem subir a stack)
 
@@ -97,35 +85,30 @@ cd frontend && npm install && npm run dev   # http://localhost:5173
 python -m scripts.e2e_demo    # upload local → inferência → JSON de risco → alerta (log)
 ```
 
-> **Fallback local:** com `STORAGE_BACKEND=local` (padrão) tudo roda sem a Azure — garante a demo.
-> O deploy real na Azure está em [docs/deploy-azure.md](docs/deploy-azure.md).
+> **Fallback local:** com `STORAGE_BACKEND=local` (padrão) tudo roda em disco, sem serviços externos.
 
-### Privacidade e segurança (Fase 7 — LGPD)
+### Privacidade e segurança (LGPD)
 
-Os controles de privacidade/segurança ([`docs/07`](docs/07-privacidade-e-seguranca.md)) são **opt-in por
-variável de ambiente**, preservando a demo local sem credenciais:
+Os controles de privacidade/segurança ([`docs/07`](docs/07-privacidade-e-seguranca.md)) são **opt-in por variável de ambiente**, preservando a demo local sem credenciais:
 
-- **Autenticação (F7-01):** defina `API_KEY` para exigir o header `x-api-key` nas rotas de dados, e
-  `AI_SERVICE_API_KEY` para proteger o `ai-service`. Sem essas variáveis, a demo segue aberta (`/health` e
-  `/ready` são sempre públicos).
-- **TLS na borda (F7-02):** `./scripts/gerar-cert-dev.sh` e
-  `docker compose -f docker-compose.yml -f docker-compose.tls.yml up` (HTTPS em `:8443`, HSTS).
-- **Auditoria (F7-03):** acessos a casos/relatórios e análises ficam na tabela `auditoria` (quem/quando/qual
-  caso). Identidade do chamador via header `x-user-id`.
-- **Retenção (F7-04):** defina `RETENTION_DAYS` e rode `npm run retencao` (no `backend/`) — remove casos e
-  artefatos expirados; `0` (padrão) desabilita.
-- **Segredos (F7-07):** defina `AZURE_KEY_VAULT_URL` para carregar segredos do Azure Key Vault (fallback
-  `.env`).
+- **Autenticação:** defina `API_KEY` para exigir o header `x-api-key` nas rotas de dados, e `AI_SERVICE_API_KEY` para proteger o `ai-service`. Sem essas variáveis, a demo segue aberta (`/health` e `/ready` são sempre públicos).
+- **TLS na borda:** `./scripts/gerar-cert-dev.sh` e `docker compose -f docker-compose.yml -f docker-compose.tls.yml up` (HTTPS em `:8443`, HSTS).
+- **Auditoria:** acessos a casos/relatórios e análises ficam na tabela `auditoria` (quem/quando/qual caso). Identidade do chamador via header `x-user-id`.
+- **Retenção:** defina `RETENTION_DAYS` e rode `npm run retencao` (no `backend/`) — remove casos e artefatos expirados; `0` (padrão) desabilita.
 
 Todas as variáveis estão documentadas em [`.env.example`](.env.example).
 
-## Entregáveis da fase (Fase 4)
-- **Repositório Git** com código completo (este repo) — estrutura, deps fixadas, Docker, testes e CI.
-- **Relatório técnico:** [`docs/relatorio-tecnico.md`](docs/relatorio-tecnico.md) (6 seções) — exportável
-  para PDF/HTML via `python -m scripts.exportar_relatorio` (fallback HTML quando faltam libs de PDF).
-- **Vídeo de demonstração (≤ 15 min):** roteiro pronto em [`docs/roteiro-video.md`](docs/roteiro-video.md).
-  - 🎬 **Link do vídeo:** _[a publicar — YouTube/Vimeo "Não listado"; substituir este placeholder pelo link]_
+## Documentação
 
-Curso: Pós-Tech IA para Devs (8IADT) — Tech Challenge Fase 4.
+- **[Como executar o projeto](docs/como-executar.md)** — guia detalhado: Docker, local, dados, testes, LGPD.
+- [Visão geral e escopo](docs/00-visao-geral-e-escopo.md) · [Casos de uso](docs/casos-de-uso.md) · [Glossário](docs/glossario.md)
+- [Arquitetura](docs/arquitetura.md) · [Contrato de API](docs/contrato-api.md) · [Front-end (dashboard)](docs/frontend.md) · [Datasets](docs/datasets.md)
+- [Relatórios automáticos](docs/06-relatorios-automaticos.md) · [Privacidade e Segurança (LGPD)](docs/07-privacidade-e-seguranca.md)
+- [Qualidade: Docker, testes e CI](docs/qualidade-testes-ci.md) · [Plano de teste manual](docs/plano-de-teste-manual.md)
+- **Componentes:** [Motor de IA (`ai-service/`)](ai-service/README.md) · [Backend orquestrador (`backend/`)](backend/README.md) · [Dashboard (`frontend/`)](frontend/README.md)
+
+## Contexto acadêmico
+
+Projeto do curso **Pós-Tech IA para Devs (8IADT) — Tech Challenge Fase 4**. O histórico de planejamento e a divisão do desenvolvimento por fases estão em [`PLANO_DE_DESENVOLVIMENTO.md`](PLANO_DE_DESENVOLVIMENTO.md) e em [`.specs/`](.specs/); os entregáveis (relatório técnico e roteiro do vídeo) estão em [`docs/relatorio-tecnico.md`](docs/relatorio-tecnico.md) e [`docs/roteiro-video.md`](docs/roteiro-video.md).
 
 > ⚠️ Solução acadêmica de **apoio à decisão clínica** — não substitui avaliação médica. Ver [privacidade e segurança](docs/07-privacidade-e-seguranca.md).
