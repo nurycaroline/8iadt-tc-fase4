@@ -21,8 +21,8 @@
 | 4 | **Dashboard React** completo | STATE `ideias adiadas` / out-of-scope da Fase 4; [`frontend.md`](frontend.md) | Apenas **cliente mínimo** (HTML + socket.io) |
 | 5 | **Pré-eclâmpsia**: reforçar sinais vitais com dados sintéticos | STATE `ideias adiadas` | Modelo com métricas reais (acurácia≈0.65/F1≈0.62) |
 
-> **Permanece ação humana** (não é desenvolvimento desta fase): gravar/publicar o **vídeo** e preencher os
-> **integrantes** no README — itens `[ ]` do [checklist §Vídeo/§Antes de submeter](05-checklist-entrega.md).
+> **Permanece ação humana** (não é desenvolvimento desta fase): gravar/publicar o **vídeo** — item `[ ]`
+> do [checklist §Vídeo](05-checklist-entrega.md). (Projeto individual: sem seção de créditos/integrantes.)
 
 ## Estado da implementação
 

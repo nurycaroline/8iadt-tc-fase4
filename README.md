@@ -126,16 +126,6 @@ Todas as variáveis estão documentadas em [`.env.example`](.env.example).
 - **Vídeo de demonstração (≤ 15 min):** roteiro pronto em [`docs/roteiro-video.md`](docs/roteiro-video.md).
   - 🎬 **Link do vídeo:** _[a publicar — YouTube/Vimeo "Não listado"; substituir este placeholder pelo link]_
 
-## Créditos / Integrantes
-
-> Preencha os integrantes do grupo antes de submeter (não invente nomes).
-
-| Nome | RM | GitHub |
-| ---- | -- | ------ |
-| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
-| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
-| _\<preencher\>_ | _\<preencher\>_ | _\<preencher\>_ |
-
 Curso: Pós-Tech IA para Devs (8IADT) — Tech Challenge Fase 4.
 
 > ⚠️ Solução acadêmica de **apoio à decisão clínica** — não substitui avaliação médica. Ver [privacidade e segurança](docs/07-privacidade-e-seguranca.md).

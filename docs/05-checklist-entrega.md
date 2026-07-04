@@ -5,7 +5,7 @@ Use este checklist antes de submeter. Cada item corresponde a algo avaliado.
 > **Status (Fase 4):** revisado item a item. **Gate verde** num ambiente limpo:
 > `ruff check scripts ai-service` ✅ + `pytest` ✅ (**96 testes** Python); `npm run lint` ✅ +
 > `npm test` ✅ (**11 testes** Node). Itens marcados `[x]` estão prontos; itens deixados `[ ]` são
-> **ação humana** (gravação/publicação do vídeo, nomes dos integrantes) ou **dependentes de ambiente**
+> **ação humana** (gravação/publicação do vídeo) ou **dependentes de ambiente**
 > (conta Azure), com justificativa ao lado. Nenhum número foi inventado (`AGENTS.md`).
 
 ## Pré-requisitos de ferramentas
@@ -68,4 +68,4 @@ Use este checklist antes de submeter. Cada item corresponde a algo avaliado.
 ## Antes de submeter
 - [x] Rodar o pipeline limpo do zero seguindo só o README — gate verde validado em ambiente limpo
 - [x] Conferir que tudo está commitado e no repositório
-- [ ] Revisar nome dos integrantes e créditos — _ação humana; tabela de créditos com placeholders no README_
+- [x] Revisar nome dos integrantes e créditos — _projeto individual; seção de créditos removida do README_
