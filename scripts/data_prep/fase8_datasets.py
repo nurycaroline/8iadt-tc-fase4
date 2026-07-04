@@ -1,13 +1,13 @@
 """Pipeline de dados da **Fase 8** — baixa, traduz (EN→PT) e prepara os 3 datasets adotados.
 
-Datasets (Hugging Face; **licença não especificada** — registrar como risco; versionar só
-métricas/amostras, **nunca** os dados):
+Datasets (Hugging Face; **licença não especificada** — registrar como risco). Os dados sintéticos/
+públicos são versionados para reprodutibilidade (rodar/treinar sem baixar); **nunca** dados reais:
 
 - Depressão (texto): ``ShreyaR/DepressionDetection`` (`clean_text` + `is_depression`).
 - Violência (texto): ``Spiderman01/Domestic_violence_info_support_fromposts`` (só positivos).
 - Violência (acústico): ``Hemg/audio-based-violence-dataset`` (`audio` + `label`).
 
-Saídas (em ``data/`` — **ignorado pelo Git**, conforme política do repo):
+Saídas em ``data/`` — datasets sintéticos/públicos versionados (ver ``check_conformidade.py``):
 
 - ``data/texto_clinico/fase8/depressao_pt.csv`` — ``texto,label`` (1 = depressão).
 - ``data/texto_clinico/fase8/violencia_pt.csv`` — ``texto,label`` (1 = violência); **negativos**

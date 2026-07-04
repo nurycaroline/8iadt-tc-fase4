@@ -9,8 +9,8 @@ Princípios:
 
 - **Degrada sem quebrar** (DD10): modalidade ausente ou que falha internamente é **omitida** (campo
   opcional do contrato) e registrada no log — nunca derruba o caso.
-- **Reusa** as funções da Fase 2 via atributo de módulo (``detectar``/``avaliar``/``prever``/
-  ``inferir``/``analisar``), o que mantém o pipeline testável (basta substituir o atributo).
+- **Reusa** as funções da Fase 2 via atributo de módulo (``detectar``/``prever``/``inferir``/
+  ``analisar``), o que mantém o pipeline testável (basta substituir o atributo).
 - O relatório automático (Tarefa 3.3c) é gerado de forma **best-effort**: se o módulo/dependências
   estiverem indisponíveis, ``relatorio_url`` fica ``None`` sem quebrar o pipeline.
 """

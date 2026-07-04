@@ -97,7 +97,7 @@ Serviço Python (IA) → JSON de risco + relatorio_url
 │ Monitoramento            🟢 3   🟡 1   🔴 1                 │
 │ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐            │
 │ │Maria 🔴 │ │Júlia 🟡 │ │Ana   🟢 │ │Bia   🟢 │            │
-│ │Pós-parto│ │Pré-eclâ.│ │Pós-parto│ │Fisiot.  │            │
+│ │Pós-parto│ │Pré-eclâ.│ │Pós-parto│ │Pós-parto│            │
 │ └─────────┘ └─────────┘ └─────────┘ └─────────┘            │
 └───────────────────────────────────────────────────────────┘
 ```
@@ -109,11 +109,9 @@ Serviço Python (IA) → JSON de risco + relatorio_url
 │  ▢ ferida_alerta 0.86       │  PA 150/95  ⚠ ≥140/90         │
 │                             │  classe: pré-eclâmpsia        │
 ├────────────────────────────┼──────────────────────────────┤
-│  FISIOTERAPIA (pose)        │  TEXTO/LAUDO: "relato de febre │
-│  ⦿ execução: incorreta      │  e dor na cicatriz" (risco)    │
+│  ÁUDIO (acústico+texto)     │  TEXTO/LAUDO: "relato de febre │
+│  ▁▂▅▇▅▂▁ → depressão_pp     │  e dor na cicatriz" (risco)    │
 ├────────────────────────────┴──────────────────────────────┤
-│  ÁUDIO: "tom de tristeza" ▁▂▅▇▅▂▁  → depressão_pos_parto    │
-├─────────────────────────────────────────────────────────────┤
 │  FUSÃO:  🔴 RISCO ALTO   "Sinal de infecção + febre/dor"    │
 │          [ Ver relatório PDF ]                              │
 └─────────────────────────────────────────────────────────────┘

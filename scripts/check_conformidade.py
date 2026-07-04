@@ -4,7 +4,7 @@ Falha (exit != 0) quando o repositório versiona algo que não deveria:
 
 - o arquivo ``.env`` (segredos) está rastreado pelo Git;
 - chaves/certificados (``*.key``/``*.pem``/``*.crt``) estão rastreados;
-- arquivos sob ``data/`` fora da allowlist de metadados sintéticos leves;
+- arquivos sob ``data/`` fora da allowlist (só datasets sintéticos/públicos são versionados);
 - segredos óbvios embutidos em arquivos rastreados (chave privada PEM; connection string Azure
   com valor — exceto no ``.env.example``).
 
@@ -19,15 +19,25 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Arquivos sob data/ que PODEM ser versionados (metadados/refs sintéticos leves — espelha o
-# .gitignore). Qualquer outro arquivo rastreado em data/ é uma violação (risco de dado real).
+# Arquivos sob data/ que PODEM ser versionados. Qualquer outro arquivo rastreado em data/ é uma
+# violação (risco de dado real de paciente). A política do projeto é versionar apenas datasets
+# SINTÉTICOS/PÚBLICOS (para rodar/retreinar sem baixar) — nenhum dado real da solução entra no Git.
+# Ver data/README.md e docs/07-privacidade-e-seguranca.md §3.
 ALLOWLIST_DATA = (
+    # Metadados/refs leves e casos de demonstração.
     "data/README.md",
     "data/audio/metadados.json",
     "data/texto_clinico/rotulos.json",
     "data/video_cicatriz/data.yaml",
     "data/casos/*.json",
+    "data/casos/*.mp3",  # áudio de demonstração dos casos
     "data/**/.gitkeep",
+    # Datasets sintéticos/públicos versionados para reprodutibilidade (não são dados reais).
+    "data/sinais_vitais/*.csv",  # UCI Maternal Health (público/anonimizado)
+    "data/texto_clinico/*.txt",  # evoluções clínicas sintéticas
+    "data/texto_clinico/fase8/**",  # datasets de texto (traduzidos) + relatório da Fase 8
+    "data/audio/fase8/**",  # amostras acústicas de treino da Fase 8 (dataset público)
+    "data/video_cicatriz/*.zip",  # AZH Wound (dataset público de feridas)
 )
 
 SEGREDOS_PROIBIDOS = ("*.key", "*.pem", "*.crt")

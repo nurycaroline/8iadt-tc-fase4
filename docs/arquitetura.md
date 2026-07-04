@@ -8,7 +8,7 @@
 1. Upload      → usuário envia vídeo/áudio/sinais para a API Node.js
 2. Armazenamento → Node salva o arquivo no Azure Blob Storage
 3. Disparo     → Node chama o serviço Python (HTTP/REST ou fila RabbitMQ)
-4. Inferência  → Python baixa os arquivos, roda YOLO/YOLO-pose + sinais vitais + áudio + texto
+4. Inferência  → Python baixa os arquivos, roda YOLO (cicatriz) + sinais vitais + áudio + texto
 5. Resposta    → Python retorna JSON com o veredito (risco)
 6. Persistência→ Node grava no banco e dispara o alerta para o dashboard
 ```
@@ -104,7 +104,6 @@ classDiagram
       +string id
       +string pacienteId
       +string videoCicatrizUrl
-      +string videoFisioterapiaUrl
       +string audioUrl
       +string sinaisVitaisCsvUrl
       +string textoClinico

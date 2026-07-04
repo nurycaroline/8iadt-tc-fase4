@@ -1,28 +1,31 @@
 # `data/` — Mini-dataset da Fase 1
 
-> ⚠️ **Privacidade/LGPD:** este diretório é **ignorado pelo Git** (ver `.gitignore`). Versionamos
-> apenas a estrutura de pastas (`.gitkeep`), este README e pequenos metadados textuais
-> (`audio/metadados.json`, `texto_clinico/rotulos.json`, `casos/*.json`, `video_cicatriz/data.yaml`).
-> **Nunca** faça commit de dados brutos, imagens, áudios, vídeos ou dados reais de pacientes.
+> ⚠️ **Privacidade/LGPD:** este repositório versiona **apenas datasets sintéticos/públicos** (para
+> rodar e retreinar **sem baixar**) — jamais dados reais/identificáveis de pacientes da solução. O que
+> pode entrar no Git em `data/` é controlado pela **allowlist** de `scripts/check_conformidade.py`
+> (job "conformidade" no CI). **Nunca** faça commit de dados reais de pacientes nem de segredos
+> (`.env`, chaves). Origem e licença de cada base estão na [tabela abaixo](#origem-e-licença-dos-datasets).
 
-Os dados são obtidos rodando os scripts de `scripts/data_prep/`. Baixe **apenas amostras** — nunca os
-datasets inteiros (política do projeto). Origem e licença de cada base estão na tabela abaixo (para o
-relatório técnico).
+Os dados também podem ser regenerados rodando os scripts de `scripts/data_prep/` (útil para atualizar as
+amostras). Origem e licença de cada base estão na tabela abaixo (para o relatório técnico).
 
 ## Layout
 
 ```
 data/
-├── sinais_vitais/      # CSV limpo do Maternal Health Risk
+├── sinais_vitais/      # CSV do Maternal Health Risk (UCI, público)
 ├── video_cicatriz/
-│   ├── images/         # amostras de imagem (ignoradas)
-│   ├── labels/         # rótulos no formato YOLOv8 (.txt)
-│   └── data.yaml       # classes + paths (versionado)
+│   ├── Train.zip       # amostras do AZH Wound (dataset público)
+│   ├── Test.zip        # amostras do AZH Wound (dataset público)
+│   └── data.yaml       # classes + paths (YOLOv8)
 ├── audio/
-│   └── metadados.json  # {arquivo, transcricao, categoria}
+│   ├── metadados.json  # {arquivo, transcricao, categoria}
+│   └── fase8/          # amostras acústicas de treino (Fase 8, dataset público)
 ├── texto_clinico/
-│   └── rotulos.json    # {arquivo, achado, trechos}
-└── casos/              # casos de exemplo sintéticos (JSON)
+│   ├── rotulos.json    # {arquivo, achado, trechos}
+│   ├── evolucao_*.txt  # evoluções clínicas sintéticas
+│   └── fase8/          # datasets de texto (EN→PT) + relatório da Fase 8
+└── casos/              # casos de exemplo sintéticos (JSON) + áudio de demo
 ```
 
 ## Como obter os dados

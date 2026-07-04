@@ -14,12 +14,14 @@ backend/      # Orquestrador (Node/Express): upload, storage, persistência, ale
 frontend/     # Dashboard de produção (React+Vite+TS): monitoramento + alerta em tempo real (Fase 5)
 docs/         # Documentação: arquitetura, contrato de API, relatório técnico, roteiro do vídeo
 scripts/      # Preparação de dados (Fase 1), demo E2E e utilitários
-data/         # Estrutura de dados (conteúdo ignorado pelo Git — LGPD); só metadados leves versionados
+data/         # Datasets sintéticos/públicos versionados (rodar/treinar sem baixar); sem dados reais (LGPD)
 ```
 
 Dependências com **versões fixadas** em [`ai-service/requirements.txt`](ai-service/requirements.txt) (Python) e
-[`backend/package.json`](backend/package.json) (Node). Pesos de modelo **não são versionados** (reprodutíveis
-pelo treino); só **métricas** e gráficos entram no Git — ver [`.gitignore`](.gitignore) e
+[`backend/package.json`](backend/package.json) (Node). Os **pesos de modelo** (`best.pt`, `*.joblib`, via
+**Git LFS**) e os **datasets sintéticos/públicos** são versionados para permitir rodar e retreinar **sem
+baixar**; **nenhum dado real de paciente** entra no Git — o job "conformidade" do CI garante isso
+([`scripts/check_conformidade.py`](scripts/check_conformidade.py)). Ver [`.gitignore`](.gitignore) e
 [privacidade/LGPD](docs/07-privacidade-e-seguranca.md).
 
 ## A dor que a solução resolve

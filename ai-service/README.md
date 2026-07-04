@@ -68,7 +68,6 @@ ai-service/
 | Modalidade    | Dicionário de evidência                                                        |
 | ------------- | ------------------------------------------------------------------------------ |
 | Cicatriz      | `{"evento": ferida_ok\|sinal_infeccao\|nenhum, "confianca": 0..1}`            |
-| Fisioterapia  | `{"execucao": correta\|incorreta\|nao_avaliado, "amplitude": ...}`            |
 | Sinais vitais | `{"tipo": normal\|risco_medio\|hipertensao\|pre_eclampsia, "valor": "150/95"}`|
 | Áudio         | `{"acustico": {rotulo, confianca}, "transcricao", "texto": {…}, "categoria"(legado), "confianca"(legado)}` |
 | Texto         | `{"achado": complicacao\|sinal_infeccao\|neutro, "trecho", "depressao": {rotulo, confianca}, "violencia": {rotulo, confianca}}` |
@@ -120,7 +119,7 @@ pytest -q
 ```
 
 Os testes cobrem as **funções puras** (schemas, limiares, derivações, NLP, classificação de áudio,
-geometria de pose, métricas do baseline). Treino/IO/ASR/export são validados por execução (smoke).
+métricas do baseline). Treino/IO/ASR/export são validados por execução (smoke).
 
 ## Limitações (registrar no relatório técnico)
 

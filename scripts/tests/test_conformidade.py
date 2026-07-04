@@ -16,7 +16,22 @@ def test_allowlist_data_permite_metadados_sinteticos():
     assert violacoes_dados(arquivos) == []
 
 
+def test_allowlist_permite_datasets_sinteticos_versionados():
+    # Datasets sintéticos/públicos versionados para reprodutibilidade (rodar/treinar sem baixar).
+    arquivos = [
+        "data/audio/fase8/violencia/audio_0000.wav",
+        "data/audio/fase8/violencia/manifest.csv",
+        "data/sinais_vitais/maternal_clean.csv",
+        "data/texto_clinico/evolucao_01.txt",
+        "data/texto_clinico/fase8/violencia_pt.csv",
+        "data/video_cicatriz/Train.zip",
+        "data/casos/audio-violencia.mp3",
+    ]
+    assert violacoes_dados(arquivos) == []
+
+
 def test_data_fora_da_allowlist_e_violacao():
+    # Um CSV solto em data/casos/ ou áudio fora da pasta de treino ainda é violação (dado real).
     arquivos = ["data/casos/paciente_real.csv", "data/audio/gravacao.wav"]
     assert set(violacoes_dados(arquivos)) == set(arquivos)
 

@@ -1,18 +1,12 @@
 # ──────────────────────────────────────────────────────────────
-# Dados (LGPD): nunca versionar dados brutos/sensíveis de pacientes.
-# Versionamos apenas a estrutura de pastas e pequenos metadados textuais.
-# Ver docs/01-fase1-dados.md e docs/07-privacidade-e-seguranca.md
+# Dados (LGPD): NUNCA versionar dados reais/sensíveis de pacientes.
+# Este repositório versiona apenas datasets SINTÉTICOS/PÚBLICOS
+# (UCI, AZH Wound, datasets HF traduzidos, casos de demo), para
+# rodar e retreinar sem baixar. O guardrail é o check
+# scripts/check_conformidade.py (job "conformidade" no CI): bloqueia
+# segredos (.env, chaves) e qualquer arquivo em data/ fora da allowlist.
+# Ver data/README.md e docs/07-privacidade-e-seguranca.md §3.
 # ──────────────────────────────────────────────────────────────
-# /data/**
-
-# # Exceções: estrutura + metadados/refs versionáveis (texto leve)
-# !/data/**/
-# !/data/README.md
-!/data/**/.gitkeep
-# !/data/audio/metadados.json
-# !/data/texto_clinico/rotulos.json
-# !/data/casos/*.json
-# !/data/video_cicatriz/data.yaml
 
 # ── Python ──
 __pycache__/

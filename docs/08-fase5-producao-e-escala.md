@@ -45,7 +45,7 @@
 ou `docker compose up` (serviço `frontend` em :8080). Em produção o backend também serve `frontend/dist`.
 
 **Desbloqueio dos itens de ambiente (ação humana/infra):** rodar `scripts.data_prep` + treino em GPU para
-F5-01; obter amostras de áudio/pose para F5-02; provisionar Azure (`deploy-azure.md`) e rodar o smoke
+F5-01; obter amostras de áudio para F5-02; provisionar Azure (`deploy-azure.md`) e rodar o smoke
 pós-deploy para F5-03.
 
 ## Resultado esperado (Definition of Done)
@@ -107,7 +107,7 @@ pós-deploy para F5-03.
 ## Caminho crítico e paralelização
 
 - **Caminho crítico:** 5.1 (treino do YOLO é o item mais demorado — começar cedo) → 5.3 (deploy) → 5.6 (CI/CD do deploy).
-- **Paralelizável:** 5.2 (dados/áudio/pose), 5.4 (frontend) e 5.5 (vitais) podem correr em paralelo, pois
+- **Paralelizável:** 5.2 (dados/áudio), 5.4 (frontend) e 5.5 (vitais) podem correr em paralelo, pois
   dependem do contrato/artefatos já estáveis das Fases 2–3.
 - **Sem GPU/Azure?** As tarefas 5.1 e 5.3 degradam para o estado atual (smoke + fallback local) sem quebrar
   o gate — ver Edge Cases na [spec](../.specs/features/fase5-producao-e-escala/spec.md).
@@ -117,7 +117,7 @@ pós-deploy para F5-03.
 | Risco | Mitigação |
 |-------|-----------|
 | Sem GPU para treinar o YOLO | Usar Colab/GPU gratuita; manter smoke reprodutível como fallback documentado |
-| Datasets de áudio/pose exigem login/licença | Obtenção manual documentada ([`data/README.md`](../data/README.md)); degradar sem quebrar |
+| Datasets de áudio exigem login/licença | Obtenção manual documentada ([`data/README.md`](../data/README.md)); degradar sem quebrar |
 | Custo/limite da conta Azure | Tier gratuito; fallback local sempre disponível; deploy real como passo opcional |
 | Pesos grandes no Git | Git LFS **ou** métricas + script de download (decidir no Design) |
 | Regressão das Fases 2–4 | Gate verde obrigatório em toda mudança; `docker compose up` reprodutível |

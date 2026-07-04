@@ -16,7 +16,7 @@
 | **Cesárea** | Parto cirúrgico por incisão abdominal |
 | **Taquicardia** | Frequência cardíaca elevada |
 | **Hipotensão** | Pressão arterial baixa |
-| **Fisioterapia / Reabilitação** | Exercícios de recuperação física no pós-parto; acompanhados por vídeo (pose) |
+| **Fisioterapia / Reabilitação** | Exercícios de recuperação física no pós-parto |
 | **Depressão pós-parto** | Transtorno de humor após o parto; alvo do módulo de áudio |
 
 ## Termos técnicos

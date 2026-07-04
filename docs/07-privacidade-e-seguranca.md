@@ -23,10 +23,12 @@
 | Retenção | Política de expiração/limpeza de dados após o uso |
 
 ## 3. Dados no repositório Git
-- **Nunca** versionar dados reais de pacientes.
-- `data/` e `.env` no `.gitignore`.
-- Usar apenas **dados sintéticos/abertos** no repositório de demonstração.
-- Pesos de modelo grandes via **Git LFS** (não dados clínicos).
+- **Nunca** versionar dados reais/identificáveis de pacientes da solução.
+- Versionar **apenas datasets sintéticos/públicos** (UCI Maternal, AZH Wound, datasets HF traduzidos,
+  casos de demo), para permitir rodar e retreinar **sem baixar**. O que entra em `data/` é controlado
+  pela **allowlist** de `scripts/check_conformidade.py` (job "conformidade" no CI, F7-08).
+- `.env`, chaves e certificados **sempre** fora do Git (o check falha se algum for versionado).
+- Pesos de modelo grandes (`best.pt`, `*.joblib`) via **Git LFS** (não dados clínicos).
 
 ## 4. Dados sintéticos como estratégia de privacidade
 Usar dados sintéticos (o **caso de exemplo** que junta amostras numa paciente fictícia, sinais vitais e áudios em TTS) **resolve dois problemas de uma vez**: viabiliza a demonstração da fusão e elimina o risco de expor paciente real. Cite isso como decisão de privacidade no relatório.
@@ -35,7 +37,7 @@ Usar dados sintéticos (o **caso de exemplo** que junta amostras numa paciente f
 > Esta é uma solução acadêmica de **apoio à decisão clínica**. Não realiza diagnóstico nem substitui a avaliação de profissionais de saúde. Não deve ser usada em ambiente real sem validação clínica e regulatória adequada.
 
 ## 6. Checklist de conformidade
-- [x] Nenhum dado real de paciente no repositório — `.gitignore` cobre `data/`; verificação automática no CI (`scripts/check_conformidade.py`, F7-08)
+- [x] Nenhum dado real de paciente no repositório — só datasets sintéticos/públicos versionados (allowlist); `.env`/chaves fora do Git; verificação automática no CI (`scripts/check_conformidade.py`, F7-08)
 - [x] Credenciais fora do código (Key Vault / `.env`) — `.env` ignorado; carregamento opcional do **Azure Key Vault** com fallback `.env` (`backend/src/seguranca/segredos.js`, F7-07)
 - [x] HTTPS/TLS nas integrações — TLS opt-in na borda (`frontend/nginx.tls.conf` + `docker-compose.tls.yml`); Node↔Python aceita `https://`; fallback HTTP documentado (F7-02)
 - [x] Blob com criptografia + SAS token com expiração — SAS com `AZURE_SAS_EXPIRY_MINUTES` (`backend/src/storage/azureBlob.js`); criptografia server-side default do Azure

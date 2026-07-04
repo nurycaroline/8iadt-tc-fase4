@@ -45,7 +45,7 @@ Use este checklist antes de submeter. Cada item corresponde a algo avaliado.
 - [x] Estrutura em pastas (`/ai-service`, `/backend`, `/docs`, `/scripts`)
 - [x] `requirements.txt` e `package.json` com versões
 - [x] `README.md` com instruções de execução
-- [x] `.gitignore` (data, .env, pesos grandes ou Git LFS) — pesos via métricas (não LFS), DD-F4-7
+- [x] `.gitignore` (`.env`/chaves fora do Git) — pesos grandes (`best.pt`, `*.joblib`) via **Git LFS**; datasets sintéticos/públicos versionados; guardrail no CI (`check_conformidade.py`)
 - [x] **Disclaimer ético** visível — README e relatório técnico
 
 ## Relatório técnico

@@ -1,10 +1,10 @@
 """Carregamento **tolerante** de classificadores ML locais da Fase 8 (joblib).
 
 Os classificadores de depressão/violência (texto) e de violência acústica (áudio) são treinados
-offline (ver ``scripts/treino_*``) e salvos em ``ai-service/models/<modalidade>/<nome>.joblib``. Em
-produção/CI os pesos **não são versionados** (política do repo), então o carregamento precisa
-**degradar sem quebrar**: se o artefato não existir ou as libs de IA faltarem, devolve ``None`` e o
-módulo de inferência cai no fallback por palavras-chave (mesma filosofia DD10 das fases anteriores).
+offline (ver ``scripts/treino_*``) e salvos em ``ai-service/models/<modalidade>/<nome>.joblib``. Os
+pesos são versionados via **Git LFS**, mas o carregamento precisa **degradar sem quebrar** quando
+estiverem ausentes (ex.: o CI **não baixa** o conteúdo LFS) ou as libs de IA faltarem: nesses casos
+devolve ``None`` e o módulo de inferência cai no fallback por palavras-chave (filosofia DD10).
 """
 
 from __future__ import annotations

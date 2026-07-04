@@ -6,6 +6,25 @@
 
 ## Fase atual
 
+**Revisão final para entrega — 2026-07-04**
+Auditoria de entrega + correção do **CI vermelho**. Achados/decisões: (1) **ruff falhava** no notebook
+`ai-service/notebooks/cicatriz_yolo_colab.ipynb` (I001/B905/E501) → corrigido (`All checks passed`).
+(2) **Conformidade LGPD falhava** — 414 arquivos de `data/` versionados fora da allowlist (o `.gitignore`
+tinha a regra `/data/**` **comentada**). **Decisão do grupo:** *manter os dados no Git* (rodar/treinar sem
+baixar). Como são **datasets sintéticos/públicos** (UCI, AZH Wound, HF traduzidos, casos de demo) e não
+dados reais, a allowlist de `scripts/check_conformidade.py` foi **ampliada** (mantendo o bloqueio de
+`.env`/chaves/dados fora da allowlist), o `.gitignore` foi tornado honesto e os docs (`README`, `data/README`,
+`docs/07`, `docs/05`, `docs/11`, comentários) alinhados. (3) **3 testes de texto/áudio falhavam** quando os
+pesos LFS estão presentes (modelos ML **não generalizam** p/ as frases de teste e sobrepunham as keywords):
+`app/texto/nlp.py` passou a usar **keywords como rede de segurança** (OR com o ML) — casos clínicos claros
+sempre detectados, com ou sem pesos; sem regressão. (4) **Refs órfãs** ao `video_fisioterapia` removidas de
+9 docs de entrega + comentário do `pipeline.py` (registro histórico em `.specs/*` preservado). **Gates verdes**
+(Python 3.12): `ruff` OK, `pytest` **119**, `check_conformidade` OK (675 rastreados), Node **32**, Frontend
+**7**+build. **Observações:** o **vídeo** (entregável obrigatório) **não será gravado** (decisão do grupo — não
+mexido; roteiro segue em `docs/roteiro-video.md`); os **créditos/integrantes** no README seguem com placeholder;
+e a geração de **PDF via weasyprint** é *flaky localmente no macOS* (segfault de dylib nativa em `_tentar_pdf`;
+o `pytest` cai no fallback HTML — **inofensivo no CI Linux**, onde a corrida de pytest é verde).
+
 **Remoção da modalidade `video_fisioterapia` (YOLOv8-pose) — 2026-07-04**
 A análise de vídeo de fisioterapia foi removida completamente do projeto (código, testes, banco,
 contrato de API, frontend e documentação avaliada). A análise de vídeo obrigatória (cicatriz,
@@ -178,7 +197,7 @@ público simples) e aparecem como passos opcionais.
 | S2  | `requirements-data.txt` separado das deps do serviço de IA          | [F1 design DD2](../features/fase1-dados/design.md)             |
 | S3  | Caso sintético segue o objeto de requisição do contrato de API      | [F1 design DD4](../features/fase1-dados/design.md)             |
 | S4  | Testes unitários só em funções puras (limpeza/conversão/builder)    | [F1 design DD5](../features/fase1-dados/design.md)             |
-| S5  | `data/` ignorado pelo Git; só `data/README.md` versionado           | [F1 design DD7](../features/fase1-dados/design.md)             |
+| S5  | `data/` ignorado pelo Git; só `data/README.md` versionado. **Revisado (2026-07-04):** o grupo optou por **versionar datasets sintéticos/públicos** (rodar/treinar sem baixar); guardrail = allowlist do `check_conformidade.py` (bloqueia `.env`/chaves/dados reais) | [F1 design DD7](../features/fase1-dados/design.md)             |
 | S6  | **Python 3.13/3.12** (não 3.14): whisper não suporta 3.14 ainda     | [F1 design DD8](../features/fase1-dados/design.md)             |
 | S7  | Serviço de IA em `ai-service/app/`. **Revisado (2026-06-27):** os pesos treinados (`best.pt`, `*.joblib`) **passaram a ser versionados** — ver "Decisão pendente" sobre Git LFS | [F2 design DD1/DD4](../features/fase2-modelos/design.md)       |
 | S8  | Cada modalidade expõe `inferir() -> dict` do contrato de API §3     | [F2 design DD3](../features/fase2-modelos/design.md)           |
@@ -222,7 +241,7 @@ público simples) e aparecem como passos opcionais.
 - [x] Implementar a Fase 2 seguindo `tasks.md` (T1–T14). Gate verde (ruff + 63 testes).
 - [x] **Escalar o detector de cicatriz** (mais dados/épocas em GPU/Colab) — **concluído** (41 épocas,
       mAP50≈0.995, precisão/recall≈0.99; `best.pt` versionado).
-- [ ] Obter amostras de **áudio** e **fisioterapia** (manual) e rodar o baseline completo dessas modalidades.
+- [ ] Obter amostras de **áudio** (manual) e rodar o baseline completo dessa modalidade.
 - [x] Planejar a Fase 3 (spec → design → tasks em `.specs/features/fase3-fusao-e-nuvem/`).
 - [x] Implementar a Fase 3 seguindo `tasks.md` (T1–T18): fusão, pipeline, FastAPI, relatório, métricas,
       backend Node (CRUD + `/analisar` + alerta socket.io), storage Azure/local, Docker/compose, CI e E2E.

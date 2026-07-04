@@ -25,7 +25,6 @@ Função em Python que avalia os modelos simultaneamente, **para a mesma pacient
 | Sinais vitais de risco **E** áudio/texto com cefaleia/proteinúria | **Alerta Vermelho (ALTO) — risco de pré-eclâmpsia** |
 | Áudio com depressão pós-parto persistente | **Amarelo (MÉDIO) — encaminhamento psicológico** |
 | Áudio/texto com indício de violência | **Vermelho (ALTO) — protocolo de proteção** |
-| Fisioterapia regredindo + dor relatada | acrescenta contexto à recuperação |
 
 - Saída no formato do [contrato-api.md](contrato-api.md).
 - Princípio: **a IA não decide tudo sozinha** — a regra de negócio explícita torna o alerta explicável.

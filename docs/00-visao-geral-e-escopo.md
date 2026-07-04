@@ -8,7 +8,7 @@ A rede hospitalar quer **monitorar continuamente pacientes de saúde da mulher**
 
 ## 2. Escopo escolhido pelo grupo
 
-**Cenário clínico central:** **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada). A paciente, em casa, **envia periodicamente** seus dados (relato em áudio, foto/vídeo da cicatriz e dos exercícios, sinais vitais e laudos), e o sistema **cruza tudo** e alerta a equipe diante de **sinais precoces de risco**.
+**Cenário clínico central:** **acompanhamento contínuo da mulher no pós-parto** (e gestação avançada). A paciente, em casa, **envia periodicamente** seus dados (relato em áudio, foto/vídeo da cicatriz, sinais vitais e laudos), e o sistema **cruza tudo** e alerta a equipe diante de **sinais precoces de risco**.
 
 Esse recorte foi escolhido porque:
 - Casa com o **"monitorar continuamente"** e **"sinal precoce"** do enunciado (a paciente manda dados ao longo do tempo).

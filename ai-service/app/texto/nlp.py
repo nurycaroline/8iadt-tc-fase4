@@ -8,8 +8,9 @@ Combina três sinais numa única evidência (contrato §3, Fase 8):
 - ``violencia`` — classificador **ML** (idem), com geração de negativos no pipeline de dados.
 
 A depressão deixou de cair em ``complicacao`` (keyword): agora vive no sinal ``depressao`` para
-evitar dupla contagem na fusão. Se os modelos ML não estiverem presentes (pesos não versionados), a
-detecção de depressão/violência **degrada para palavras-chave** (DD10), sem quebrar.
+evitar dupla contagem na fusão. As **palavras-chave** funcionam como **rede de segurança** do
+classificador ML (casos clínicos claros são detectados mesmo quando o modelo, limitado, prevê
+negativo) e como **fallback** quando os pesos ML faltam (ex.: CI sem LFS) — DD10, sem quebrar.
 """
 
 from __future__ import annotations
@@ -159,11 +160,19 @@ def _classificar_keywords(
 def _detectar(
     texto: str, norm: str, nome: str, termos: tuple[str, ...], rotulo_positivo: str
 ) -> tuple[str, float]:
-    """Tenta o classificador ML; se ausente, cai no fallback por palavras-chave."""
+    """Combina classificador ML + palavras-chave.
+
+    O ML manda quando prevê **positivo**; as palavras-chave são uma **rede de segurança** para
+    casos clínicos claros que o modelo (limitado) perde. Sem o modelo (pesos ausentes, ex.: CI
+    sem LFS) decide só pelas palavras-chave (DD10). Não regride com nem sem o peso presente.
+    """
     ml = _classificar_ml(texto, nome, rotulo_positivo)
-    if ml is not None:
+    if ml is not None and ml[0] == rotulo_positivo:
         return ml
-    return _classificar_keywords(norm, termos, rotulo_positivo)
+    kw = _classificar_keywords(norm, termos, rotulo_positivo)
+    if kw[0] == rotulo_positivo:
+        return kw
+    return ml if ml is not None else kw
 
 
 def analisar(texto: str) -> dict[str, Any]:

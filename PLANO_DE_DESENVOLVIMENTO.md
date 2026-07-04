@@ -88,7 +88,7 @@ Os dados **não são análises soltas**. Eles são amarrados por três "colas":
 
 ## 5. Arquitetura em uma frase
 
-**Node.js** (orquestrador: upload, API, banco, dashboard, Azure Blob) **+** **Python/FastAPI** (motor de IA: YOLO/YOLO-pose, sinais vitais, áudio, texto) **+** **Azure** (Blob Storage + hospedagem). Detalhes em [`docs/arquitetura.md`](docs/arquitetura.md).
+**Node.js** (orquestrador: upload, API, banco, dashboard, Azure Blob) **+** **Python/FastAPI** (motor de IA: YOLO na cicatriz, sinais vitais, áudio, texto) **+** **Azure** (Blob Storage + hospedagem). Detalhes em [`docs/arquitetura.md`](docs/arquitetura.md).
 
 ```
 Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (FastAPI)
@@ -108,7 +108,7 @@ Usuário → API Node.js → Azure Blob (armazena) → chama Serviço Python (Fa
 | **2 — Modelos** | Treinar/validar cada IA isoladamente | 4 modelos funcionando individualmente com métricas |
 | **3 — Fusão + Nuvem** | Motor de regras + API + deploy Azure | Pipeline ponta-a-ponta rodando na nuvem |
 | **4 — Entregáveis** | Repo, relatório e vídeo | Tudo pronto para submissão |
-| **5 — Produção/Escala** _(rascunho)_ | Escalar modelos, completar áudio/pose, deploy Azure real, dashboard React | Solução de **demo-grade** elevada a **produção** (itens em aberto fechados) |
+| **5 — Produção/Escala** _(rascunho)_ | Escalar modelos, completar áudio, deploy Azure real, dashboard React | Solução de **demo-grade** elevada a **produção** (itens em aberto fechados) |
 | **6 — Relatórios Automáticos** | Especializar o relatório por tipo de risco, anexos com links reais, PDF garantido e preview no dashboard | Relatório do `docs/06` cumprido por completo (especializado + anexos navegáveis) — **implementada** |
 | **7 — Privacidade/Segurança** | Fechar a lacuna entre os controles de LGPD do `docs/07` e o código (auth, TLS, auditoria de acesso, retenção, pseudonimização, hardening) | Controles do `docs/07` implementados; §5 do relatório deixa de ser aspiracional — **implementada** |
 | **8 — Áudio/Texto Unificado** | Trilha **acústica** de violência + classificadores **ML** de depressão/violência (PT-BR, datasets EN traduzidos offline); texto/áudio unificados; sem Azure | Áudio com análise dupla, texto unificado, fusão com novos gatilhos — **implementada** |

@@ -168,7 +168,8 @@ Treino executado com os comandos acima; pesos e `metrics.json` versionados em `a
 
 ## Limitações honestas
 
-- Licenças dos 3 datasets **não especificadas** no HF (registrar risco; versionar só métricas).
+- Licenças dos 3 datasets **não especificadas** no HF (**risco** registrado; os dados são versionados
+  para reprodutibilidade — ver `data/README.md` §Origem e licença).
 - Domínio Reddit/Twitter (depressão/violência) **≠** pós-parto; a tradução EN→PT adiciona ruído.
 - Violência acústica pode se **perder na transcrição** → a trilha do som é separada.
 - Conjunto de violência em texto é pequeno (273) → mantém-se o **fallback por keywords**.
