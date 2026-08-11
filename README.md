@@ -101,6 +101,7 @@ Todas as variáveis estão documentadas em [`.env.example`](.env.example).
 ## Documentação
 
 - **[Como executar o projeto](docs/como-executar.md)** — guia detalhado: Docker, local, dados, testes, LGPD.
+- **[Aula: o que este projeto ensina](docs/aula-o-que-este-projeto-ensina.md)** — artigo didático para devs fullstack: modelos, stack, dados de treinamento, fusão, MLOps e LGPD.
 - [Visão geral e escopo](docs/00-visao-geral-e-escopo.md) · [Casos de uso](docs/casos-de-uso.md) · [Glossário](docs/glossario.md)
 - [Arquitetura](docs/arquitetura.md) · [Contrato de API](docs/contrato-api.md) · [Front-end (dashboard)](docs/frontend.md) · [Datasets](docs/datasets.md)
 - [Relatórios automáticos](docs/06-relatorios-automaticos.md) · [Privacidade e Segurança (LGPD)](docs/07-privacidade-e-seguranca.md)
